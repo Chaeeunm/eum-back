@@ -7,6 +7,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
+import com.eum.eum.common.annotation.CustomLog;
 import com.eum.eum.common.domain.EntityStatus;
 import com.eum.eum.meeting.domain.entity.Meeting;
 
@@ -27,6 +28,7 @@ public interface MeetingRepository extends JpaRepository<Meeting, Long> {
 		Pageable pageable);
 
 	//단건조회여도 fetch로 속도향상
+	@CustomLog({CustomLog.LogType.PERSISTENCE_CONTEXT, CustomLog.LogType.QUERY})
 	@Query("""
 		    select m 
 		    from Meeting m
@@ -35,4 +37,7 @@ public interface MeetingRepository extends JpaRepository<Meeting, Long> {
 		    where m.id = :meetingId
 		""")
 	Optional<Meeting> findByIdWithUsers(@Param("meetingId") Long meetingId);
+
+	@CustomLog({CustomLog.LogType.PERSISTENCE_CONTEXT, CustomLog.LogType.QUERY})
+	Optional<Meeting> findById(@Param("meetingId") Long meetingId);
 }

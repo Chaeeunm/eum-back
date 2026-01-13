@@ -7,6 +7,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import com.eum.eum.common.annotation.CustomLog;
 import com.eum.eum.common.domain.EntityStatus;
 import com.eum.eum.common.exception.ErrorCode;
 import com.eum.eum.common.exception.RestException;
@@ -65,7 +66,7 @@ public class MeetingService {
 		User user = userRepository.findByEmail(email)
 			.orElseThrow(() -> new RestException(ErrorCode.USER_NOT_FOUND, email));
 
-		Meeting targetMeeting = meetingRepository.findById(meetingId)
+		Meeting targetMeeting = meetingRepository.findByIdWithUsers(meetingId)
 			.orElseThrow(() -> new RestException(ErrorCode.DATA_NOT_FOUND, "일정", meetingId));
 
 		if (!meetingUserRepository.existsByMeetingIdAndUserId(meetingId, user.getId())) {
@@ -88,12 +89,17 @@ public class MeetingService {
 		return meetingPage.map(MeetingResponseDto::from);
 	}
 
+	@Transactional
 	public MeetingResponseDto getMeetingDetail(String email, Long meetingId) {
 		User user = userRepository.findByEmail(email)
 			.orElseThrow(() -> new RestException(ErrorCode.USER_NOT_FOUND, email));
 
-		Meeting targetMeeting = meetingRepository.findById(meetingId)
+		//영속성 컨텍스트 상태, 쿼리 비교
+		Meeting targetMeeting = meetingRepository.findByIdWithUsers(meetingId)
 			.orElseThrow(() -> new RestException(ErrorCode.DATA_NOT_FOUND, "일정", meetingId));
+
+		// Meeting targetMeeting = meetingRepository.findById(meetingId)
+		// 	.orElseThrow(() -> new RestException(ErrorCode.DATA_NOT_FOUND, "일정", meetingId));
 
 		if (!meetingUserRepository.existsByMeetingIdAndUserId(meetingId, user.getId())) {
 			throw new RestException(ErrorCode.ACCESS_DENIED);

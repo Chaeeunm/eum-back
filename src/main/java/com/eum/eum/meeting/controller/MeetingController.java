@@ -69,4 +69,13 @@ public class MeetingController {
 		return ResponseEntity.ok(meetingService.getMeetingList(user.getEmail(), page, size));
 	}
 
+	@GetMapping("/meeting/{meetingId}")
+	@Operation(summary = "약속 상세 조회 API", description = "약속을 상세 조회하는 API")
+	public ResponseEntity<MeetingResponseDto> getMeetingDetail(
+		@AuthenticationPrincipal User user,
+		@PathVariable(value = "meetingId") Long meetingId
+	) {
+		return ResponseEntity.ok(meetingService.getMeetingDetail(user.getEmail(), meetingId));
+	}
+
 }
