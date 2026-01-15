@@ -18,9 +18,9 @@ import com.eum.eum.common.exception.ErrorCode;
 import com.eum.eum.common.exception.RestException;
 import com.eum.eum.common.util.CookieUtil;
 import com.eum.eum.security.jwt.JwtTokenProvider;
-import com.eum.eum.user.domain.User;
-import com.eum.eum.user.domain.UserRepository;
-import com.eum.eum.user.domain.UserRole;
+import com.eum.eum.user.domain.entity.User;
+import com.eum.eum.user.domain.repository.UserRepository;
+import com.eum.eum.user.domain.entity.UserRole;
 
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.transaction.Transactional;

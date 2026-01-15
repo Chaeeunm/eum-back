@@ -20,22 +20,22 @@ public class MeetingResponseDto {
 	private String description;
 	@JsonFormat(pattern = "yyyy-MM-dd HH:mm")
 	private LocalDateTime meetAt;
-	private Double latitude;
-	private Double longitude;
+	private Double lat;
+	private Double lng;
 	private List<MeetingUserResponseDto> users;
 
 	// 기본 버전 (users 없음)
 	public static MeetingResponseDto from(Meeting meeting) {
-		Double lat = meeting.getLocation() != null ? meeting.getLocation().getLatitude() : null;
-		Double lng = meeting.getLocation() != null ? meeting.getLocation().getLongitude() : null;
+		Double lat = meeting.getLocation() != null ? meeting.getLocation().getLat() : null;
+		Double lng = meeting.getLocation() != null ? meeting.getLocation().getLng() : null;
 
 		return MeetingResponseDto.builder()
 			.id(meeting.getId())
 			.title(meeting.getTitle())
 			.description(meeting.getDescription())
 			.meetAt(meeting.getMeetAt())
-			.latitude(lat)
-			.longitude(lng)
+			.lat(lat)
+			.lng(lng)
 			.users(null) // 기본 버전에는 users 없음
 			.build();
 	}
@@ -43,16 +43,16 @@ public class MeetingResponseDto {
 	// 상세 버전 (users 포함)
 	//users까지 생성해야하니 users,user까지 fetch join된 쿼리를 사용할 것
 	public static MeetingResponseDto fromWithUsers(Meeting meeting, List<MeetingUserResponseDto> users) {
-		Double lat = meeting.getLocation() != null ? meeting.getLocation().getLatitude() : null;
-		Double lng = meeting.getLocation() != null ? meeting.getLocation().getLongitude() : null;
+		Double lat = meeting.getLocation() != null ? meeting.getLocation().getLat() : null;
+		Double lng = meeting.getLocation() != null ? meeting.getLocation().getLng() : null;
 
 		return MeetingResponseDto.builder()
 			.id(meeting.getId())
 			.title(meeting.getTitle())
 			.description(meeting.getDescription())
 			.meetAt(meeting.getMeetAt())
-			.latitude(lat)
-			.longitude(lng)
+			.lat(lat)
+			.lng(lng)
 			.users(users) // users 포함
 			.build();
 	}
@@ -62,16 +62,16 @@ public class MeetingResponseDto {
 			MeetingUserResponseDto::from
 		).toList();
 
-		Double lat = meeting.getLocation() != null ? meeting.getLocation().getLatitude() : null;
-		Double lng = meeting.getLocation() != null ? meeting.getLocation().getLongitude() : null;
+		Double lat = meeting.getLocation() != null ? meeting.getLocation().getLat() : null;
+		Double lng = meeting.getLocation() != null ? meeting.getLocation().getLng() : null;
 
 		return MeetingResponseDto.builder()
 			.id(meeting.getId())
 			.title(meeting.getTitle())
 			.description(meeting.getDescription())
 			.meetAt(meeting.getMeetAt())
-			.latitude(lat)
-			.longitude(lng)
+			.lat(lat)
+			.lng(lng)
 			.users(meetingUserResponseDtos) // users 포함
 			.build();
 	}

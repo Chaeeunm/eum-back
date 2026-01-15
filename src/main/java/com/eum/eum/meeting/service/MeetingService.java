@@ -1,13 +1,10 @@
 package com.eum.eum.meeting.service;
 
-import java.util.List;
-
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import com.eum.eum.common.annotation.CustomLog;
 import com.eum.eum.common.domain.EntityStatus;
 import com.eum.eum.common.exception.ErrorCode;
 import com.eum.eum.common.exception.RestException;
@@ -18,8 +15,8 @@ import com.eum.eum.meeting.domain.repository.MeetingUserRepository;
 import com.eum.eum.meeting.dto.MeetingCreateRequestDto;
 import com.eum.eum.meeting.dto.MeetingResponseDto;
 import com.eum.eum.meeting.dto.MeetingUpdateDto;
-import com.eum.eum.user.domain.User;
-import com.eum.eum.user.domain.UserRepository;
+import com.eum.eum.user.domain.entity.User;
+import com.eum.eum.user.domain.repository.UserRepository;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -56,7 +53,7 @@ public class MeetingService {
 		}
 
 		customBeanUtils.patch(updateDto, targetMeeting);
-		targetMeeting.updateLocation(updateDto.getLatitude(), updateDto.getLongitude());
+		targetMeeting.updateLocation(updateDto.getLat(), updateDto.getLng());
 
 		return MeetingResponseDto.from(targetMeeting);
 	}

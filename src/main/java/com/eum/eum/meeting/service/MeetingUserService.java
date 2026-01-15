@@ -1,14 +1,131 @@
 package com.eum.eum.meeting.service;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 import org.springframework.stereotype.Service;
 
+import com.eum.eum.common.exception.ErrorCode;
+import com.eum.eum.common.exception.RestException;
+import com.eum.eum.common.util.CustomBeanUtils;
+import com.eum.eum.meeting.domain.entity.Meeting;
+import com.eum.eum.meeting.domain.entity.MeetingUser;
+import com.eum.eum.meeting.domain.entity.MovementStatus;
+import com.eum.eum.meeting.domain.repository.MeetingRepository;
 import com.eum.eum.meeting.domain.repository.MeetingUserRepository;
+import com.eum.eum.meeting.dto.MeetingUserAddRequestDto;
+import com.eum.eum.meeting.dto.MeetingUserDeleteRequestDto;
+import com.eum.eum.meeting.dto.MeetingUserResponseDto;
+import com.eum.eum.meeting.dto.MeetingUserUpdateDto;
+import com.eum.eum.user.domain.entity.User;
+import com.eum.eum.user.domain.repository.UserRepository;
 
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
 public class MeetingUserService {
 	private final MeetingUserRepository meetingUserRepository;
+	private final MeetingRepository meetingRepository;
+	private final UserRepository userRepository;
+	private final CustomBeanUtils customBeanUtils;
 
+	@Transactional
+	public List<MeetingUserResponseDto> addUsersToMeeting(
+		Long meetingId,
+		MeetingUserAddRequestDto requestDto,
+		String email
+	) {
+		User requestUser = userRepository.findByEmail(email)
+			.orElseThrow(() -> new RestException(ErrorCode.USER_NOT_FOUND, email));
+
+		Meeting meeting = meetingRepository.findByIdWithUsers(meetingId)
+			.orElseThrow(() -> new RestException(ErrorCode.DATA_NOT_FOUND, "일정", meetingId));
+
+		if (!meetingUserRepository.existsByMeetingIdAndUserId(meetingId, requestUser.getId())) {
+			throw new RestException(ErrorCode.ACCESS_DENIED);
+		}
+
+		List<MeetingUser> newMeetingUsers = requestDto.getUserIds().stream()
+			.map(userId -> {
+				User user = userRepository.findById(userId)
+					.orElseThrow(() -> new RestException(ErrorCode.USER_NOT_FOUND, userId.toString()));
+
+				if (meetingUserRepository.existsByMeetingIdAndUserId(meetingId, userId)) {
+					throw new RestException(ErrorCode.INVALID_INPUT, "이미 약속에 참여중인 사용자입니다: " + userId);
+				}
+
+				MeetingUser meetingUser = MeetingUser.createAsParticipant(user);
+				meeting.addMeetingUser(meetingUser);
+				return meetingUser;
+			})
+			.toList();
+
+		return newMeetingUsers.stream()
+			.map(MeetingUserResponseDto::from)
+			.collect(Collectors.toList());
+	}
+
+	@Transactional
+	public boolean deleteMeetingUsers(
+		Long meetingId,
+		MeetingUserDeleteRequestDto requestDto,
+		String email
+	) {
+		User requestUser = userRepository.findByEmail(email)
+			.orElseThrow(() -> new RestException(ErrorCode.USER_NOT_FOUND, email));
+
+		Meeting meeting = meetingRepository.findByIdWithUsers(meetingId)
+			.orElseThrow(() -> new RestException(ErrorCode.DATA_NOT_FOUND, "일정", meetingId));
+
+		if (!meetingUserRepository.existsByMeetingIdAndUserId(meetingId, requestUser.getId())) {
+			throw new RestException(ErrorCode.ACCESS_DENIED);
+		}
+
+		List<MeetingUser> usersToRemove = requestDto.getUserIds().stream()
+			.map(userId -> {
+				MeetingUser targetMeetingUser = meeting.getUsers().stream()
+					.filter(mu -> mu.getUser().getId().equals(userId))
+					.findFirst()
+					.orElseThrow(() -> new RestException(ErrorCode.DATA_NOT_FOUND, "약속 참가자", userId));
+
+				if (targetMeetingUser.isCreator()) {
+					throw new RestException(ErrorCode.INVALID_INPUT, "생성자는 삭제할 수 없습니다");
+				}
+
+				return targetMeetingUser;
+			})
+			.toList();
+
+		meeting.getUsers().removeAll(usersToRemove);
+		return true;
+	}
+
+	@Transactional
+	public MeetingUserResponseDto updateMeetingUser(
+		Long meetingUserId,
+		MeetingUserUpdateDto updateDto,
+		String email
+	) {
+		User user = userRepository.findByEmail(email)
+			.orElseThrow(() -> new RestException(ErrorCode.USER_NOT_FOUND, email));
+
+		MeetingUser targetMeetingUser = meetingUserRepository.findById(meetingUserId)
+			.orElseThrow(() -> new RestException(ErrorCode.DATA_NOT_FOUND, "약속 참가자 정보", meetingUserId));
+
+		if (!targetMeetingUser.isOwner(user.getId())) {
+			throw new RestException(ErrorCode.ACCESS_DENIED);
+		}
+
+		customBeanUtils.patch(updateDto, targetMeetingUser);
+
+		MovementStatus movementStatus = updateDto.getMovementStatus();
+		switch (movementStatus) {
+			case MOVING -> targetMeetingUser.depart(updateDto.getDepartureLat(), updateDto.getDepartureLng());
+			case ARRIVED -> targetMeetingUser.arrive();
+		}
+
+		return MeetingUserResponseDto.from(targetMeetingUser);
+	}
 }

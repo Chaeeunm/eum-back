@@ -1,7 +1,7 @@
 package com.eum.eum.auth.dto;
 
-import com.eum.eum.user.domain.User;
-import com.eum.eum.user.domain.UserRole;
+import com.eum.eum.user.domain.entity.User;
+import com.eum.eum.user.domain.entity.UserRole;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

@@ -3,7 +3,6 @@ package com.eum.eum.meeting.dto;
 import java.time.LocalDateTime;
 
 import com.eum.eum.common.dto.Patchable;
-import com.eum.eum.location.Location;
 import com.eum.eum.meeting.domain.entity.Meeting;
 import com.fasterxml.jackson.annotation.JsonFormat;
 
@@ -19,8 +18,8 @@ public class MeetingUpdateDto implements Patchable<Meeting> {
 	@JsonFormat(pattern = "yyyy-MM-dd HH:mm")
 	@Schema(example = "2027-01-20 19:30")
 	private LocalDateTime meetAt;
-	private Double latitude;
-	private Double longitude;
+	private Double lat;
+	private Double lng;
 
 	@Override
 	public Class<Meeting> targetType() {

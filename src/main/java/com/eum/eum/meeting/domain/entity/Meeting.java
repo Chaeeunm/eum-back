@@ -8,8 +8,8 @@ import com.eum.eum.common.domain.BaseEntity;
 import com.eum.eum.common.domain.EntityStatus;
 import com.eum.eum.common.exception.ErrorCode;
 import com.eum.eum.common.exception.RestException;
-import com.eum.eum.location.Location;
-import com.eum.eum.user.domain.User;
+import com.eum.eum.location.domain.entity.Location;
+import com.eum.eum.user.domain.entity.User;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Embedded;
@@ -96,15 +96,15 @@ public class Meeting extends BaseEntity {
 			.orElseThrow(() -> new IllegalStateException("생성자가 없습니다"));
 	}
 
-	public void updateLocation(Double latitude, Double longitude) {
-		if (latitude != null || longitude != null) {
+	public void updateLocation(Double lat, Double lng) {
+		if (lat != null || lng != null) {
 			if (this.location == null) {
-				this.location = new Location(latitude, longitude);
+				this.location = new Location(lat, lng);
 			} else {
-				if (latitude != null)
-					this.location.setLatitude(latitude);
-				if (longitude != null)
-					this.location.setLongitude(longitude);
+				if (lat != null)
+					this.location.setLat(lat);
+				if (lng != null)
+					this.location.setLng(lng);
 			}
 		}
 	}

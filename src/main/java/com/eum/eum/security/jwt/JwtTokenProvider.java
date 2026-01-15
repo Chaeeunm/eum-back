@@ -5,6 +5,10 @@ import java.util.Date;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
 import io.jsonwebtoken.Claims;
@@ -189,6 +193,14 @@ public class JwtTokenProvider {
 	 */
 	public int getRefreshExpirationSeconds() {
 		return (int)(refreshExpiration / 1000);
+	}
+
+	public Authentication getAuthentication(UserDetails userDetails) {
+		return new UsernamePasswordAuthenticationToken(
+			userDetails,
+			null,
+			userDetails.getAuthorities()
+		);
 	}
 }
 

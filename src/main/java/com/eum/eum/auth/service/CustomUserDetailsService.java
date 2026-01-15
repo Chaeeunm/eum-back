@@ -5,8 +5,8 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
-import com.eum.eum.user.domain.User;
-import com.eum.eum.user.domain.UserRepository;
+import com.eum.eum.user.domain.entity.User;
+import com.eum.eum.user.domain.repository.UserRepository;
 
 import lombok.RequiredArgsConstructor;
 

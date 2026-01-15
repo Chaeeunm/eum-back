@@ -16,7 +16,7 @@ import com.eum.eum.meeting.dto.MeetingCreateRequestDto;
 import com.eum.eum.meeting.dto.MeetingResponseDto;
 import com.eum.eum.meeting.dto.MeetingUpdateDto;
 import com.eum.eum.meeting.service.MeetingService;
-import com.eum.eum.user.domain.User;
+import com.eum.eum.user.domain.entity.User;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;

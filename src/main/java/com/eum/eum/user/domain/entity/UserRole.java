@@ -1,4 +1,4 @@
-package com.eum.eum.user.domain;
+package com.eum.eum.user.domain.entity;
 
 import org.springframework.security.core.GrantedAuthority;
 

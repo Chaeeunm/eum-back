@@ -2,8 +2,7 @@ package com.eum.eum.meeting.dto;
 
 import java.time.LocalDateTime;
 
-import com.eum.eum.location.Location;
-import com.eum.eum.location.LocationResponseDto;
+import com.eum.eum.location.dto.LocationResponseDto;
 import com.eum.eum.meeting.domain.entity.MeetingUser;
 import com.eum.eum.meeting.domain.entity.MovementStatus;
 

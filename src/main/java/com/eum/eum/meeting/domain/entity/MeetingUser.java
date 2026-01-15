@@ -1,11 +1,11 @@
 package com.eum.eum.meeting.domain.entity;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
 import com.eum.eum.common.domain.BaseEntity;
-import com.eum.eum.location.Location;
-import com.eum.eum.user.domain.User;
+import com.eum.eum.common.util.LocationUtil;
+import com.eum.eum.location.domain.entity.Location;
+import com.eum.eum.user.domain.entity.User;
 
 import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
@@ -43,14 +43,20 @@ public class MeetingUser extends BaseEntity {
 	@Enumerated(EnumType.STRING)
 	private MovementStatus movementStatus;
 
+	private TransportType transportType; // 이동수단
+
 	private LocalDateTime departedAt;
 
 	private LocalDateTime arrivedAt;
 
 	@Embedded
-	private Location departureLocation;
+	private Location departureLocation; // 출발위치
 
 	private boolean isCreator;
+
+	// PAUSED 판단용
+	@Embedded
+	private MovementTracking tracking;
 
 	// 생성자용
 	public static MeetingUser createAsCreator(User user) {
@@ -70,11 +76,21 @@ public class MeetingUser extends BaseEntity {
 			.build();
 	}
 
-	public void updateLocation(Location location) {
-		this.departureLocation = location;
+	private void updateDepartureLocation(Double lat, Double lng) {
+		if (lat != null || lng != null) {
+			if (this.departureLocation == null) {
+				this.departureLocation = new Location(lat, lng);
+			} else {
+				if (lat != null)
+					this.departureLocation.setLat(lat);
+				if (lng != null)
+					this.departureLocation.setLng(lng);
+			}
+		}
 	}
 
-	public void depart() {
+	public void depart(Double lat, Double lng) {
+		updateDepartureLocation(lat, lng);
 		this.departedAt = LocalDateTime.now();
 		this.movementStatus = MovementStatus.MOVING;
 	}
@@ -84,7 +100,24 @@ public class MeetingUser extends BaseEntity {
 		this.movementStatus = MovementStatus.ARRIVED;
 	}
 
+	public void pause() {
+		this.movementStatus = MovementStatus.PAUSED;
+	}
+
+	//pause or arrive 판단
+	public void updateStatusByLastLocation(Double lastLat, Double lastLng, Location meetingLocation) {
+		if (meetingLocation.isWithin(this.departureLocation.getLat(), this.departureLocation.getLng(), 20)) {
+			arrive();
+		} else
+			pause();
+	}
+
+	public boolean isOwner(Long userId) {
+		return this.user.getId().equals(userId);
+	}
+
 	void setMeeting(Meeting meeting) {
 		this.meeting = meeting;
 	}
+
 }

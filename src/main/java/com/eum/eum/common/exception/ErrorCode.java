@@ -50,6 +50,17 @@ public enum ErrorCode {
 		"AUTH-006",
 		"이메일 또는 비밀번호가 올바르지 않습니다."
 	),
+	INVALID_TOKEN(
+		HttpStatus.UNAUTHORIZED,
+		"AUTH-007",
+		"유효하지 않은 token입니다. token : {0}"
+	),
+
+	UNAUTHORIZED(
+		HttpStatus.UNAUTHORIZED,
+		"AUTH-008",
+		"인증되지 않은 사용자입니다."
+	),
 
 	// ===== 접근 권한 (ACCESS) =====
 	ACCESS_DENIED(

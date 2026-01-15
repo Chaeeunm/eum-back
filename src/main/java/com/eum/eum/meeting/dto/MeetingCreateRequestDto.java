@@ -2,9 +2,9 @@ package com.eum.eum.meeting.dto;
 
 import java.time.LocalDateTime;
 
-import com.eum.eum.location.Location;
+import com.eum.eum.location.domain.entity.Location;
 import com.eum.eum.meeting.domain.entity.Meeting;
-import com.eum.eum.user.domain.User;
+import com.eum.eum.user.domain.entity.User;
 import com.fasterxml.jackson.annotation.JsonFormat;
 
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -19,11 +19,11 @@ public class MeetingCreateRequestDto {
 	@JsonFormat(pattern = "yyyy-MM-dd HH:mm")
 	@Schema(example = "2027-01-20 19:30")
 	private LocalDateTime meetAt;
-	private Double latitude;
-	private Double longitude;
+	private Double lat;
+	private Double lng;
 
 	public Meeting toEntity(User creator) {
-		Location location = new Location(longitude, latitude);
+		Location location = new Location(lat, lng);
 		return Meeting.create(title, description, meetAt, location, creator);
 	}
 }

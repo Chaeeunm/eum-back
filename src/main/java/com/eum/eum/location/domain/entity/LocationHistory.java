@@ -1,10 +1,10 @@
-package com.eum.eum.meeting.domain.entity;
+package com.eum.eum.location.domain.entity;
 
-import org.hibernate.id.IncrementGenerator;
+import java.time.LocalDateTime;
 
 import com.eum.eum.common.domain.BaseEntity;
-import com.eum.eum.location.Location;
-import com.eum.eum.user.domain.User;
+import com.eum.eum.meeting.domain.entity.MeetingUser;
+import com.eum.eum.meeting.domain.entity.MovementStatus;
 
 import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
@@ -23,11 +23,12 @@ public class LocationHistory extends BaseEntity {
 	private Long id;
 
 	@ManyToOne(fetch = FetchType.LAZY)
-	private User user;
-
-	@ManyToOne(fetch = FetchType.LAZY)
-	private Meeting meeting;
+	private MeetingUser meetingUser;
 
 	@Embedded
 	private Location location;
+
+	private LocalDateTime recordedAt;
+
+	private MovementStatus movementStatus;
 }
