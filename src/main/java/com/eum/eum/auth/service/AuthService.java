@@ -10,6 +10,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.eum.eum.auth.dto.LoginRequestDto;
 import com.eum.eum.auth.dto.SignupRequestDto;
@@ -23,7 +24,6 @@ import com.eum.eum.user.domain.repository.UserRepository;
 import com.eum.eum.user.domain.entity.UserRole;
 
 import jakarta.servlet.http.HttpServletResponse;
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 
 /**

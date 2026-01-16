@@ -131,10 +131,16 @@ public class MeetingUser extends BaseEntity {
 
 	//연결 끊김 시 상태 판단
 	public void determineStatusOnDisconnect(Double lastLat, Double lastLng, Location meetingLocation) {
+		// 이미 도착했으면 상태 변경 안 함
+		if (this.movementStatus == MovementStatus.ARRIVED) {
+			return;
+		}
+
 		if (meetingLocation.isWithin(lastLat, lastLng, LocationTrackingConstants.ARRIVAL_DISTANCE_METERS)) {
 			arrive(lastLat, lastLng);
-		} else
+		} else {
 			pause();
+		}
 	}
 
 	/**

@@ -4,6 +4,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.eum.eum.common.domain.EntityStatus;
 import com.eum.eum.common.exception.ErrorCode;
@@ -18,7 +19,6 @@ import com.eum.eum.meeting.dto.MeetingUpdateDto;
 import com.eum.eum.user.domain.entity.User;
 import com.eum.eum.user.domain.repository.UserRepository;
 
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 
 @Service

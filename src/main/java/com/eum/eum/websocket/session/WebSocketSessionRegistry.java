@@ -14,9 +14,9 @@ import lombok.extern.slf4j.Slf4j;
 /**
  * WebSocket 세션 관리
  *
- * <p>한 사용자당 하나의 WebSocket 연결만 허용</p>
- * <p>새로운 접속 시도 시 기존 연결을 강제 종료하고 새 연결 허용</p>
- * <p>사용자의 현재 참여 미팅 정보 저장</p>
+ * 한 사용자당 하나의 WebSocket 연결만 허용
+ * <p>새로운 접속 시도 시 기존 연결을 강제 종료하고 새 연결 허용
+ * 사용자의 현재 참여 미팅 정보 저장
  */
 @Service
 @RequiredArgsConstructor

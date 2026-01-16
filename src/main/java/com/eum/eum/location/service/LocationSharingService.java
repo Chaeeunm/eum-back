@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.eum.eum.common.exception.ErrorCode;
 import com.eum.eum.common.exception.BusinessException;
@@ -16,7 +17,6 @@ import com.eum.eum.meeting.domain.entity.MeetingUser;
 import com.eum.eum.meeting.domain.repository.MeetingRepository;
 import com.eum.eum.meeting.domain.repository.MeetingUserRepository;
 
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 
 @Service

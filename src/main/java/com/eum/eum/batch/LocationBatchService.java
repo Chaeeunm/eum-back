@@ -9,6 +9,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.eum.eum.location.domain.entity.Location;
 import com.eum.eum.location.domain.entity.LocationHistory;
@@ -19,7 +20,6 @@ import com.eum.eum.meeting.domain.entity.MeetingUser;
 import com.eum.eum.meeting.domain.repository.MeetingRepository;
 import com.eum.eum.meeting.domain.repository.MeetingUserRepository;
 
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 

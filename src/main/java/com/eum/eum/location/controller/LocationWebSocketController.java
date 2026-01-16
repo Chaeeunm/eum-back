@@ -20,7 +20,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class LocationWebSocketController {
 	private final LocationSharingService locationSharingService;
-	private SimpMessagingTemplate messagingTemplate;
+	private final SimpMessagingTemplate messagingTemplate;
 
 	// 1. 실시간 위치 확인 버튼 클릭 ->
 	// 2. /pub/meeting/{meetingId}/init 현재 접속 정보 가져옴

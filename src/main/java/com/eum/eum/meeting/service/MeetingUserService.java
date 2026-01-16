@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.eum.eum.common.exception.ErrorCode;
 import com.eum.eum.common.exception.BusinessException;
@@ -20,7 +21,6 @@ import com.eum.eum.meeting.dto.MeetingUserUpdateDto;
 import com.eum.eum.user.domain.entity.User;
 import com.eum.eum.user.domain.repository.UserRepository;
 
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -125,6 +125,8 @@ public class MeetingUserService {
 		//비즈니스 로직에서는 출발 처리만 가능
 		switch (movementStatus) {
 			case MOVING -> targetMeetingUser.depart(updateDto.getDepartureLat(), updateDto.getDepartureLng());
+			case PENDING, PAUSED, ARRIVED ->
+				throw new BusinessException(ErrorCode.INVALID_INPUT, "해당 상태로는 직접 변경할 수 없습니다");
 		}
 
 		return MeetingUserResponseDto.from(targetMeetingUser);
