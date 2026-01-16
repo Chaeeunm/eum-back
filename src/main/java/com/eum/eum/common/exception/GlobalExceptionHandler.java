@@ -35,8 +35,8 @@ public class GlobalExceptionHandler {
 			.body(CommonResponseDto.fail(errors, errorCode.getMessage()));
 	}
 
-	@ExceptionHandler(RestException.class)
-	public ResponseEntity<?> handleBusiness(RestException e) {
+	@ExceptionHandler(BusinessException.class)
+	public ResponseEntity<?> handleBusiness(BusinessException e) {
 		log.warn("Rest Exception: [{}] {}", e.getCode(), e.getMessage());
 
 		// ErrorCode를 사용한 경우 code 포함해서 반환

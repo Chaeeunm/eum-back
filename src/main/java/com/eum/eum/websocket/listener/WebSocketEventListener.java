@@ -1,4 +1,4 @@
-package com.eum.eum.common.listener;
+package com.eum.eum.websocket.listener;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;

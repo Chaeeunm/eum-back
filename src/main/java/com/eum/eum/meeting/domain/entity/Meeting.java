@@ -7,7 +7,7 @@ import java.util.List;
 import com.eum.eum.common.domain.BaseEntity;
 import com.eum.eum.common.domain.EntityStatus;
 import com.eum.eum.common.exception.ErrorCode;
-import com.eum.eum.common.exception.RestException;
+import com.eum.eum.common.exception.BusinessException;
 import com.eum.eum.location.domain.entity.Location;
 import com.eum.eum.user.domain.entity.User;
 
@@ -85,7 +85,7 @@ public class Meeting extends BaseEntity {
 
 	private static void validateMeetingTime(LocalDateTime meetAt) {
 		if (meetAt.isBefore(LocalDateTime.now())) {
-			throw new RestException(ErrorCode.INVALID_INPUT, "과거 시간으로 일정을 만들 수 없습니다");
+			throw new BusinessException(ErrorCode.INVALID_INPUT, "과거 시간으로 일정을 만들 수 없습니다");
 		}
 	}
 

@@ -1,4 +1,4 @@
-package com.eum.eum.common.config;
+package com.eum.eum.websocket.config;
 
 import org.springframework.context.annotation.Configuration;
 import org.springframework.messaging.simp.config.ChannelRegistration;
@@ -7,7 +7,7 @@ import org.springframework.web.socket.config.annotation.EnableWebSocketMessageBr
 import org.springframework.web.socket.config.annotation.StompEndpointRegistry;
 import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerConfigurer;
 
-import com.eum.eum.common.interceptor.JwtStompInterceptor;
+import com.eum.eum.websocket.interceptor.JwtStompInterceptor;
 
 import lombok.RequiredArgsConstructor;
 

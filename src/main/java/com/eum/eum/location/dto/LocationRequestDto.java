@@ -15,9 +15,9 @@ public class LocationRequestDto {
 	private Double lat;
 	private Double lng;
 	@JsonFormat(pattern = "yyyy-MM-dd HH:mm")
-	private LocalDateTime timestamp;
+	private LocalDateTime movedAt;
 
-	public LocationRedisEntity toRedisEntity() {
-		return LocationRedisEntity.create(meetingUserId, lat, lng, timestamp);
+	public LocationRedisEntity toRedisEntity(LocalDateTime lastBatchInsertAt) {
+		return LocationRedisEntity.create(meetingUserId, lat, lng, movedAt, lastBatchInsertAt);
 	}
 }

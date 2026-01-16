@@ -14,7 +14,7 @@ public class LocationResponseDto {
 	private Long meetingUserId;
 	private Double lat;
 	private Double lng;
-	private LocalDateTime timestamp;
+	private LocalDateTime movedAt;
 
 	public static LocationResponseDto from(Location location) {
 		return LocationResponseDto.builder()
@@ -28,7 +28,7 @@ public class LocationResponseDto {
 			.meetingUserId(location.getMeetingUserId())
 			.lat(location.getLat())
 			.lng(location.getLng())
-			.timestamp(location.getTimestamp())
+			.movedAt(location.getMovedAt())
 			.build();
 	}
 }

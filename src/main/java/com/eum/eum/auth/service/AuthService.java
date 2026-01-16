@@ -15,7 +15,7 @@ import com.eum.eum.auth.dto.LoginRequestDto;
 import com.eum.eum.auth.dto.SignupRequestDto;
 import com.eum.eum.auth.dto.UserResponseDto;
 import com.eum.eum.common.exception.ErrorCode;
-import com.eum.eum.common.exception.RestException;
+import com.eum.eum.common.exception.BusinessException;
 import com.eum.eum.common.util.CookieUtil;
 import com.eum.eum.security.jwt.JwtTokenProvider;
 import com.eum.eum.user.domain.entity.User;
@@ -46,7 +46,7 @@ public class AuthService {
 	 * @param response HTTP 응답 객체 (Refresh Token 쿠키 설정용)
 	 * @param requestDto 로그인 요청 정보 (이메일, 비밀번호)
 	 * @return Access Token과 사용자 정보
-	 * @throws RestException 사용자를 찾을 수 없거나 인증 실패 시
+	 * @throws BusinessException 사용자를 찾을 수 없거나 인증 실패 시
 	 */
 	@Transactional
 	public UserResponseDto login(
@@ -59,7 +59,7 @@ public class AuthService {
 		UserDetails userDetails = (UserDetails)authentication.getPrincipal();
 
 		User user = userRepository.findByEmail(userDetails.getUsername())
-			.orElseThrow(() -> new RestException(ErrorCode.USER_NOT_FOUND, userDetails.getUsername()));
+			.orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND, userDetails.getUsername()));
 
 		List<String> roles = userDetails.getAuthorities().stream()
 			.map(GrantedAuthority::getAuthority)
@@ -88,12 +88,12 @@ public class AuthService {
 	 *
 	 * @param requestDto 회원가입 요청 정보 (이메일, 비밀번호, 닉네임)
 	 * @return 생성된 사용자 정보
-	 * @throws RestException 이미 존재하는 이메일인 경우
+	 * @throws BusinessException 이미 존재하는 이메일인 경우
 	 */
 	@Transactional
 	public UserResponseDto signup(SignupRequestDto requestDto) {
 		if (userRepository.existsByEmail(requestDto.getEmail())) {
-			throw new RestException(ErrorCode.USER_ALREADY_EXISTS, requestDto.getEmail());
+			throw new BusinessException(ErrorCode.USER_ALREADY_EXISTS, requestDto.getEmail());
 		}
 
 		User user = User.builder()
@@ -116,7 +116,7 @@ public class AuthService {
 	 * @param authorization Authorization 헤더 값 ("Bearer {만료된 Access Token}")
 	 * @param refreshToken Refresh Token (쿠키에서 전달)
 	 * @return 새로운 Access Token과 사용자 정보
-	 * @throws RestException Refresh Token이 유효하지 않거나,
+	 * @throws BusinessException Refresh Token이 유효하지 않거나,
 	 *                       DB에서 찾을 수 없거나,
 	 *                       두 토큰의 소유자가 일치하지 않는 경우
 	 */
@@ -124,17 +124,17 @@ public class AuthService {
 	public UserResponseDto createNewAccessToken(String authorization, String refreshToken) {
 
 		if (!jwtTokenProvider.validateToken(refreshToken)) {
-			throw new RestException(ErrorCode.INVALID_REFRESH_TOKEN);
+			throw new BusinessException(ErrorCode.INVALID_REFRESH_TOKEN);
 		}
 
 		User user = userRepository.findByRefreshToken(refreshToken)
-			.orElseThrow(() -> new RestException(ErrorCode.REFRESH_TOKEN_NOT_FOUND));
+			.orElseThrow(() -> new BusinessException(ErrorCode.REFRESH_TOKEN_NOT_FOUND));
 
 		String accessToken = jwtTokenProvider.getAccessTokenFromAuthorization(authorization);
 		String username = jwtTokenProvider.getUserNameAllowExpired(accessToken);
 
 		if (!username.equals(user.getUsername())) {
-			throw new RestException(ErrorCode.TOKEN_OWNER_MISMATCH);
+			throw new BusinessException(ErrorCode.TOKEN_OWNER_MISMATCH);
 		}
 
 		List<String> roles = List.of(user.getRole().getAuthority());

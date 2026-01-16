@@ -6,7 +6,7 @@ import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
 
 import com.eum.eum.common.exception.ErrorCode;
-import com.eum.eum.common.exception.RestException;
+import com.eum.eum.common.exception.BusinessException;
 import com.eum.eum.common.util.CustomBeanUtils;
 import com.eum.eum.meeting.domain.entity.Meeting;
 import com.eum.eum.meeting.domain.entity.MeetingUser;
@@ -38,22 +38,22 @@ public class MeetingUserService {
 		String email
 	) {
 		User requestUser = userRepository.findByEmail(email)
-			.orElseThrow(() -> new RestException(ErrorCode.USER_NOT_FOUND, email));
+			.orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND, email));
 
 		Meeting meeting = meetingRepository.findByIdWithUsers(meetingId)
-			.orElseThrow(() -> new RestException(ErrorCode.DATA_NOT_FOUND, "일정", meetingId));
+			.orElseThrow(() -> new BusinessException(ErrorCode.DATA_NOT_FOUND, "일정", meetingId));
 
 		if (!meetingUserRepository.existsByMeetingIdAndUserId(meetingId, requestUser.getId())) {
-			throw new RestException(ErrorCode.ACCESS_DENIED);
+			throw new BusinessException(ErrorCode.ACCESS_DENIED);
 		}
 
 		List<MeetingUser> newMeetingUsers = requestDto.getUserIds().stream()
 			.map(userId -> {
 				User user = userRepository.findById(userId)
-					.orElseThrow(() -> new RestException(ErrorCode.USER_NOT_FOUND, userId.toString()));
+					.orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND, userId.toString()));
 
 				if (meetingUserRepository.existsByMeetingIdAndUserId(meetingId, userId)) {
-					throw new RestException(ErrorCode.INVALID_INPUT, "이미 약속에 참여중인 사용자입니다: " + userId);
+					throw new BusinessException(ErrorCode.INVALID_INPUT, "이미 약속에 참여중인 사용자입니다: " + userId);
 				}
 
 				MeetingUser meetingUser = MeetingUser.createAsParticipant(user);
@@ -74,13 +74,13 @@ public class MeetingUserService {
 		String email
 	) {
 		User requestUser = userRepository.findByEmail(email)
-			.orElseThrow(() -> new RestException(ErrorCode.USER_NOT_FOUND, email));
+			.orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND, email));
 
 		Meeting meeting = meetingRepository.findByIdWithUsers(meetingId)
-			.orElseThrow(() -> new RestException(ErrorCode.DATA_NOT_FOUND, "일정", meetingId));
+			.orElseThrow(() -> new BusinessException(ErrorCode.DATA_NOT_FOUND, "일정", meetingId));
 
 		if (!meetingUserRepository.existsByMeetingIdAndUserId(meetingId, requestUser.getId())) {
-			throw new RestException(ErrorCode.ACCESS_DENIED);
+			throw new BusinessException(ErrorCode.ACCESS_DENIED);
 		}
 
 		List<MeetingUser> usersToRemove = requestDto.getUserIds().stream()
@@ -88,10 +88,10 @@ public class MeetingUserService {
 				MeetingUser targetMeetingUser = meeting.getUsers().stream()
 					.filter(mu -> mu.getUser().getId().equals(userId))
 					.findFirst()
-					.orElseThrow(() -> new RestException(ErrorCode.DATA_NOT_FOUND, "약속 참가자", userId));
+					.orElseThrow(() -> new BusinessException(ErrorCode.DATA_NOT_FOUND, "약속 참가자", userId));
 
 				if (targetMeetingUser.isCreator()) {
-					throw new RestException(ErrorCode.INVALID_INPUT, "생성자는 삭제할 수 없습니다");
+					throw new BusinessException(ErrorCode.INVALID_INPUT, "생성자는 삭제할 수 없습니다");
 				}
 
 				return targetMeetingUser;
@@ -109,21 +109,22 @@ public class MeetingUserService {
 		String email
 	) {
 		User user = userRepository.findByEmail(email)
-			.orElseThrow(() -> new RestException(ErrorCode.USER_NOT_FOUND, email));
+			.orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND, email));
 
 		MeetingUser targetMeetingUser = meetingUserRepository.findById(meetingUserId)
-			.orElseThrow(() -> new RestException(ErrorCode.DATA_NOT_FOUND, "약속 참가자 정보", meetingUserId));
+			.orElseThrow(() -> new BusinessException(ErrorCode.DATA_NOT_FOUND, "약속 참가자 정보", meetingUserId));
 
 		if (!targetMeetingUser.isOwner(user.getId())) {
-			throw new RestException(ErrorCode.ACCESS_DENIED);
+			throw new BusinessException(ErrorCode.ACCESS_DENIED);
 		}
 
 		customBeanUtils.patch(updateDto, targetMeetingUser);
 
 		MovementStatus movementStatus = updateDto.getMovementStatus();
+
+		//비즈니스 로직에서는 출발 처리만 가능
 		switch (movementStatus) {
 			case MOVING -> targetMeetingUser.depart(updateDto.getDepartureLat(), updateDto.getDepartureLng());
-			case ARRIVED -> targetMeetingUser.arrive();
 		}
 
 		return MeetingUserResponseDto.from(targetMeetingUser);

@@ -13,10 +13,16 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.ManyToOne;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @Entity
 @Getter
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class LocationHistory extends BaseEntity {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -28,7 +34,18 @@ public class LocationHistory extends BaseEntity {
 	@Embedded
 	private Location location;
 
-	private LocalDateTime recordedAt;
+	private LocalDateTime movedAt;
 
-	private MovementStatus movementStatus;
+	public static LocationHistory create(
+		MeetingUser meetingUser,
+		Double lat,
+		Double lng,
+		LocalDateTime movedAt
+	) {
+		return LocationHistory.builder()
+			.meetingUser(meetingUser)
+			.location(new Location(lat, lng))
+			.movedAt(movedAt)
+			.build();
+	}
 }

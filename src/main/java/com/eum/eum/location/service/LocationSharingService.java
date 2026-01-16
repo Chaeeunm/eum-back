@@ -1,17 +1,16 @@
 package com.eum.eum.location.service;
 
-import java.util.Collection;
+import java.time.LocalDateTime;
 import java.util.List;
 
 import org.springframework.stereotype.Service;
 
 import com.eum.eum.common.exception.ErrorCode;
-import com.eum.eum.common.exception.RestException;
-import com.eum.eum.location.domain.entity.Location;
+import com.eum.eum.common.exception.BusinessException;
 import com.eum.eum.location.domain.entity.LocationRedisEntity;
 import com.eum.eum.location.dto.LocationRequestDto;
 import com.eum.eum.location.dto.LocationResponseDto;
-import com.eum.eum.location.store.LocationStore;
+import com.eum.eum.location.cache.LocationCache;
 import com.eum.eum.meeting.domain.entity.Meeting;
 import com.eum.eum.meeting.domain.entity.MeetingUser;
 import com.eum.eum.meeting.domain.repository.MeetingRepository;
@@ -23,7 +22,7 @@ import lombok.RequiredArgsConstructor;
 @Service
 @RequiredArgsConstructor
 public class LocationSharingService {
-	private final LocationStore<LocationRedisEntity> locationStore;
+	private final LocationCache<LocationRedisEntity> locationCache;
 	private final MeetingRepository meetingRepository;
 	private final MeetingUserRepository meetingUserRepository;
 
@@ -32,9 +31,15 @@ public class LocationSharingService {
 		Long meetingId,
 		LocationRequestDto requestDto
 	) {
+		LocationRedisEntity existing = locationCache.getLatest(meetingId, userId);
 
-		LocationRedisEntity entity = requestDto.toRedisEntity();
-		locationStore.saveLatest(meetingId, userId, entity);
+		// 2. Entity 생성 및 lastProcessedTime 설정
+		LocalDateTime lastBatchInsertedAt = null;
+		if (existing != null)
+			lastBatchInsertedAt = existing.getLastBatchInsertAt();
+		LocationRedisEntity entity = requestDto.toRedisEntity(lastBatchInsertedAt);
+
+		locationCache.saveLatest(meetingId, userId, entity);
 		return LocationResponseDto.from(entity);
 	}
 
@@ -42,13 +47,13 @@ public class LocationSharingService {
 		Long userId,
 		Long meetingId
 	) {
-		locationStore.remove(meetingId, userId);
+		locationCache.remove(meetingId, userId);
 	}
 
 	public List<LocationResponseDto> getAllLocation(
 		Long meetingId
 	) {
-		List<LocationRedisEntity> locations = locationStore.getAllByMeeting(meetingId);
+		List<LocationRedisEntity> locations = locationCache.getAllByMeeting(meetingId);
 
 		return locations.stream()
 			.map(LocationResponseDto::from)
@@ -61,15 +66,15 @@ public class LocationSharingService {
 		Long userId,
 		Long meetingId
 	) {
-		LocationRedisEntity lastLocation = locationStore.getLatest(meetingId, userId);
+		LocationRedisEntity lastLocation = locationCache.getLatest(meetingId, userId);
 		Meeting meeting = meetingRepository.findById(meetingId).orElseThrow(
-			() -> new RestException(ErrorCode.DATA_NOT_FOUND, "meeting", meetingId));
+			() -> new BusinessException(ErrorCode.DATA_NOT_FOUND, "meeting", meetingId));
 
 		MeetingUser meetingUser = meetingUserRepository.findByMeetingIdAndUserId(meetingId, userId).orElseThrow(
-			() -> new RestException(ErrorCode.DATA_NOT_FOUND, "meetingUser"));
+			() -> new BusinessException(ErrorCode.DATA_NOT_FOUND, "meetingUser"));
 
 		//20m 이내면 도착으로 바꾸기
 		//아니면 pause로 바꾸기
-		meetingUser.updateStatusByLastLocation(lastLocation.getLat(), lastLocation.getLng(), meeting.getLocation());
+		meetingUser.determineStatusOnDisconnect(lastLocation.getLat(), lastLocation.getLng(), meeting.getLocation());
 	}
 }

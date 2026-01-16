@@ -10,7 +10,7 @@ import lombok.ToString;
  */
 @Getter
 @ToString
-public class RestException extends RuntimeException {
+public class BusinessException extends RuntimeException {
 	private final HttpStatus status;
 	private final String code;
 	private final String message;
@@ -20,7 +20,7 @@ public class RestException extends RuntimeException {
 	 * @param status HTTP 상태 코드
 	 * @param message 에러 메시지
 	 */
-	public RestException(HttpStatus status, String message) {
+	public BusinessException(HttpStatus status, String message) {
 		super(message);
 		this.status = status;
 		this.code = null;
@@ -31,7 +31,7 @@ public class RestException extends RuntimeException {
 	 * ErrorCode 사용 (정적)
 	 * @param errorCode 에러 코드
 	 */
-	public RestException(ErrorCode errorCode) {
+	public BusinessException(ErrorCode errorCode) {
 		super(errorCode.getMessage());
 		this.status = errorCode.getStatus();
 		this.code = errorCode.getCode();
@@ -43,7 +43,7 @@ public class RestException extends RuntimeException {
 	 * @param errorCode 에러 코드
 	 * @param args 메시지에 삽입할 인자들
 	 */
-	public RestException(ErrorCode errorCode, Object... args) {
+	public BusinessException(ErrorCode errorCode, Object... args) {
 		super(errorCode.formatMessage(args));
 		this.status = errorCode.getStatus();
 		this.code = errorCode.getCode();

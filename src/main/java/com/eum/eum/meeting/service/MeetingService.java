@@ -7,7 +7,7 @@ import org.springframework.stereotype.Service;
 
 import com.eum.eum.common.domain.EntityStatus;
 import com.eum.eum.common.exception.ErrorCode;
-import com.eum.eum.common.exception.RestException;
+import com.eum.eum.common.exception.BusinessException;
 import com.eum.eum.common.util.CustomBeanUtils;
 import com.eum.eum.meeting.domain.entity.Meeting;
 import com.eum.eum.meeting.domain.repository.MeetingRepository;
@@ -32,7 +32,7 @@ public class MeetingService {
 	@Transactional
 	public MeetingResponseDto createMeeting(MeetingCreateRequestDto requestDto, String email) {
 		User creator = userRepository.findByEmail(email)
-			.orElseThrow(() -> new RestException(ErrorCode.USER_NOT_FOUND, email));
+			.orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND, email));
 		Meeting meeting = requestDto.toEntity(creator);
 
 		Meeting savedMeeting = meetingRepository.save(meeting);
@@ -43,13 +43,13 @@ public class MeetingService {
 	@Transactional
 	public MeetingResponseDto updateMeeting(Long meetingId, MeetingUpdateDto updateDto, String email) {
 		User user = userRepository.findByEmail(email)
-			.orElseThrow(() -> new RestException(ErrorCode.USER_NOT_FOUND, email));
+			.orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND, email));
 
 		Meeting targetMeeting = meetingRepository.findById(meetingId)
-			.orElseThrow(() -> new RestException(ErrorCode.DATA_NOT_FOUND, "일정", meetingId));
+			.orElseThrow(() -> new BusinessException(ErrorCode.DATA_NOT_FOUND, "일정", meetingId));
 
 		if (!meetingUserRepository.existsByMeetingIdAndUserId(meetingId, user.getId())) {
-			throw new RestException(ErrorCode.ACCESS_DENIED);
+			throw new BusinessException(ErrorCode.ACCESS_DENIED);
 		}
 
 		customBeanUtils.patch(updateDto, targetMeeting);
@@ -61,13 +61,13 @@ public class MeetingService {
 	@Transactional
 	public boolean deleteMeeting(Long meetingId, String email) {
 		User user = userRepository.findByEmail(email)
-			.orElseThrow(() -> new RestException(ErrorCode.USER_NOT_FOUND, email));
+			.orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND, email));
 
 		Meeting targetMeeting = meetingRepository.findByIdWithUsers(meetingId)
-			.orElseThrow(() -> new RestException(ErrorCode.DATA_NOT_FOUND, "일정", meetingId));
+			.orElseThrow(() -> new BusinessException(ErrorCode.DATA_NOT_FOUND, "일정", meetingId));
 
 		if (!meetingUserRepository.existsByMeetingIdAndUserId(meetingId, user.getId())) {
-			throw new RestException(ErrorCode.ACCESS_DENIED);
+			throw new BusinessException(ErrorCode.ACCESS_DENIED);
 		}
 
 		targetMeeting.delete();
@@ -77,7 +77,7 @@ public class MeetingService {
 	@Transactional
 	public Page<MeetingResponseDto> getMeetingList(String email, int page, int size) {
 		User user = userRepository.findByEmail(email)
-			.orElseThrow(() -> new RestException(ErrorCode.USER_NOT_FOUND, email));
+			.orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND, email));
 
 		Pageable pageable = PageRequest.of(page - 1, size);
 
@@ -89,17 +89,17 @@ public class MeetingService {
 	@Transactional
 	public MeetingResponseDto getMeetingDetail(String email, Long meetingId) {
 		User user = userRepository.findByEmail(email)
-			.orElseThrow(() -> new RestException(ErrorCode.USER_NOT_FOUND, email));
+			.orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND, email));
 
 		//영속성 컨텍스트 상태, 쿼리 비교
 		Meeting targetMeeting = meetingRepository.findByIdWithUsers(meetingId)
-			.orElseThrow(() -> new RestException(ErrorCode.DATA_NOT_FOUND, "일정", meetingId));
+			.orElseThrow(() -> new BusinessException(ErrorCode.DATA_NOT_FOUND, "일정", meetingId));
 
 		// Meeting targetMeeting = meetingRepository.findById(meetingId)
 		// 	.orElseThrow(() -> new RestException(ErrorCode.DATA_NOT_FOUND, "일정", meetingId));
 
 		if (!meetingUserRepository.existsByMeetingIdAndUserId(meetingId, user.getId())) {
-			throw new RestException(ErrorCode.ACCESS_DENIED);
+			throw new BusinessException(ErrorCode.ACCESS_DENIED);
 		}
 
 		return MeetingResponseDto.fromWithUsers(targetMeeting);

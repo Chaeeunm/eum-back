@@ -22,7 +22,8 @@ public class LocationRedisEntity {
 	private Long meetingUserId;
 	private Double lat;
 	private Double lng;
-	private LocalDateTime timestamp;
+	private LocalDateTime movedAt;
+	private LocalDateTime lastBatchInsertAt;
 
 	public static String redisKey(Long meetingId) {
 		return REDIS_KEY_PREFIX + ":" + meetingId;
@@ -40,13 +41,28 @@ public class LocationRedisEntity {
 		Long meetingUserId,
 		Double lat,
 		Double lng,
-		LocalDateTime timestamp
+		LocalDateTime movedAt,
+		LocalDateTime lastBatchInsertAt
 	) {
 		return LocationRedisEntity.builder()
 			.meetingUserId(meetingUserId)
 			.lat(lat)
 			.lng(lng)
-			.timestamp(timestamp)
+			.movedAt(movedAt)
+			.lastBatchInsertAt(lastBatchInsertAt)
 			.build();
 	}
+
+	/**
+	 * 이미 배치 처리된 데이터인지 확인
+	 */
+	public boolean isAlreadyProcessed() {
+		return lastBatchInsertAt != null &&
+			!movedAt.isAfter(lastBatchInsertAt);
+	}
+
+	public void updateLastBatchInsertAt(LocalDateTime lastBatchInsertAt) {
+		this.lastBatchInsertAt = lastBatchInsertAt;
+	}
+
 }
