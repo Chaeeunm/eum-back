@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Eum - 말하지 않아도, 이어지는 우리</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Kakao Map SDK -->
+    <script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=179ecf183bd16598647d6ddd34234a69&libraries=services"></script>
+</head>
+<body>
+    <div id="app">
+        <!-- Landing Page (비로그인 상태) -->
+        <div id="landing-page" class="page">
+            <div class="landing-container">
+                <div class="brand">
+                    <h1 class="logo">Eum</h1>
+                    <p class="tagline">말하지 않아도 우리를 잇는</p>
+                </div>
+                <div class="auth-buttons">
+                    <button class="btn btn-primary" onclick="showModal('login')">로그인</button>
+                    <button class="btn btn-secondary" onclick="showModal('signup')">회원가입</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Page (로그인 상태) -->
+        <div id="main-page" class="page hidden">
+            <header class="header">
+                <h1 class="header-logo">Eum</h1>
+                <div class="header-actions">
+                    <button class="btn btn-icon" onclick="showPage('create')">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <line x1="12" y1="5" x2="12" y2="19"></line>
+                            <line x1="5" y1="12" x2="19" y2="12"></line>
+                        </svg>
+                    </button>
+                    <button class="btn btn-text" onclick="logout()">로그아웃</button>
+                </div>
+            </header>
+            <main class="main-content">
+                <div class="section-header">
+                    <h2>내 약속</h2>
+                </div>
+                <div id="meeting-list" class="meeting-list">
+                    <!-- 약속 카드들이 여기에 렌더링됩니다 -->
+                </div>
+                <div id="empty-state" class="empty-state hidden">
+                    <p>아직 약속이 없어요</p>
+                    <button class="btn btn-primary" onclick="showPage('create')">첫 약속 만들기</button>
+                </div>
+                <div id="loading" class="loading hidden">
+                    <div class="spinner"></div>
+                </div>
+            </main>
+        </div>
+
+        <!-- Meeting Detail Page -->
+        <div id="detail-page" class="page hidden">
+            <header class="header">
+                <button class="btn btn-icon" onclick="showPage('main')">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="15,18 9,12 15,6"></polyline>
+                    </svg>
+                </button>
+                <h1 class="header-title">약속 상세</h1>
+                <div style="width: 40px;"></div>
+            </header>
+            <main class="detail-content">
+                <div id="meeting-detail">
+                    <!-- 약속 상세 정보가 여기에 렌더링됩니다 -->
+                </div>
+            </main>
+        </div>
+
+        <!-- Create Meeting Page -->
+        <div id="create-page" class="page hidden">
+            <header class="header">
+                <button class="btn btn-icon" onclick="showPage('main')">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="15,18 9,12 15,6"></polyline>
+                    </svg>
+                </button>
+                <h1 class="header-title">새 약속</h1>
+                <div style="width: 40px;"></div>
+            </header>
+            <main class="form-content">
+                <form id="create-meeting-form" onsubmit="createMeeting(event)">
+                    <div class="form-group">
+                        <label for="title">약속 이름</label>
+                        <input type="text" id="title" name="title" placeholder="약속 이름을 입력하세요" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="description">설명</label>
+                        <textarea id="description" name="description" placeholder="약속에 대한 설명을 입력하세요" rows="3"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="meetAt">날짜 및 시간</label>
+                        <input type="datetime-local" id="meetAt" name="meetAt" required>
+                    </div>
+                    <div class="form-group">
+                        <label>약속 장소</label>
+                        <div class="location-search">
+                            <input type="text" id="location-search" placeholder="장소를 검색하세요" autocomplete="off">
+                            <button type="button" class="btn btn-icon search-btn" onclick="searchLocation()">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <circle cx="11" cy="11" r="8"></circle>
+                                    <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                                </svg>
+                            </button>
+                        </div>
+                        <div id="search-results" class="search-results hidden"></div>
+                        <div id="create-map" class="map-container"></div>
+                        <p id="selected-location" class="selected-location"></p>
+                        <input type="hidden" id="lat" name="lat">
+                        <input type="hidden" id="lng" name="lng">
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-full">약속 만들기</button>
+                </form>
+            </main>
+        </div>
+    </div>
+
+    <!-- Login Modal -->
+    <div id="login-modal" class="modal hidden">
+        <div class="modal-overlay" onclick="hideModal('login')"></div>
+        <div class="modal-content">
+            <h2>로그인</h2>
+            <form id="login-form" onsubmit="login(event)">
+                <div class="form-group">
+                    <label for="login-email">이메일</label>
+                    <input type="email" id="login-email" name="email" placeholder="이메일을 입력하세요" required>
+                </div>
+                <div class="form-group">
+                    <label for="login-password">비밀번호</label>
+                    <input type="password" id="login-password" name="password" placeholder="비밀번호를 입력하세요" required>
+                </div>
+                <button type="submit" class="btn btn-primary btn-full">로그인</button>
+            </form>
+            <p class="modal-footer">
+                계정이 없으신가요? <a href="#" onclick="switchModal('login', 'signup')">회원가입</a>
+            </p>
+        </div>
+    </div>
+
+    <!-- Signup Modal -->
+    <div id="signup-modal" class="modal hidden">
+        <div class="modal-overlay" onclick="hideModal('signup')"></div>
+        <div class="modal-content">
+            <h2>회원가입</h2>
+            <form id="signup-form" onsubmit="signup(event)">
+                <div class="form-group">
+                    <label for="signup-email">이메일</label>
+                    <input type="email" id="signup-email" name="email" placeholder="이메일을 입력하세요" required>
+                </div>
+                <div class="form-group">
+                    <label for="signup-nickname">닉네임</label>
+                    <input type="text" id="signup-nickname" name="nickName" placeholder="닉네임을 입력하세요" required>
+                </div>
+                <div class="form-group">
+                    <label for="signup-password">비밀번호</label>
+                    <input type="password" id="signup-password" name="password" placeholder="비밀번호를 입력하세요" required>
+                </div>
+                <button type="submit" class="btn btn-primary btn-full">회원가입</button>
+            </form>
+            <p class="modal-footer">
+                이미 계정이 있으신가요? <a href="#" onclick="switchModal('signup', 'login')">로그인</a>
+            </p>
+        </div>
+    </div>
+
+    <!-- Add Member Modal -->
+    <div id="add-member-modal" class="modal hidden">
+        <div class="modal-overlay" onclick="hideModal('add-member')"></div>
+        <div class="modal-content modal-lg">
+            <h2>멤버 추가</h2>
+            <div class="form-group">
+                <div class="location-search">
+                    <input type="text" id="user-search" placeholder="이메일로 검색" autocomplete="off">
+                    <button type="button" class="btn btn-icon search-btn" onclick="searchUsers()">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="11" cy="11" r="8"></circle>
+                            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+            <div id="user-list" class="user-select-list">
+                <!-- 사용자 목록이 여기에 렌더링됩니다 -->
+            </div>
+            <div id="user-list-loading" class="loading hidden">
+                <div class="spinner"></div>
+            </div>
+            <div id="selected-users" class="selected-users-container hidden">
+                <h4>선택된 멤버</h4>
+                <div id="selected-users-list" class="selected-users-list"></div>
+            </div>
+            <div class="modal-actions">
+                <button type="button" class="btn btn-secondary" onclick="hideModal('add-member')">취소</button>
+                <button type="button" class="btn btn-primary" onclick="addSelectedMembers()">추가하기</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast -->
+    <div id="toast" class="toast hidden"></div>
+
+    <script src="/js/app.js"></script>
+</body>
+</html>

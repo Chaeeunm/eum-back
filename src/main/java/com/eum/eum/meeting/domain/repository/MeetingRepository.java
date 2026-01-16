@@ -16,14 +16,30 @@ import io.lettuce.core.dynamic.annotation.Param;
 public interface MeetingRepository extends JpaRepository<Meeting, Long> {
 
 	//user객체 조회시 n+1 주의!
-	@Query("""
-		select m 
-		from Meeting m
-		join m.users mu
-		where mu.user.id = :userId
-		and m.status = :status
-		order by m.meetAt desc
-		""")
+	@Query(
+		value = """
+			select m
+			from Meeting m
+			where exists (
+			    select 1
+			    from MeetingUser mu
+			    where mu.meeting = m
+			    and mu.user.id = :userId
+			)
+			and m.status = :status
+			""",
+		countQuery = """
+			select count(m)
+			from Meeting m
+			where exists (
+			    select 1
+			    from MeetingUser mu
+			    where mu.meeting = m
+			    and mu.user.id = :userId
+			)
+			and m.status = :status
+			"""
+	)
 	Page<Meeting> findMeetingsByUserIdAndStatus(@Param("userId") Long userId, @Param("status") EntityStatus status,
 		Pageable pageable);
 

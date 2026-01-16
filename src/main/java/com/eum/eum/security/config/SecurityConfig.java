@@ -47,6 +47,8 @@ public class SecurityConfig {
 					.accessDeniedHandler(customAccessDeniedHandler))
 			.authorizeHttpRequests(
 				auth -> auth.requestMatchers(
+						"/",
+						"/css/**", "/js/**", "/images/**",
 						"/.well-known/**",
 						"/swagger-ui/**", "/v3/api-docs/**", "/api/auth/**", "/h2-console/**",
 						"/favicon.ico", "/error")
