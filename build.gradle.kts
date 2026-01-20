@@ -45,9 +45,16 @@ dependencies {
     runtimeOnly("com.h2database:h2")
     annotationProcessor("org.projectlombok:lombok")
     testImplementation("org.springframework.boot:spring-boot-starter-test")
+    testImplementation("org.springframework.security:spring-security-test")
+    testImplementation("org.awaitility:awaitility:4.2.0")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }
 
 tasks.withType<Test> {
     useJUnitPlatform()
+
+    // 테스트 실행 시 인코딩을 UTF-8로 강제하고,
+    // 테스트 일꾼의 작업 경로를 한글이 없는 곳으로 명시합니다.
+    systemProperty("file.encoding", "UTF-8")
+    systemProperty("user.home", "C:/gradle_tmp")
 }

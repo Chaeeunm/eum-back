@@ -75,7 +75,7 @@ public class LocationBatchService {
 			for (LocationRedisEntity location : locationList) {
 
 				// 이미 처리된 데이터 skip
-				if (location.isAlreadyProcessed()) {
+				if (location.checkAlreadyProcessed()) {
 					log.debug("Already processed, skip - meetingUserId: {}",
 						location.getMeetingUserId());
 					continue;

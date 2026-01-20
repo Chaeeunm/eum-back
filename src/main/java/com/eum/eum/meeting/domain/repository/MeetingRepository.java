@@ -44,7 +44,7 @@ public interface MeetingRepository extends JpaRepository<Meeting, Long> {
 		Pageable pageable);
 
 	//단건조회여도 fetch로 속도향상
-	@CustomLog({CustomLog.LogType.PERSISTENCE_CONTEXT, CustomLog.LogType.QUERY})
+	// @CustomLog({CustomLog.LogType.PERSISTENCE_CONTEXT, CustomLog.LogType.QUERY})
 	@Query("""
 		    select m 
 		    from Meeting m

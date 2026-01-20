@@ -30,7 +30,7 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 	public void registerStompEndpoints(StompEndpointRegistry registry) {
 		registry.addEndpoint("/ws") //handshake url 등록 그위에 handshake interceptor를 연결
 			.addInterceptors()//인증 인터셉터 추가
-			.setAllowedOrigins("*")
+			.setAllowedOriginPatterns("*")
 			.withSockJS();
 	}
 

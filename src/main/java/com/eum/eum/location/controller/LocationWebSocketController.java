@@ -7,6 +7,7 @@ import org.springframework.messaging.handler.annotation.Header;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 
 import com.eum.eum.location.dto.LocationRequestDto;
@@ -47,7 +48,8 @@ public class LocationWebSocketController {
 		Principal principal,
 		LocationRequestDto request
 	) {
-		User user = (User)principal;
+		Authentication authentication = (Authentication) principal;
+		User user = (User) authentication.getPrincipal();
 		Long userId = user.getId();
 
 		return locationSharingService.pubLocation(userId, meetingId, request);

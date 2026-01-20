@@ -12,6 +12,7 @@ import lombok.Data;
 @Data
 @Builder
 public class MeetingUserResponseDto {
+	private Long meetingUserId;
 	private Long userId;
 	private String email;
 	private String nickName;
@@ -23,6 +24,7 @@ public class MeetingUserResponseDto {
 
 	public static MeetingUserResponseDto from(MeetingUser meetingUser) {
 		return MeetingUserResponseDto.builder()
+			.meetingUserId(meetingUser.getId())
 			.userId(meetingUser.getUser().getId())
 			.email(meetingUser.getUser().getEmail())
 			.nickName(meetingUser.getUser().getNickName())

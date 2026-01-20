@@ -58,12 +58,14 @@ public class LocationRedisCache implements LocationCache<LocationRedisEntity> {
 		String redisKey = LocationRedisEntity.redisKey(meetingId);
 		String hashKey = LocationRedisEntity.hashKey(userId);
 
-		LocationRedisEntity entity = (LocationRedisEntity)redisTemplate.opsForHash()
-			.get(redisKey, hashKey);
+		Object raw = redisTemplate.opsForHash().get(redisKey, hashKey);
+		log.info("DEBUG - raw: {}, type: {}", raw, raw != null ? raw.getClass().getName() : "null");
 
-		if (entity == null)
+		if (raw == null) {
 			return null;
-		return entity;
+		}
+
+		return (LocationRedisEntity) raw;
 	}
 
 	/**

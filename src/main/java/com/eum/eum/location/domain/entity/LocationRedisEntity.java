@@ -2,6 +2,9 @@ package com.eum.eum.location.domain.entity;
 
 import java.time.LocalDateTime;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -12,6 +15,7 @@ import lombok.NoArgsConstructor;
 @Builder(access = AccessLevel.PRIVATE)
 @NoArgsConstructor
 @AllArgsConstructor
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class LocationRedisEntity {
 
 	public static final String REDIS_KEY_PREFIX = "location:meeting";
@@ -56,7 +60,8 @@ public class LocationRedisEntity {
 	/**
 	 * 이미 배치 처리된 데이터인지 확인
 	 */
-	public boolean isAlreadyProcessed() {
+	@JsonIgnore
+	public boolean checkAlreadyProcessed() {
 		return lastBatchInsertAt != null &&
 			!movedAt.isAfter(lastBatchInsertAt);
 	}

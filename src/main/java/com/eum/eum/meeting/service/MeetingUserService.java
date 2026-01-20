@@ -125,8 +125,8 @@ public class MeetingUserService {
 		//비즈니스 로직에서는 출발 처리만 가능
 		switch (movementStatus) {
 			case MOVING -> targetMeetingUser.depart(updateDto.getDepartureLat(), updateDto.getDepartureLng());
-			case PENDING, PAUSED, ARRIVED ->
-				throw new BusinessException(ErrorCode.INVALID_INPUT, "해당 상태로는 직접 변경할 수 없습니다");
+			case PAUSED -> targetMeetingUser.pause();
+			case PENDING, ARRIVED -> throw new BusinessException(ErrorCode.INVALID_INPUT, "해당 상태로는 직접 변경할 수 없습니다");
 		}
 
 		return MeetingUserResponseDto.from(targetMeetingUser);

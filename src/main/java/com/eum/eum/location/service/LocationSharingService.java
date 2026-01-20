@@ -18,7 +18,9 @@ import com.eum.eum.meeting.domain.repository.MeetingRepository;
 import com.eum.eum.meeting.domain.repository.MeetingUserRepository;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class LocationSharingService {
@@ -75,6 +77,12 @@ public class LocationSharingService {
 
 		//20m 이내면 도착으로 바꾸기
 		//아니면 pause로 바꾸기
-		meetingUser.determineStatusOnDisconnect(lastLocation.getLat(), lastLocation.getLng(), meeting.getLocation());
+		if (lastLocation != null) {
+			meetingUser.determineStatusOnDisconnect(lastLocation.getLat(), lastLocation.getLng(),
+				meeting.getLocation());
+		} else {
+			log.info("마지막 위치를 불러오지 못했습니다. ");
+			meetingUser.pause();
+		}
 	}
 }
