@@ -17,6 +17,12 @@ let ps = null; // Places service
 let selectedUserIds = new Set();
 let currentMeetingUsers = [];
 
+// Pagination State
+let meetingsCurrentPage = 1;
+let meetingsPageSize = 10;
+let hasMoreMeetings = false;
+let isLoadingMore = false;
+
 // WebSocket State
 let stompClient = null;
 let isConnected = false;
@@ -27,18 +33,14 @@ let destinationMarker = null;
 let currentMeetingUserId = null;
 let isDepartureMode = false;
 
+// Routing State
+let isUpdatingHash = false;
+
 // API Base URL
 const API_BASE = '';
 
 // Initialize
 document.addEventListener('DOMContentLoaded', () => {
-    if (accessToken && currentUser) {
-        showPage('main');
-        loadMeetings();
-    } else {
-        showPage('landing');
-    }
-
     // Initialize Kakao Places service
     if (typeof kakao !== 'undefined' && kakao.maps && kakao.maps.services) {
         ps = new kakao.maps.services.Places();
@@ -65,10 +67,112 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
     }
+
+    // URL 해시 기반 라우팅 초기화
+    handleRouteChange();
 });
 
+// 브라우저 뒤로가기/앞으로가기 지원
+window.addEventListener('hashchange', () => {
+    // 프로그래밍 방식의 해시 변경은 무시 (중복 호출 방지)
+    if (isUpdatingHash) {
+        isUpdatingHash = false;
+        return;
+    }
+    handleRouteChange();
+});
+
+// URL 해시를 파싱하여 페이지 이동
+function handleRouteChange() {
+    // 로그인 체크
+    if (!accessToken || !currentUser) {
+        showPage('landing');
+        return;
+    }
+
+    const hash = window.location.hash;
+
+    if (!hash || hash === '#' || hash === '#main') {
+        showPage('main', false);
+    } else if (hash.startsWith('#detail/')) {
+        const meetingId = parseInt(hash.replace('#detail/', ''));
+        if (meetingId) {
+            currentMeetingId = meetingId;
+            showPage('detail', false);
+        } else {
+            showPage('main', false);
+        }
+    } else if (hash.startsWith('#realtime/')) {
+        const meetingId = parseInt(hash.replace('#realtime/', ''));
+        if (meetingId) {
+            currentMeetingId = meetingId;
+            // 실시간 페이지는 약속 데이터가 필요하므로 먼저 로드
+            loadMeetingDataAndShowRealtime(meetingId);
+        } else {
+            showPage('main', false);
+        }
+    } else if (hash === '#create') {
+        showPage('create', false);
+    } else {
+        showPage('main', false);
+    }
+}
+
+// 실시간 페이지를 위한 데이터 로드 후 페이지 표시
+async function loadMeetingDataAndShowRealtime(meetingId) {
+    try {
+        const response = await apiRequest(`/meeting/${meetingId}`);
+        if (!response.ok) {
+            throw new Error('약속 정보를 불러올 수 없습니다.');
+        }
+        currentMeetingData = await response.json();
+        currentMeetingUsers = currentMeetingData.users || [];
+        showPage('realtime', false);
+    } catch (error) {
+        showToast(error.message || '약속 정보를 불러올 수 없습니다.', 'error');
+        navigateTo('main');
+    }
+}
+
+// URL 해시 업데이트 (페이지 이동 시 호출)
+function updateHash(page, meetingId = null) {
+    let hash = '';
+    switch (page) {
+        case 'main':
+            hash = '#main';
+            break;
+        case 'detail':
+            hash = meetingId ? `#detail/${meetingId}` : '#main';
+            break;
+        case 'realtime':
+            hash = meetingId ? `#realtime/${meetingId}` : '#main';
+            break;
+        case 'create':
+            hash = '#create';
+            break;
+        case 'landing':
+            hash = '';
+            break;
+    }
+
+    // 현재 해시와 다를 때만 업데이트 (무한 루프 방지)
+    if (window.location.hash !== hash) {
+        // 프로그래밍 방식의 해시 변경임을 표시 (hashchange 이벤트에서 무시됨)
+        isUpdatingHash = true;
+        window.location.hash = hash;
+    }
+}
+
+// 프로그래밍 방식으로 페이지 이동 (해시 변경을 통해)
+function navigateTo(page, meetingId = null) {
+    if (page === 'detail' || page === 'realtime') {
+        currentMeetingId = meetingId;
+    }
+    updateHash(page, meetingId);
+}
+
 // Page Navigation
-function showPage(page) {
+function showPage(page, shouldUpdateHash = true) {
     // 로그인이 필요한 페이지에서 로그인 정보가 없으면 랜딩 페이지로 리다이렉트
     if (page !== 'landing' && (!accessToken || !currentUser)) {
         showToast('로그인이 필요합니다.', 'error');
@@ -103,6 +207,11 @@ function showPage(page) {
             document.getElementById('realtime-page').classList.remove('hidden');
             setTimeout(() => initRealtimePage(), 100);
             break;
+    }
+
+    // URL 해시 업데이트 (해시 변경으로 인한 호출이 아닌 경우에만)
+    if (shouldUpdateHash) {
+        updateHash(page, currentMeetingId);
     }
 }
 
@@ -422,42 +531,128 @@ function initDetailMap(lat, lng) {
 }
 
 // Meeting Functions
-async function loadMeetings() {
+async function loadMeetings(append = false) {
     const listEl = document.getElementById('meeting-list');
     const emptyEl = document.getElementById('empty-state');
     const loadingEl = document.getElementById('loading');
     const countEl = document.getElementById('meeting-count');
 
-    listEl.innerHTML = '';
-    emptyEl.classList.add('hidden');
-    loadingEl.classList.remove('hidden');
-    if (countEl) countEl.textContent = '';
+    // 처음 로드 시 초기화
+    if (!append) {
+        meetingsCurrentPage = 1;
+        listEl.innerHTML = '';
+        emptyEl.classList.add('hidden');
+        loadingEl.classList.remove('hidden');
+        if (countEl) countEl.textContent = '';
+        // 기존 더 보기 버튼 제거
+        removeLoadMoreButton();
+    }
+
+    // 중복 요청 방지
+    if (isLoadingMore) return;
+    isLoadingMore = true;
 
     try {
-        const response = await apiRequest('/meeting/my?page=1&size=20');
+        const response = await apiRequest(`/meeting/my?page=${meetingsCurrentPage}&size=${meetingsPageSize}`);
 
         if (!response.ok) {
             throw new Error('Failed to load meetings');
         }
 
         const data = await response.json();
-        loadingEl.classList.add('hidden');
 
+        if (!append) {
+            loadingEl.classList.add('hidden');
+        }
+
+        // 데이터가 없는 경우
         if (!data.content || data.content.length === 0) {
-            emptyEl.classList.remove('hidden');
-            if (countEl) countEl.textContent = '0개';
+            if (!append) {
+                emptyEl.classList.remove('hidden');
+                if (countEl) countEl.textContent = '0개';
+            }
+            hasMoreMeetings = false;
+            isLoadingMore = false;
+            removeLoadMoreButton();
             return;
         }
 
-        if (countEl) countEl.textContent = `${data.content.length}개`;
+        // 총 개수 표시 (totalElements가 있는 경우)
+        if (data.totalElements !== undefined && countEl) {
+            countEl.textContent = `${data.totalElements}개`;
+        }
 
+        // 카드 추가
         data.content.forEach(meeting => {
             listEl.appendChild(createMeetingCard(meeting));
         });
+
+        // 다음 페이지 존재 여부 확인
+        hasMoreMeetings = !data.last;
+
+        // 더 보기 버튼 표시/숨김
+        if (hasMoreMeetings) {
+            showLoadMoreButton();
+        } else {
+            removeLoadMoreButton();
+        }
+
+        isLoadingMore = false;
     } catch (error) {
-        loadingEl.classList.add('hidden');
+        if (!append) {
+            loadingEl.classList.add('hidden');
+        }
+        isLoadingMore = false;
         showToast('Failed to load meetings', 'error');
     }
+}
+
+// 더 보기 버튼 표시
+function showLoadMoreButton() {
+    let loadMoreBtn = document.getElementById('load-more-btn');
+    const listEl = document.getElementById('meeting-list');
+
+    if (!loadMoreBtn) {
+        loadMoreBtn = document.createElement('button');
+        loadMoreBtn.id = 'load-more-btn';
+        loadMoreBtn.className = 'btn btn-load-more';
+        loadMoreBtn.onclick = loadMoreMeetings;
+        listEl.parentElement.appendChild(loadMoreBtn);
+    }
+
+    loadMoreBtn.innerHTML = `
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="6 9 12 15 18 9"></polyline>
+        </svg>
+        더 보기
+    `;
+    loadMoreBtn.disabled = false;
+    loadMoreBtn.classList.remove('hidden');
+}
+
+// 더 보기 버튼 제거
+function removeLoadMoreButton() {
+    const loadMoreBtn = document.getElementById('load-more-btn');
+    if (loadMoreBtn) {
+        loadMoreBtn.classList.add('hidden');
+    }
+}
+
+// 더 보기 클릭
+async function loadMoreMeetings() {
+    if (isLoadingMore || !hasMoreMeetings) return;
+
+    const loadMoreBtn = document.getElementById('load-more-btn');
+    if (loadMoreBtn) {
+        loadMoreBtn.innerHTML = `
+            <div class="spinner-small"></div>
+            불러오는 중...
+        `;
+        loadMoreBtn.disabled = true;
+    }
+
+    meetingsCurrentPage++;
+    await loadMeetings(true);
 }
 
 function createMeetingCard(meeting) {
@@ -479,13 +674,13 @@ function createMeetingCard(meeting) {
     if (isToday) {
         actionButtonsHtml = `
             <div class="meeting-card-actions" onclick="event.stopPropagation()">
-                <button type="button" class="btn btn-departure-small" onclick="openDepartureFromList(${meeting.id})">
+                <button type="button" class="btn btn-departure-small" onclick="openDepartureFromList(${meeting.id})" title="내 위치를 공유하며 약속 장소로 출발합니다">
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <polygon points="5 3 19 12 5 21 5 3"></polygon>
                     </svg>
                     출발
                 </button>
-                <button type="button" class="btn btn-realtime-small" onclick="openRealtimeFromList(${meeting.id})">
+                <button type="button" class="btn btn-realtime-small" onclick="openRealtimeFromList(${meeting.id})" title="참가자들의 실시간 위치를 지도에서 확인합니다">
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
                         <circle cx="12" cy="10" r="3"></circle>
@@ -670,13 +865,13 @@ function createMeetingDetail(meeting) {
     if (isToday) {
         actionButtonsHtml = `
             <div class="detail-action-buttons">
-                <button type="button" class="btn btn-departure-main" onclick="openDepartureModal()">
+                <button type="button" class="btn btn-departure-main" onclick="openDepartureModal()" title="내 위치를 공유하며 약속 장소로 출발합니다">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <polygon points="5 3 19 12 5 21 5 3"></polygon>
                     </svg>
                     출발하기
                 </button>
-                <button type="button" class="btn btn-realtime" onclick="openRealtimePage()">
+                <button type="button" class="btn btn-realtime" onclick="openRealtimePage()" title="참가자들의 실시간 위치를 지도에서 확인합니다">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
                         <circle cx="12" cy="10" r="3"></circle>
@@ -1158,6 +1353,10 @@ function initRealtimePage() {
         showPage('detail');
         return;
     }
+
+    // currentMeetingUsers를 currentMeetingData에서 동기화
+    currentMeetingUsers = currentMeetingData.users || [];
+    currentMeetingUserId = findCurrentMeetingUserId(currentMeetingUsers);
 
     // 지도 초기화
     initRealtimeMap();

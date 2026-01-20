@@ -27,6 +27,12 @@ public interface MeetingRepository extends JpaRepository<Meeting, Long> {
 			    and mu.user.id = :userId
 			)
 			and m.status = :status
+			and (
+			    (:isPast = true and m.meetAt < CURRENT_DATE)
+			    or
+			    (:isPast = false and m.meetAt >= CURRENT_DATE)
+			)
+			order by m.meetAt desc
 			""",
 		countQuery = """
 			select count(m)
@@ -38,10 +44,19 @@ public interface MeetingRepository extends JpaRepository<Meeting, Long> {
 			    and mu.user.id = :userId
 			)
 			and m.status = :status
+			and (
+			    (:isPast = true and m.meetAt < CURRENT_DATE)
+			    or
+			    (:isPast = false and m.meetAt >= CURRENT_DATE)
+			)
 			"""
 	)
-	Page<Meeting> findMeetingsByUserIdAndStatus(@Param("userId") Long userId, @Param("status") EntityStatus status,
-		Pageable pageable);
+	Page<Meeting> findMeetingsByUserIdAndStatus(
+		@Param("userId") Long userId,
+		@Param("status") EntityStatus status,
+		@Param("isPast") boolean isPast,
+		Pageable pageable
+	);
 
 	//단건조회여도 fetch로 속도향상
 	// @CustomLog({CustomLog.LogType.PERSISTENCE_CONTEXT, CustomLog.LogType.QUERY})

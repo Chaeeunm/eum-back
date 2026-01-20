@@ -63,10 +63,11 @@ public class MeetingController {
 	@Operation(summary = "내 약속 목록 조회 API", description = "내 약속 목록을 조회 API")
 	public ResponseEntity<Page<MeetingResponseDto>> getMyMeeting(
 		@AuthenticationPrincipal User user,
+		@RequestParam(required = false) boolean isPast,
 		@RequestParam(defaultValue = "1") int page,
 		@RequestParam(defaultValue = "10") int size
 	) {
-		return ResponseEntity.ok(meetingService.getMeetingList(user.getEmail(), page, size));
+		return ResponseEntity.ok(meetingService.getMeetingList(user.getEmail(), isPast, page, size));
 	}
 
 	@GetMapping("/meeting/{meetingId}")

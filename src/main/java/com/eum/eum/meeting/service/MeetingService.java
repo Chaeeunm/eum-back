@@ -75,13 +75,16 @@ public class MeetingService {
 	}
 
 	@Transactional
-	public Page<MeetingResponseDto> getMeetingList(String email, int page, int size) {
+	public Page<MeetingResponseDto> getMeetingList(String email, boolean isPast, int page, int size) {
 		User user = userRepository.findByEmail(email)
 			.orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND, email));
 
 		Pageable pageable = PageRequest.of(page - 1, size);
 
-		Page<Meeting> meetingPage = meetingRepository.findMeetingsByUserIdAndStatus(user.getId(), EntityStatus.ACTIVE,
+		Page<Meeting> meetingPage = meetingRepository.findMeetingsByUserIdAndStatus(
+			user.getId(),
+			EntityStatus.ACTIVE,
+			isPast,
 			pageable);
 		return meetingPage.map(MeetingResponseDto::from);
 	}
