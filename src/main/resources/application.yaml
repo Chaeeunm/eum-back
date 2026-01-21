@@ -4,15 +4,9 @@ spring:
   profiles:
     active: dev
 
-  datasource:
-    url: jdbc:h2:mem:eum
-    driver-class-name: org.h2.Driver
-    username: sa
-    password:
-
   jpa:
     hibernate:
-      ddl-auto: create
+      ddl-auto: update
     properties:
       hibernate:
         format_sql: true  # SQL 포맷팅

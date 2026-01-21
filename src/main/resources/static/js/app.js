@@ -1720,3 +1720,79 @@ function exitRealtimePage() {
 
     showPage('detail');
 }
+
+// ================================
+// LANDING PAGE ANIMATIONS
+// ================================
+
+// 타이핑 애니메이션 - 한 글자씩 나타나기
+function initTypingAnimation() {
+    const typingElements = document.querySelectorAll('.typing-text');
+
+    typingElements.forEach(element => {
+        const text = element.dataset.text;
+        const delay = parseInt(element.dataset.delay) || 0;
+
+        if (!text) return;
+
+        // 텍스트를 한 글자씩 span으로 감싸기
+        element.innerHTML = '';
+        const chars = text.split('');
+
+        chars.forEach((char, index) => {
+            const span = document.createElement('span');
+            span.className = 'char';
+            span.textContent = char === ' ' ? '\u00A0' : char;
+            span.style.animationDelay = `${delay + (index * 50)}ms`;
+            element.appendChild(span);
+        });
+    });
+}
+
+// 스크롤 애니메이션 - Intersection Observer
+function initScrollAnimations() {
+    const scrollElements = document.querySelectorAll('.scroll-fade');
+
+    if (scrollElements.length === 0) return;
+
+    const observerOptions = {
+        root: null,
+        rootMargin: '0px 0px -100px 0px',
+        threshold: 0.1
+    };
+
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                // delay 속성이 있으면 CSS 변수로 설정
+                const delay = entry.target.dataset.delay;
+                if (delay) {
+                    entry.target.style.setProperty('--delay', `${delay}ms`);
+                }
+                entry.target.classList.add('visible');
+                observer.unobserve(entry.target);
+            }
+        });
+    }, observerOptions);
+
+    scrollElements.forEach(element => {
+        observer.observe(element);
+    });
+}
+
+// 랜딩 페이지 애니메이션 초기화
+function initLandingAnimations() {
+    // 약간의 딜레이 후 타이핑 애니메이션 시작
+    setTimeout(() => {
+        initTypingAnimation();
+    }, 300);
+
+    // 스크롤 애니메이션 초기화
+    initScrollAnimations();
+}
+
+// DOMContentLoaded에서 호출
+document.addEventListener('DOMContentLoaded', () => {
+    // 랜딩 페이지 애니메이션 초기화
+    initLandingAnimations();
+});

@@ -32,7 +32,6 @@ public interface MeetingRepository extends JpaRepository<Meeting, Long> {
 			    or
 			    (:isPast = false and m.meetAt >= CURRENT_DATE)
 			)
-			order by m.meetAt desc
 			""",
 		countQuery = """
 			select count(m)

@@ -3,6 +3,7 @@ package com.eum.eum.meeting.service;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -79,7 +80,10 @@ public class MeetingService {
 		User user = userRepository.findByEmail(email)
 			.orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND, email));
 
-		Pageable pageable = PageRequest.of(page - 1, size);
+		Sort sort = isPast ? Sort.by(Sort.Direction.DESC, "meetAt") // 지난 일정은 약속 날짜가 최신순
+			: Sort.by(Sort.Direction.ASC, "meetAt"); // 다가오는 일정은 약속 날짜가 현재날짜와 가까운 순
+
+		Pageable pageable = PageRequest.of(page - 1, size, sort);
 
 		Page<Meeting> meetingPage = meetingRepository.findMeetingsByUserIdAndStatus(
 			user.getId(),
