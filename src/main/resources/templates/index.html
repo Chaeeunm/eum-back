@@ -272,7 +272,10 @@
             </header>
             <main class="main-content-new">
                 <div class="section-header-new">
-                    <h2>내 약속</h2>
+                    <div class="meeting-tabs">
+                        <button class="meeting-tab active" id="tab-upcoming" onclick="switchMeetingTab('upcoming')">내 약속</button>
+                        <button class="meeting-tab" id="tab-past" onclick="switchMeetingTab('past')">지난 약속</button>
+                    </div>
                     <span class="meeting-count" id="meeting-count"></span>
                 </div>
                 <div id="meeting-list" class="meeting-list-new">

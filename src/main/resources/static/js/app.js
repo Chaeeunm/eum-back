@@ -22,6 +22,7 @@ let meetingsCurrentPage = 1;
 let meetingsPageSize = 10;
 let hasMoreMeetings = false;
 let isLoadingMore = false;
+let currentMeetingTab = 'upcoming'; // 'upcoming' or 'past'
 
 // WebSocket State
 let stompClient = null;
@@ -530,6 +531,20 @@ function initDetailMap(lat, lng) {
     });
 }
 
+// Meeting Tab Switch
+function switchMeetingTab(tab) {
+    if (currentMeetingTab === tab) return;
+
+    currentMeetingTab = tab;
+
+    // 탭 버튼 활성화 상태 변경
+    document.getElementById('tab-upcoming').classList.toggle('active', tab === 'upcoming');
+    document.getElementById('tab-past').classList.toggle('active', tab === 'past');
+
+    // 미팅 목록 다시 로드
+    loadMeetings();
+}
+
 // Meeting Functions
 async function loadMeetings(append = false) {
     const listEl = document.getElementById('meeting-list');
@@ -552,8 +567,11 @@ async function loadMeetings(append = false) {
     if (isLoadingMore) return;
     isLoadingMore = true;
 
+    // isPast 파라미터 추가
+    const isPast = currentMeetingTab === 'past';
+
     try {
-        const response = await apiRequest(`/meeting/my?page=${meetingsCurrentPage}&size=${meetingsPageSize}`);
+        const response = await apiRequest(`/meeting/my?page=${meetingsCurrentPage}&size=${meetingsPageSize}&isPast=${isPast}`);
 
         if (!response.ok) {
             throw new Error('Failed to load meetings');

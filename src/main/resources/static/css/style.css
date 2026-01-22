@@ -2230,6 +2230,7 @@ body {
 .section-header-new {
     display: flex;
     align-items: center;
+    justify-content: space-between;
     gap: 12px;
     margin-bottom: 20px;
 }
@@ -2239,6 +2240,37 @@ body {
     font-weight: 700;
     color: var(--text-primary);
     margin: 0;
+}
+
+/* Meeting Tabs */
+.meeting-tabs {
+    display: flex;
+    gap: 4px;
+    background: var(--surface-secondary);
+    padding: 4px;
+    border-radius: 12px;
+}
+
+.meeting-tab {
+    padding: 8px 16px;
+    border: none;
+    background: transparent;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.meeting-tab:hover {
+    color: var(--text-primary);
+}
+
+.meeting-tab.active {
+    background: var(--surface-primary);
+    color: var(--text-primary);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
 .meeting-count {

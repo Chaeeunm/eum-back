@@ -2,11 +2,11 @@ spring:
   application:
     name: eum
   profiles:
-    active: dev
+    active: ${SPRING_PROFILE:dev}
 
   jpa:
     hibernate:
-      ddl-auto: update
+      ddl-auto: ${JPA_DDL_AUTO:update}
     properties:
       hibernate:
         format_sql: true  # SQL 포맷팅
@@ -22,9 +22,9 @@ spring:
 
 logging:
   level:
-    org.springframework.web.filter.CommonsRequestLoggingFilter: DEBUG
+    org.springframework.web.filter.CommonsRequestLoggingFilter: ${LOG_LEVEL:DEBUG}
 
 jwt:
-  secret: aaaaaaaabbbbbbbbcccccccctesttest
+  secret: ${JWT_SECRET}
   access-expiration: 1800000      # 30분
   refresh-expiration: 1209600000  # 14일

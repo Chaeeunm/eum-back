@@ -50,6 +50,18 @@ dependencies {
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }
 
+
+// plain jar 생성 비활성화
+tasks.jar {
+    enabled = false
+}
+
+// bootJar 파일명 고정
+tasks.bootJar {
+    archiveFileName.set("app.jar")
+}
+
+
 tasks.withType<Test> {
     useJUnitPlatform()
 
