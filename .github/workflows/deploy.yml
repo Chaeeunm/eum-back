@@ -51,6 +51,7 @@ jobs:
           key: ${{ secrets.OCI_SSH_PRIVATE_KEY }}
           source: "docker-compose.yml"
           target: "/home/ubuntu/eum/"
+          debug: true
 
       # 8. 서버에 배포 (+ 환경변수 생성)
       - name: Deploy with Docker Compose
