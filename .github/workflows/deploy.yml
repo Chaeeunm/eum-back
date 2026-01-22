@@ -15,6 +15,18 @@ jobs:
       # 1. 코드 체크아웃(github -(코드 복사)-> github action 서버)
       - name: Checkout code
         uses: actions/checkout@v4
+
+      - name: SSH 연결 속도 테스트  # ← 여기에 추가
+        uses: appleboy/ssh-action@v1.0.0
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME }}
+          key: ${{ secrets.SSH_KEY }}
+          port: 22
+          script: |
+            echo "SSH 연결 성공!"
+            date
+
       # 2. JDK 설정
       - name: Set up JDK 21
         uses: actions/setup-java@v4
