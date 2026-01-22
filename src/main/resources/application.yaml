@@ -4,22 +4,6 @@ spring:
   profiles:
     active: ${SPRING_PROFILE:dev}
 
-  jpa:
-    hibernate:
-      ddl-auto: ${JPA_DDL_AUTO:update}
-    properties:
-      hibernate:
-        format_sql: true  # SQL 포맷팅
-        use_sql_comments: true  # 어떤 엔티티 쿼리인지 주석 추가
-        highlight_sql: true  # SQL 색상 하이라이트 (콘솔)
-    #        generate_statistics: true  # @CustomLog에서 통계 사용
-    show-sql: false
-
-  h2:
-    console:
-      enabled: true
-      path: /h2-console
-
 logging:
   level:
     org.springframework.web.filter.CommonsRequestLoggingFilter: ${LOG_LEVEL:DEBUG}

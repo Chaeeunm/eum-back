@@ -68,6 +68,6 @@ public interface MeetingRepository extends JpaRepository<Meeting, Long> {
 		""")
 	Optional<Meeting> findByIdWithUsers(@Param("meetingId") Long meetingId);
 
-	@CustomLog({CustomLog.LogType.PERSISTENCE_CONTEXT, CustomLog.LogType.QUERY})
+	// @CustomLog({CustomLog.LogType.PERSISTENCE_CONTEXT, CustomLog.LogType.QUERY})
 	Optional<Meeting> findById(@Param("meetingId") Long meetingId);
 }

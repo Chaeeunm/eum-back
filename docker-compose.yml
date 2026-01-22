@@ -1,4 +1,24 @@
 services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: eum-postgres
+    ports:
+      - "5432:5432"  # 외부 접속 허용 (개발 시)
+      # 운영 시에는 - "127.0.0.1:5432:5432" 추천 (보안)
+    environment:
+      POSTGRES_DB: eum
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_INITDB_ARGS: "-E UTF8"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    restart: unless-stopped
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U ${DB_USER} -d eum" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
   redis:
     image: redis:7-alpine
     expose:
@@ -6,7 +26,6 @@ services:
     volumes:
       - redis-data:/data
     restart: unless-stopped
-
 
   eum-app:
     image: chaeeunm/eum:latest  # ← Docker Hub에서 다운로드
@@ -18,9 +37,16 @@ services:
       SPRING_DATA_REDIS_HOST: redis
       SPRING_DATA_REDIS_PORT: "6379"
       JWT_SECRET: ${JWT_SECRET}
+      SPRING_DATASOURCE_USERNAME: ${DB_USER}
+      SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD}
+
     depends_on:
-      - redis
+      postgres:
+        condition: service_healthy  # postgres가 준비될 때까지 대기
+      redis:
+        condition: service_started
     restart: unless-stopped
 
 volumes:
   redis-data:
+  postgres-data:
