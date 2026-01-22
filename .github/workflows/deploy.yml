@@ -19,9 +19,9 @@ jobs:
       - name: SSH 연결 속도 테스트  # ← 여기에 추가
         uses: appleboy/ssh-action@v1.0.0
         with:
-          host: ${{ secrets.HOST }}
-          username: ${{ secrets.USERNAME }}
-          key: ${{ secrets.SSH_KEY }}
+          host: ${{ secrets.OCI_HOST }}
+          username: ${{ secrets.OCI_USERNAME }}
+          key: ${{ secrets.OCI_SSH_PRIVATE_KEY }}
           port: 22
           script: |
             echo "SSH 연결 성공!"
