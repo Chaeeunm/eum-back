@@ -82,7 +82,7 @@ public class SecurityConfig {
 		configuration.setAllowedOrigins(List.of("http://localhost:8080",
 			"https://with-eum.o-r.kr",
 			"https://with-eum.kro.kr"));
-		configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+		configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
 		configuration.setAllowCredentials(true);
 		configuration.setAllowedHeaders(List.of("*"));
 		configuration.setExposedHeaders(List.of("refreshToken"));

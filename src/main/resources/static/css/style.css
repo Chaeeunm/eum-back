@@ -1884,10 +1884,6 @@ body {
         max-height: 90vh;
     }
 
-    .nav-actions .btn-ghost {
-        display: none;
-    }
-
     .feature-card {
         padding: 32px 24px;
     }
