@@ -1,8 +1,8 @@
 services:
   redis:
     image: redis:7-alpine
-    ports:
-      - "6379:6379"
+    expose:
+      - "6379"
     volumes:
       - redis-data:/data
     restart: unless-stopped
@@ -11,8 +11,8 @@ services:
   eum-app:
     image: chaeeunm/eum:latest  # ← Docker Hub에서 다운로드
     container_name: eum-app
-    ports:
-      - "8080:8080"
+    expose:
+      - "8080"
     environment:
       SPRING_PROFILES_ACTIVE: dev
       SPRING_DATA_REDIS_HOST: redis
