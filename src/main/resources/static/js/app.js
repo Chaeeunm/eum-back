@@ -1615,7 +1615,21 @@ async function startDeparture(transportType) {
         },
         (error) => {
             console.error('Geolocation error:', error);
-            showToast('위치를 가져올 수 없습니다. 위치 권한을 확인해주세요.', 'error');
+            let errorMsg = '위치를 가져올 수 없습니다. ';
+            switch(error.code) {
+                case 1: // PERMISSION_DENIED
+                    errorMsg += '위치 권한이 거부되었습니다. iPhone 설정 > 개인정보 보호 > 위치 서비스 > Safari를 확인해주세요.';
+                    break;
+                case 2: // POSITION_UNAVAILABLE
+                    errorMsg += '위치 정보를 사용할 수 없습니다.';
+                    break;
+                case 3: // TIMEOUT
+                    errorMsg += '위치 요청 시간이 초과되었습니다.';
+                    break;
+                default:
+                    errorMsg += `알 수 없는 오류 (코드: ${error.code})`;
+            }
+            showToast(errorMsg, 'error');
         },
         {
             enableHighAccuracy: true,
