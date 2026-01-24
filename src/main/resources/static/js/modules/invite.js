@@ -150,6 +150,38 @@ export async function checkPendingInviteCode() {
     return false;
 }
 
+// Copy text to clipboard with fallback for mobile
+async function copyToClipboard(text) {
+    // Try modern Clipboard API first
+    if (navigator.clipboard && window.isSecureContext) {
+        try {
+            await navigator.clipboard.writeText(text);
+            return true;
+        } catch (err) {
+            // Fall through to fallback
+        }
+    }
+
+    // Fallback for mobile browsers and non-secure contexts
+    const textArea = document.createElement('textarea');
+    textArea.value = text;
+    textArea.style.position = 'fixed';
+    textArea.style.left = '-9999px';
+    textArea.style.top = '-9999px';
+    document.body.appendChild(textArea);
+    textArea.focus();
+    textArea.select();
+
+    try {
+        const successful = document.execCommand('copy');
+        document.body.removeChild(textArea);
+        return successful;
+    } catch (err) {
+        document.body.removeChild(textArea);
+        return false;
+    }
+}
+
 // Copy invite link
 export async function copyInviteLink() {
     if (!currentMeetingId) {
@@ -169,8 +201,12 @@ export async function copyInviteLink() {
         const inviteCode = await response.text();
         const inviteUrl = `${window.location.origin}?code=${inviteCode}`;
 
-        await navigator.clipboard.writeText(inviteUrl);
-        showToast('초대 링크가 클립보드에 복사되었습니다!', 'success');
+        const copied = await copyToClipboard(inviteUrl);
+        if (copied) {
+            showToast('초대 링크가 클립보드에 복사되었습니다!', 'success');
+        } else {
+            throw new Error('클립보드 복사에 실패했습니다.');
+        }
     } catch (error) {
         showToast(error.message || '링크 복사에 실패했습니다.', 'error');
     }
