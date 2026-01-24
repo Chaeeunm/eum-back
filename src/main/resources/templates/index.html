@@ -567,9 +567,52 @@
                     <div id="selected-users-list" class="selected-users-list"></div>
                 </div>
             </div>
+            <div class="invite-divider">
+                <span>또는 초대 링크로 추가</span>
+            </div>
+
+            <div class="invite-link-wrapper">
+                <button type="button" class="btn-invite-copy" onclick="copyInviteLink()">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path>
+                        <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path>
+                    </svg>
+                    초대 링크 복사하기
+                </button>
+            </div>
             <div class="modal-actions-new">
                 <button type="button" class="btn btn-cancel" onclick="hideModal('add-member')">취소</button>
                 <button type="button" class="btn btn-gradient" onclick="addSelectedMembers()">추가하기</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Invite Confirm Modal -->
+    <div id="invite-confirm-modal" class="modal hidden">
+        <div class="modal-overlay" onclick="cancelInvite()"></div>
+        <div class="modal-content modal-app-style modal-sm">
+            <div class="modal-header-gradient">
+                <div class="modal-icon">
+                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                        <circle cx="8.5" cy="7" r="4"></circle>
+                        <line x1="20" y1="8" x2="20" y2="14"></line>
+                        <line x1="23" y1="11" x2="17" y2="11"></line>
+                    </svg>
+                </div>
+                <h2>약속 초대</h2>
+                <p id="invite-meeting-name">약속에 참여하시겠습니까?</p>
+            </div>
+            <div class="modal-body invite-confirm-body">
+                <div class="invite-info">
+                    <div id="invite-meeting-details" class="invite-meeting-details">
+                        <!-- 미팅 정보가 여기에 표시됩니다 -->
+                    </div>
+                </div>
+            </div>
+            <div class="modal-actions-new">
+                <button type="button" class="btn btn-cancel" onclick="cancelInvite()">아니오</button>
+                <button type="button" class="btn btn-gradient" onclick="confirmInvite()">예, 참여할게요</button>
             </div>
         </div>
     </div>

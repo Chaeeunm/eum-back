@@ -2849,6 +2849,102 @@ body {
     flex-shrink: 0;
 }
 
+/*invite member*/
+/* 초대 링크 구분선 */
+.invite-divider {
+    position: relative;
+    text-align: center;
+    margin: 25px 0 15px;
+}
+
+.invite-divider::before {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background-color: #e2e8f0;
+    z-index: 1;
+}
+
+.invite-divider span {
+    position: relative;
+    background: #fff; /* 모달 배경색과 맞춤 */
+    padding: 0 12px;
+    font-size: 12px;
+    color: #94a3b8;
+    z-index: 2;
+}
+
+/* 초대 링크 복사 버튼 (보조 버튼 스타일) */
+.invite-link-wrapper {
+    padding: 0 4px;
+    margin-bottom: 20px;
+}
+
+.btn-invite-copy {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 10px;
+    background-color: #f8fafc;
+    border: 1px dashed #cbd5e1; /* 점선으로 '복사' 느낌 강조 */
+    border-radius: 10px;
+    color: #475569;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.btn-invite-copy:hover {
+    background-color: #f1f5f9;
+    border-color: #6366f1;
+    color: #6366f1;
+}
+
+.btn-invite-copy svg {
+    color: #6366f1; /* 아이콘에만 포인트 컬러 */
+}
+
++/* 초대 확인 모달 */
+
+ invite-confirm-body {
+    text-align: center;
+    padding: 20px 0;
+}
+
+.invite-info {
+    background: var(--bg-secondary);
+    border-radius: 12px;
+    padding: 20px;
+}
+
+.invite-meeting-details {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.invite-meeting-title {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.invite-meeting-title svg {
+    color: var(--primary);
+    flex-shrink: 0;
+}
+
+
 /* User Select List - New */
 .user-select-list-new {
     max-height: 200px;

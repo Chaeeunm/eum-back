@@ -1,0 +1,11 @@
+/* 1. 환경 설정 */
+@import "base/variables.css";
+@import "base/reset.css";
+
+/* 2. 레이아웃 */
+@import "layout/header.css";
+@import "layout/footer.css";
+
+/* 3. 구성 요소 (기존 style.css에서 조금씩 떼어내기) */
+@import "components/buttons.css";
+@import "components/cards.css";

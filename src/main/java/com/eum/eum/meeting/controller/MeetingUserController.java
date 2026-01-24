@@ -38,7 +38,8 @@ public class MeetingUserController {
 		@RequestBody MeetingUserAddRequestDto requestDto,
 		@AuthenticationPrincipal User user
 	) {
-		return ResponseEntity.ok(meetingUserService.addUsersToMeeting(meetingId, requestDto, user.getEmail()));
+		return ResponseEntity.ok(
+			meetingUserService.addUsersToMeeting(meetingId, requestDto.getUserIds(), user.getEmail()));
 	}
 
 	@DeleteMapping("/meeting/{meetingId}/user")

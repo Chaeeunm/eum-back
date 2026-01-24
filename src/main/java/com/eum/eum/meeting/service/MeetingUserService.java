@@ -34,7 +34,7 @@ public class MeetingUserService {
 	@Transactional
 	public List<MeetingUserResponseDto> addUsersToMeeting(
 		Long meetingId,
-		MeetingUserAddRequestDto requestDto,
+		List<Long> userIds,
 		String email
 	) {
 		User requestUser = userRepository.findByEmail(email)
@@ -43,11 +43,11 @@ public class MeetingUserService {
 		Meeting meeting = meetingRepository.findByIdWithUsers(meetingId)
 			.orElseThrow(() -> new BusinessException(ErrorCode.DATA_NOT_FOUND, "일정", meetingId));
 
-		if (!meetingUserRepository.existsByMeetingIdAndUserId(meetingId, requestUser.getId())) {
-			throw new BusinessException(ErrorCode.ACCESS_DENIED);
-		}
+		// if (!meetingUserRepository.existsByMeetingIdAndUserId(meetingId, requestUser.getId())) {
+		// 	throw new BusinessException(ErrorCode.ACCESS_DENIED);
+		// }
 
-		List<MeetingUser> newMeetingUsers = requestDto.getUserIds().stream()
+		List<MeetingUser> newMeetingUsers = userIds.stream()
 			.map(userId -> {
 				User user = userRepository.findById(userId)
 					.orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND, userId.toString()));

@@ -82,6 +82,11 @@ public enum ErrorCode {
 		"{0}을(를) 찾을 수 없습니다. (id: {1})"
 	),
 
+	INVALID_INVITE(
+		HttpStatus.NOT_FOUND,
+		"MEETING_INVITE_001",
+		"만료되었거나 유효하지 않은 초대 링크입니다."
+	),
 	// ===== 공통 (COMMON) =====
 	INVALID_INPUT(
 		HttpStatus.BAD_REQUEST,

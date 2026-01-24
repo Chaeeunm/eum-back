@@ -13,7 +13,7 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ScanOptions;
 import org.springframework.stereotype.Service;
 
-import com.eum.eum.location.domain.entity.LocationRedisEntity;
+import com.eum.eum.location.domain.entity.redis.LocationRedisEntity;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -65,7 +65,7 @@ public class LocationRedisCache implements LocationCache<LocationRedisEntity> {
 			return null;
 		}
 
-		return (LocationRedisEntity) raw;
+		return (LocationRedisEntity)raw;
 	}
 
 	/**

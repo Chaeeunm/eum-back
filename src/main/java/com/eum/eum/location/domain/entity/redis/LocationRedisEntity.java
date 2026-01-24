@@ -1,4 +1,4 @@
-package com.eum.eum.location.domain.entity;
+package com.eum.eum.location.domain.entity.redis;
 
 import java.time.LocalDateTime;
 

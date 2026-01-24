@@ -52,6 +52,7 @@ public class SecurityConfig {
 						"/.well-known/**",
 						"/swagger-ui/**", "/v3/api-docs/**", "/api/auth/**", "/h2-console/**",
 						"/ws/**",
+						"/api/meeting/invite/**",
 						"/favicon.ico", "/error")
 					.permitAll()
 					.anyRequest()

@@ -308,7 +308,12 @@ async function login(event) {
 
         hideModal('login');
         showToast('Welcome!', 'success');
-        showPage('main');
+
+        // 대기 중인 초대 코드가 있으면 처리, 없으면 메인 페이지로
+        const hasInvite = await checkPendingInviteCode();
+        if (!hasInvite) {
+            showPage('main');
+        }
     } catch (error) {
         showToast(error.message || 'Login failed', 'error');
     }
@@ -355,7 +360,12 @@ async function signup(event) {
 
         hideModal('signup');
         showToast('Welcome to Eum!', 'success');
-        showPage('main');
+
+        // 대기 중인 초대 코드가 있으면 처리, 없으면 메인 페이지로
+        const hasInvite = await checkPendingInviteCode();
+        if (!hasInvite) {
+            showPage('main');
+        }
     } catch (error) {
         showToast(error.message || 'Signup failed', 'error');
     }
@@ -884,17 +894,17 @@ function createMeetingDetail(meeting) {
         actionButtonsHtml = `
             <div class="detail-action-buttons">
                 <button type="button" class="btn btn-departure-main" onclick="openDepartureModal()" title="내 위치를 공유하며 약속 장소로 출발합니다">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <polygon points="5 3 19 12 5 21 5 3"></polygon>
                     </svg>
-                    출발하기
+                    출발
                 </button>
                 <button type="button" class="btn btn-realtime" onclick="openRealtimePage()" title="참가자들의 실시간 위치를 지도에서 확인합니다">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
                         <circle cx="12" cy="10" r="3"></circle>
                     </svg>
-                    실시간 위치 확인${movingCount > 0 ? ` <span class="moving-count-badge">${movingCount}</span>` : ''}
+                    실시간 위치${movingCount > 0 ? ` <span class="moving-count-badge">${movingCount}</span>` : ''}
                 </button>
             </div>
         `;
@@ -1827,4 +1837,163 @@ function initLandingAnimations() {
 document.addEventListener('DOMContentLoaded', () => {
     // 랜딩 페이지 애니메이션 초기화
     initLandingAnimations();
+
+    // 초대 코드 체크 (URL에서)
+    checkInviteCodeFromUrl();
 });
+
+// ===== 초대 링크 관련 함수들 =====
+
+// 현재 처리 중인 초대 코드
+let currentInviteCode = null;
+
+// URL에서 초대 코드 감지 및 확인 모달 표시
+async function checkInviteCodeFromUrl() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const inviteCode = urlParams.get('code');
+
+    if (inviteCode) {
+        // URL에서 code 파라미터 제거 (깔끔하게)
+        const url = new URL(window.location.href);
+        url.searchParams.delete('code');
+        window.history.replaceState({}, document.title, url.pathname + url.hash);
+
+        // 미팅 정보 조회 후 확인 모달 표시
+        await showInviteConfirmModal(inviteCode);
+    }
+}
+
+// 초대 확인 모달 표시
+async function showInviteConfirmModal(inviteCode) {
+    try {
+        // 미팅 정보 조회 (인증 불필요)
+        const response = await fetch(API_BASE + `/api/meeting/invite/${inviteCode}`);
+
+        if (!response.ok) {
+            throw new Error('유효하지 않은 초대 링크입니다.');
+        }
+
+        const meetingInfo = await response.json();
+        currentInviteCode = inviteCode;
+
+        // 모달에 미팅 정보 표시
+        const meetingNameEl = document.getElementById('invite-meeting-name');
+        const meetingDetailsEl = document.getElementById('invite-meeting-details');
+
+        meetingNameEl.textContent = `"${meetingInfo.meetingTitle}" 약속에 참여하시겠습니까?`;
+        meetingDetailsEl.innerHTML = `
+            <div class="invite-meeting-title">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                    <line x1="16" y1="2" x2="16" y2="6"></line>
+                    <line x1="8" y1="2" x2="8" y2="6"></line>
+                    <line x1="3" y1="10" x2="21" y2="10"></line>
+                </svg>
+                <span>${meetingInfo.meetingTitle}</span>
+            </div>
+        `;
+
+        // 모달 표시
+        showModal('invite-confirm');
+
+    } catch (error) {
+        showToast(error.message || '초대 링크를 확인할 수 없습니다.', 'error');
+    }
+}
+
+// 초대 확인 (예 버튼)
+async function confirmInvite() {
+    hideModal('invite-confirm');
+
+    if (!currentInviteCode) {
+        showToast('초대 정보를 찾을 수 없습니다.', 'error');
+        return;
+    }
+
+    // 로그인 상태 확인
+    if (accessToken && currentUser) {
+        // 이미 로그인 상태면 바로 미팅 참여 처리
+        await processJoinMeeting(currentInviteCode);
+    } else {
+        // 로그인 안되어 있으면 코드 저장 후 로그인 모달 표시
+        localStorage.setItem('pendingInviteCode', currentInviteCode);
+        showToast('로그인 후 자동으로 약속에 참여됩니다.', 'info');
+        showModal('login');
+    }
+
+    currentInviteCode = null;
+}
+
+// 초대 취소 (아니오 버튼)
+function cancelInvite() {
+    hideModal('invite-confirm');
+    currentInviteCode = null;
+}
+
+// 미팅 참여 처리
+async function processJoinMeeting(code) {
+    try {
+        const response = await apiRequest(`/api/meeting/join/${code}`, {
+            method: 'POST'
+        });
+
+        if (response.ok) {
+            const meetingId = await response.json();
+            localStorage.removeItem('pendingInviteCode');
+            showToast('약속에 성공적으로 참여되었습니다!', 'success');
+
+            // 미팅 상세 페이지로 이동
+            currentMeetingId = meetingId;
+            showPage('detail');
+        } else {
+            const error = await response.json();
+            // 이미 참여한 경우
+            if (error.code === 'ALREADY_JOINED' || response.status === 409) {
+                localStorage.removeItem('pendingInviteCode');
+                showToast('이미 참여한 약속입니다. 상세 페이지로 이동합니다.', 'info');
+                showPage('main');
+            } else {
+                throw new Error(error.message || '약속 참여에 실패했습니다.');
+            }
+        }
+    } catch (error) {
+        showToast(error.message, 'error');
+        localStorage.removeItem('pendingInviteCode');
+    }
+}
+
+// 로그인 성공 후 대기 중인 초대 코드 처리
+async function checkPendingInviteCode() {
+    const pendingCode = localStorage.getItem('pendingInviteCode');
+    if (pendingCode) {
+        await processJoinMeeting(pendingCode);
+        return true; // 처리됨
+    }
+    return false; // 처리할 코드 없음
+}
+
+// 초대 링크 복사
+async function copyInviteLink() {
+    if (!currentMeetingId) {
+        showToast('미팅 정보를 찾을 수 없습니다.', 'error');
+        return;
+    }
+
+    try {
+        const response = await apiRequest(`/api/meeting/${currentMeetingId}/invite`, {
+            method: 'POST'
+        });
+
+        if (!response.ok) {
+            throw new Error('초대 링크 생성에 실패했습니다.');
+        }
+
+        const inviteCode = await response.text();
+        const inviteUrl = `${window.location.origin}?code=${inviteCode}`;
+
+        await navigator.clipboard.writeText(inviteUrl);
+        showToast('초대 링크가 클립보드에 복사되었습니다!', 'success');
+    } catch (error) {
+        showToast(error.message || '링크 복사에 실패했습니다.', 'error');
+    }
+}

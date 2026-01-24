@@ -3,7 +3,7 @@ package com.eum.eum.location.dto;
 import java.time.LocalDateTime;
 
 import com.eum.eum.location.domain.entity.Location;
-import com.eum.eum.location.domain.entity.LocationRedisEntity;
+import com.eum.eum.location.domain.entity.redis.LocationRedisEntity;
 
 import lombok.Builder;
 import lombok.Data;

@@ -8,7 +8,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.eum.eum.common.exception.ErrorCode;
 import com.eum.eum.common.exception.BusinessException;
-import com.eum.eum.location.domain.entity.LocationRedisEntity;
+import com.eum.eum.location.domain.entity.redis.LocationRedisEntity;
 import com.eum.eum.location.dto.LocationRequestDto;
 import com.eum.eum.location.dto.LocationResponseDto;
 import com.eum.eum.location.cache.LocationCache;

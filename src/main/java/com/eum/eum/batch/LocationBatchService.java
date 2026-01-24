@@ -2,10 +2,8 @@ package com.eum.eum.batch;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
@@ -13,7 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.eum.eum.location.domain.entity.Location;
 import com.eum.eum.location.domain.entity.LocationHistory;
-import com.eum.eum.location.domain.entity.LocationRedisEntity;
+import com.eum.eum.location.domain.entity.redis.LocationRedisEntity;
 import com.eum.eum.location.domain.repository.LocationHistoryRepository;
 import com.eum.eum.meeting.domain.entity.Meeting;
 import com.eum.eum.meeting.domain.entity.MeetingUser;

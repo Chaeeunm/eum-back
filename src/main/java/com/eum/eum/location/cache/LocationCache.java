@@ -4,7 +4,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 
-import com.eum.eum.location.domain.entity.LocationRedisEntity;
+import com.eum.eum.location.domain.entity.redis.LocationRedisEntity;
 
 /**
  * 위치 정보 Write-Behind Cache

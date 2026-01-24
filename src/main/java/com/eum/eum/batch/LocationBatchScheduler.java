@@ -7,7 +7,7 @@ import java.util.Map;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
-import com.eum.eum.location.domain.entity.LocationRedisEntity;
+import com.eum.eum.location.domain.entity.redis.LocationRedisEntity;
 import com.eum.eum.location.cache.LocationCache;
 
 import lombok.RequiredArgsConstructor;
