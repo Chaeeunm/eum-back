@@ -1,0 +1,101 @@
+/* ================================
+   Main Page Styles
+   ================================ */
+
+.main-content-new {
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 24px 20px;
+}
+
+.section-header-new {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 20px;
+}
+
+.section-header-new h2 {
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin: 0;
+}
+
+/* Meeting Tabs */
+.meeting-tabs {
+    display: flex;
+    gap: 4px;
+    background: var(--surface-secondary);
+    padding: 4px;
+    border-radius: 12px;
+}
+
+.meeting-tab {
+    padding: 8px 16px;
+    border: none;
+    background: transparent;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.meeting-tab:hover {
+    color: var(--text-primary);
+}
+
+.meeting-tab.active {
+    background: var(--surface-primary);
+    color: var(--text-primary);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.meeting-count {
+    padding: 4px 10px;
+    background: var(--surface-secondary);
+    border-radius: 12px;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-secondary);
+}
+
+.meeting-list-new {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+/* Empty State */
+.empty-state-new {
+    text-align: center;
+    padding: 60px 20px;
+}
+
+.empty-icon {
+    width: 100px;
+    height: 100px;
+    margin: 0 auto 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--surface-secondary);
+    border-radius: 50%;
+    color: var(--text-secondary);
+}
+
+.empty-state-new h3 {
+    font-size: 20px;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 8px;
+}
+
+.empty-state-new p {
+    color: var(--text-secondary);
+    margin-bottom: 24px;
+    font-size: 15px;
+}

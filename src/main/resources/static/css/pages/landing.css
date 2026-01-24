@@ -1,0 +1,460 @@
+/* ================================
+   Landing Page Styles
+   ================================ */
+
+/* Hero Section */
+.hero-section {
+    min-height: 100vh;
+    background: var(--background);
+    position: relative;
+    overflow: hidden;
+}
+
+/* Hero Content */
+.hero-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    padding: 120px 24px 80px;
+    text-align: center;
+    position: relative;
+    z-index: 2;
+    width: 100%;
+    max-width: 100%;
+    margin: 0 auto;
+}
+
+/* Hero Title Group */
+.hero-title-group {
+    margin-bottom: 32px;
+    animation: fadeUp 0.8s ease-out forwards;
+    animation-delay: 0.1s;
+    opacity: 0;
+}
+
+.hero-title-line {
+    font-size: clamp(44px, 8vw, 72px);
+    font-weight: 700;
+    line-height: 1.15;
+    letter-spacing: -0.03em;
+    color: var(--text-primary);
+    margin: 0;
+    white-space: nowrap;
+}
+
+.gradient-text {
+    background: var(--gradient-primary);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.hero-subtitle {
+    font-size: clamp(18px, 2.5vw, 24px);
+    color: var(--text-secondary);
+    max-width: 500px;
+    margin-bottom: 48px;
+    font-weight: 400;
+    line-height: 1.5;
+    opacity: 1;
+}
+
+.hero-buttons {
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+    justify-content: center;
+    opacity: 1;
+}
+
+/* Floating Elements */
+.floating-elements {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    pointer-events: none;
+    overflow: hidden;
+}
+
+/* Float Bubble - Glassmorphism */
+.float-bubble {
+    position: absolute;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 14px 20px;
+    background: rgba(255, 255, 255, 0.7);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px); /* Safari 대응 */
+    border-radius: 24px;
+    font-size: 15px;
+    font-weight: 500;
+    color: #1d1d1f;
+    box-shadow:
+        0 8px 32px rgba(0, 0, 0, 0.08),
+        inset 0 0 0 1px rgba(255, 255, 255, 0.5);
+    white-space: nowrap;
+    opacity: 1;
+}
+
+.bubble-icon {
+    font-size: 16px;
+}
+
+.float-bubble.bubble-1 {
+    top: 28%;
+    left: 20%;
+}
+
+.float-bubble.bubble-2 {
+    top: 35%;
+    left: 23%;
+}
+
+/* Float Card */
+.float-card {
+    position: absolute;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 18px;
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 16px;
+    font-size: 14px;
+    font-weight: 500;
+    color: #1d1d1f;
+    box-shadow:
+        0 4px 24px rgba(0, 0, 0, 0.06),
+        0 1px 2px rgba(0, 0, 0, 0.04);
+    white-space: nowrap;
+    opacity: 0.9;
+}
+
+.card-icon {
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 8px;
+    color: white;
+    flex-shrink: 0;
+}
+
+.card-icon.purple {
+    background: linear-gradient(135deg, #a855f7 0%, #7c3aed 100%);
+}
+
+.card-icon.green {
+    background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+}
+
+.float-card.card-1 {
+    top: 33%;
+    left: 85%;
+    animation: cardSlideIn 0.7s ease-out 0.7s forwards, cardFloat 5s ease-in-out 1.4s infinite;
+}
+
+.float-card.card-2 {
+    top: 40%;
+    left: 85%;
+    animation: cardSlideIn 0.9s ease-out 0.9s forwards, cardFloat 5s ease-in-out 1.6s infinite;
+}
+
+.float-card.card-3 {
+    top: 30%;
+    left: 75%;
+    animation: cardBlink 4s ease-out 2.0s infinite;
+}
+
+/* Hero Visual / App Preview Mockup */
+.hero-visual {
+    position: absolute;
+    top: 50%;
+    right: 15%;
+    transform: translateY(-40%);
+    pointer-events: none;
+    z-index: 0;
+}
+
+.app-preview {
+    width: 320px;
+    background: white;
+    border-radius: 24px;
+    box-shadow: 0 25px 80px rgba(0, 0, 0, 0.15);
+    overflow: hidden;
+    animation: floatPreview 6s ease-in-out infinite;
+}
+
+.preview-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 20px;
+    background: var(--gradient-primary);
+    color: white;
+}
+
+.preview-title {
+    font-weight: 600;
+    font-size: 15px;
+}
+
+.preview-time {
+    font-size: 13px;
+    opacity: 0.9;
+}
+
+.preview-map {
+    padding: 16px;
+    background: #f0f4f8;
+}
+
+.map-placeholder {
+    position: relative;
+    height: 120px;
+    background: linear-gradient(135deg, #e8f4f8 0%, #d4e8f0 100%);
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+/* Map Grid Pattern */
+.map-placeholder::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-image:
+        linear-gradient(rgba(255,255,255,0.5) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.5) 1px, transparent 1px);
+    background-size: 20px 20px;
+}
+
+/* Road Pattern */
+.map-placeholder::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 0;
+    right: 0;
+    height: 8px;
+    background: rgba(255,255,255,0.8);
+    transform: translateY(-50%);
+}
+
+.map-pin.destination {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: #ef4444;
+    filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));
+    z-index: 10;
+    animation: bounce 2s ease-in-out infinite;
+}
+
+.friend-marker {
+    position: absolute;
+    width: 28px;
+    height: 28px;
+    background: var(--gradient-primary);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 11px;
+    font-weight: 600;
+    border: 2px solid white;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+    z-index: 5;
+}
+
+.friend-marker.marker-1 {
+    top: 25%;
+    left: 20%;
+    animation: moveMarker1 4s ease-in-out infinite;
+}
+
+.friend-marker.marker-2 {
+    top: 35%;
+    right: 25%;
+    background: var(--gradient-purple);
+    animation: moveMarker2 3s ease-in-out infinite;
+}
+
+.friend-marker.marker-3 {
+    top: 48%;
+    left: 48%;
+    background: var(--gradient-green);
+}
+
+.friend-marker.arrived {
+    animation: pulse-marker 2s ease-in-out infinite;
+}
+
+/* Status List */
+.status-list {
+    padding: 8px 12px 12px;
+}
+
+.status-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 12px;
+    border-radius: 12px;
+    margin-bottom: 6px;
+    background: var(--surface-secondary);
+    transition: all 0.3s ease;
+}
+
+.status-item:last-child {
+    margin-bottom: 0;
+}
+
+.status-item.arrived {
+    background: rgba(34, 197, 94, 0.1);
+}
+
+.status-avatar {
+    width: 32px;
+    height: 32px;
+    background: var(--gradient-primary);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 12px;
+    font-weight: 600;
+    flex-shrink: 0;
+}
+
+.status-avatar.purple {
+    background: var(--gradient-purple);
+}
+
+.status-avatar.blue {
+    background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+}
+
+.status-avatar.gray {
+    background: #9ca3af;
+}
+
+.status-avatar.green {
+    background: var(--gradient-green);
+}
+
+.status-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.status-name {
+    display: block;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.status-text {
+    display: block;
+    font-size: 11px;
+    color: var(--text-secondary);
+    margin-top: 1px;
+}
+
+.status-badge {
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 600;
+}
+
+.status-badge.success {
+    background: #22c55e;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 6px;
+    border-radius: 50%;
+}
+
+.status-badge.eta {
+    background: var(--gradient-primary);
+    color: white;
+}
+
+.status-badge.waiting-badge {
+    background: #e5e7eb;
+    color: #6b7280;
+}
+
+/* Features Section */
+.features-section {
+    padding: 120px 24px;
+    background: var(--surface-secondary);
+}
+
+.section-container {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.section-header-landing {
+    text-align: center;
+    margin-bottom: 64px;
+}
+
+.section-title {
+    font-size: clamp(36px, 5vw, 48px);
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    margin-bottom: 16px;
+    color: var(--text-primary);
+}
+
+.section-desc {
+    font-size: 18px;
+    color: var(--text-secondary);
+}
+
+.features-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 32px;
+}
+
+/* CTA Section */
+.cta-section {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 80px 24px;
+    background: var(--gradient-primary);
+    text-align: center;
+}
+
+.cta-content h2 {
+    font-size: clamp(36px, 5vw, 48px);
+    font-weight: 700;
+    color: white;
+    margin-bottom: 16px;
+}
+
+.cta-content p {
+    font-size: 18px;
+    color: rgba(255, 255, 255, 0.8);
+    margin-bottom: 32px;
+}

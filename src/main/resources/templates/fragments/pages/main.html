@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<div th:fragment="main" id="main-page" class="page hidden">
+    <th:block th:replace="~{fragments/components/header :: main-header}" />
+    <main class="main-content-new">
+        <div class="section-header-new">
+            <div class="meeting-tabs">
+                <button class="meeting-tab active" id="tab-upcoming" onclick="switchMeetingTab('upcoming')">내 약속</button>
+                <button class="meeting-tab" id="tab-past" onclick="switchMeetingTab('past')">지난 약속</button>
+            </div>
+            <span class="meeting-count" id="meeting-count"></span>
+        </div>
+        <div id="meeting-list" class="meeting-list-new">
+            <!-- Meeting cards rendered here -->
+        </div>
+        <div id="empty-state" class="empty-state-new hidden">
+            <div class="empty-icon">
+                <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                    <line x1="16" y1="2" x2="16" y2="6"></line>
+                    <line x1="8" y1="2" x2="8" y2="6"></line>
+                    <line x1="3" y1="10" x2="21" y2="10"></line>
+                </svg>
+            </div>
+            <h3>아직 약속이 없어요</h3>
+            <p>첫 번째 약속을 만들어보세요</p>
+            <button class="btn btn-gradient" onclick="showPage('create')">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="12" y1="5" x2="12" y2="19"></line>
+                    <line x1="5" y1="12" x2="19" y2="12"></line>
+                </svg>
+                첫 약속 만들기
+            </button>
+        </div>
+        <div id="loading" class="loading hidden">
+            <div class="spinner"></div>
+        </div>
+    </main>
+</div>
+
+</html>

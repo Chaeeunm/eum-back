@@ -1,0 +1,357 @@
+/* ================================
+   Button Styles
+   ================================ */
+
+/* Base Button */
+.btn {
+    padding: 12px 24px;
+    border-radius: var(--radius);
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    border: none;
+    outline: none;
+}
+
+.btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+}
+
+/* Primary Button */
+.btn-primary {
+    background: var(--accent);
+    color: white;
+}
+
+.btn-primary:hover {
+    background: var(--accent-hover);
+}
+
+/* Icon Button */
+.btn-icon {
+    background: none;
+    padding: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-primary);
+}
+
+.btn-icon:hover {
+    color: var(--accent);
+}
+
+/* Full Width Button */
+.btn-full {
+    width: 100%;
+}
+
+/* Ghost Button */
+.btn-ghost {
+    background: transparent;
+    color: var(--text-primary);
+    padding: 10px 20px;
+}
+
+.btn-ghost:hover {
+    background: var(--surface-secondary);
+    transform: none;
+    box-shadow: none;
+}
+
+/* Pill Button */
+.btn-pill {
+    background: var(--text-primary);
+    color: white;
+    border-radius: 50px;
+    padding: 10px 20px;
+}
+
+.btn-pill:hover {
+    background: #000;
+}
+
+/* Large Button */
+.btn-large {
+    padding: 16px 32px;
+    font-size: 16px;
+    border-radius: 14px;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.btn-large.btn-primary {
+    background: var(--text-primary);
+    color: white;
+}
+
+.btn-large.btn-primary:hover {
+    background: #000;
+}
+
+/* Outline Button */
+.btn-outline {
+    background: transparent;
+    color: var(--text-primary);
+    border: 1px solid var(--border);
+}
+
+.btn-outline:hover {
+    background: var(--surface-secondary);
+    border-color: var(--text-secondary);
+}
+
+/* White Button */
+.btn-white {
+    background: white;
+    color: var(--text-primary);
+}
+
+.btn-white:hover {
+    background: var(--surface-secondary);
+}
+
+/* Small Pill Button */
+.btn-pill-small {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--text-primary);
+    color: white;
+    border-radius: 50px;
+    padding: 8px 16px;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.btn-pill-small:hover {
+    background: #000;
+}
+
+/* Gradient Button */
+.btn-gradient {
+    background: var(--gradient-primary);
+    color: white;
+    padding: 14px 24px;
+    border-radius: 12px;
+    font-size: 15px;
+    font-weight: 600;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.btn-gradient:hover {
+    opacity: 0.9;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+}
+
+/* Cancel Button */
+.btn-cancel {
+    background: var(--surface-secondary);
+    color: var(--text-primary);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.btn-cancel:hover {
+    background: var(--border);
+}
+
+/* Create Button */
+.btn-create {
+    margin: 20px 24px 24px;
+    width: calc(100% - 48px);
+    padding: 16px;
+    font-size: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+/* Load More Button */
+.btn-load-more {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    width: 100%;
+    padding: 14px 24px;
+    margin-top: 16px;
+    background: var(--surface-secondary);
+    color: var(--text-secondary);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.btn-load-more:hover:not(:disabled) {
+    background: white;
+    color: var(--accent);
+    border-color: var(--accent);
+}
+
+.btn-load-more:disabled {
+    cursor: not-allowed;
+    opacity: 0.7;
+}
+
+/* Departure Buttons */
+.btn-departure {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 16px;
+    background: var(--gradient-primary);
+    color: white;
+    border: none;
+    border-radius: 14px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.btn-departure:hover {
+    opacity: 0.9;
+    transform: translateY(-1px);
+}
+
+.btn-departure-main {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 14px 16px;
+    background: var(--gradient-primary);
+    color: white;
+    border: none;
+    border-radius: 12px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.btn-departure-main:hover {
+    opacity: 0.9;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+}
+
+.btn-departure-small {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 10px 12px;
+    background: var(--gradient-primary);
+    color: white;
+    border: none;
+    border-radius: 10px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.btn-departure-small:hover {
+    opacity: 0.9;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+}
+
+/* Realtime Button */
+.btn-realtime {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 14px 16px;
+    background: white;
+    color: var(--text-primary);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.btn-realtime:hover {
+    background: var(--surface-secondary);
+    border-color: var(--accent);
+    color: var(--accent);
+}
+
+.btn-realtime-small {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 10px 12px;
+    background: white;
+    color: var(--text-primary);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.btn-realtime-small:hover {
+    background: var(--surface-secondary);
+    border-color: var(--accent);
+    color: var(--accent);
+}
+
+/* Invite Copy Button */
+.btn-invite-copy {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 10px;
+    background-color: #f8fafc;
+    border: 1px dashed #cbd5e1;
+    border-radius: 10px;
+    color: #475569;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.btn-invite-copy:hover {
+    background-color: #f1f5f9;
+    border-color: #6366f1;
+    color: #6366f1;
+}
+
+.btn-invite-copy svg {
+    color: #6366f1;
+}

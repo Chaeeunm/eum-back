@@ -1,0 +1,13 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<div th:fragment="detail" id="detail-page" class="page hidden">
+    <th:block th:replace="~{fragments/components/header :: detail-header}" />
+    <main class="detail-content-new">
+        <div id="meeting-detail">
+            <!-- Meeting detail rendered here -->
+        </div>
+    </main>
+</div>
+
+</html>

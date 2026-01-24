@@ -1,0 +1,25 @@
+/* ================================
+   Toast Notifications
+   ================================ */
+
+.toast {
+    position: fixed;
+    bottom: 24px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--text-primary);
+    color: white;
+    padding: 12px 24px;
+    border-radius: var(--radius);
+    font-size: 14px;
+    z-index: 2000;
+    animation: slideUp 0.3s ease;
+}
+
+.toast.error {
+    background: var(--error);
+}
+
+.toast.success {
+    background: var(--success);
+}

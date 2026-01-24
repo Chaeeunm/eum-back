@@ -1,19 +1,27 @@
 package com.eum.eum.location.service;
 
+import static com.eum.eum.location.domain.constrants.LocationTrackingConstants.*;
+
 import java.time.LocalDateTime;
 import java.util.List;
 
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.eum.eum.common.exception.ErrorCode;
 import com.eum.eum.common.exception.BusinessException;
+import com.eum.eum.common.util.LocationUtil;
+import com.eum.eum.location.cache.MeetingLocationRedisCache;
+import com.eum.eum.location.domain.entity.Location;
 import com.eum.eum.location.domain.entity.redis.LocationRedisEntity;
+import com.eum.eum.location.domain.entity.redis.MeetingLocationRedisEntity;
 import com.eum.eum.location.dto.LocationRequestDto;
 import com.eum.eum.location.dto.LocationResponseDto;
 import com.eum.eum.location.cache.LocationCache;
 import com.eum.eum.meeting.domain.entity.Meeting;
 import com.eum.eum.meeting.domain.entity.MeetingUser;
+import com.eum.eum.meeting.domain.entity.MovementStatus;
 import com.eum.eum.meeting.domain.repository.MeetingRepository;
 import com.eum.eum.meeting.domain.repository.MeetingUserRepository;
 
@@ -27,12 +35,50 @@ public class LocationSharingService {
 	private final LocationCache<LocationRedisEntity> locationCache;
 	private final MeetingRepository meetingRepository;
 	private final MeetingUserRepository meetingUserRepository;
+	private final MeetingLocationRedisCache meetingLocationRedisCache;
 
+	@Transactional
 	public LocationResponseDto pubLocation(
 		Long userId,
 		Long meetingId,
 		LocationRequestDto requestDto
 	) {
+		MeetingLocationRedisEntity goal = meetingLocationRedisCache.getOrLoad(meetingId);
+
+		boolean isArrived = LocationUtil.isWithinDistance(
+			requestDto.getLat(), requestDto.getLng(),
+			goal.getTargetLat(), goal.getTargetLng(),
+			ARRIVAL_DISTANCE_METERS
+		);
+
+		String message = null;
+		MovementStatus movementStatus = MovementStatus.MOVING;
+
+		if (isArrived) {
+			// DB에서 해당 유저 정보를 가져와서 엔티티 메서드 호출
+			MeetingUser meetingUser = meetingUserRepository.findByMeetingIdAndUserId(meetingId, userId)
+				.orElseThrow(() -> new BusinessException(ErrorCode.DATA_NOT_FOUND));
+
+			// 이미 ARRIVED면 안에서 알아서 return하므로 중복 업데이트 방지가 됨!
+			meetingUser.determineStatusOnDisconnect(
+				requestDto.getLat(),
+				requestDto.getLng(),
+				new Location(goal.getTargetLat(), goal.getTargetLng())
+			);
+
+			// 2. 중요: 아직 상태가 ARRIVED가 아닐 때만 메시지를 만듭니다!
+			// (안 그러면 5초마다 계속 "OO님이 도착했습니다!"가 도배돼요)
+			if (meetingUser.getMovementStatus() != MovementStatus.ARRIVED) {
+				meetingUser.determineStatusOnDisconnect(
+					requestDto.getLat(),
+					requestDto.getLng(),
+					new Location(goal.getTargetLat(), goal.getTargetLng())
+				);
+				message = meetingUser.getUser().getNickName() + "님이 도착했습니다!";
+				movementStatus = MovementStatus.ARRIVED;
+			}
+		}
+
 		LocationRedisEntity existing = locationCache.getLatest(meetingId, userId);
 
 		// 2. Entity 생성 및 lastProcessedTime 설정
@@ -42,7 +88,7 @@ public class LocationSharingService {
 		LocationRedisEntity entity = requestDto.toRedisEntity(lastBatchInsertedAt);
 
 		locationCache.saveLatest(meetingId, userId, entity);
-		return LocationResponseDto.from(entity);
+		return LocationResponseDto.from(entity, isArrived, message, movementStatus);
 	}
 
 	public void removeLocation(
@@ -82,7 +128,10 @@ public class LocationSharingService {
 				meeting.getLocation());
 		} else {
 			log.info("마지막 위치를 불러오지 못했습니다. ");
-			meetingUser.pause();
+			if (meetingUser.getMovementStatus() != MovementStatus.ARRIVED) {
+				meetingUser.pause();
+			}
 		}
 	}
+
 }

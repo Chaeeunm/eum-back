@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<div th:fragment="realtime" id="realtime-page" class="page hidden">
+    <th:block th:replace="~{fragments/components/header :: realtime-header}" />
+    <main class="realtime-content">
+        <div id="realtime-map" class="realtime-map-container"></div>
+        <div class="realtime-member-list" id="realtime-member-list">
+            <!-- Member location list rendered here -->
+        </div>
+    </main>
+    <div id="departure-control" class="departure-control">
+        <!-- 출발 버튼 (조회 모드일 때) -->
+        <button id="departure-start-btn" class="btn btn-departure-start" onclick="startDepartureFromRealtime()">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polygon points="5 3 19 12 5 21 5 3"></polygon>
+            </svg>
+            <span>출발</span>
+        </button>
+        <!-- 중단/재개 버튼 (출발 모드일 때) -->
+        <button id="departure-toggle-btn" class="btn btn-stop-small hidden" onclick="toggleDeparture()">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="6" y="6" width="12" height="12" rx="2"></rect>
+            </svg>
+            <span id="departure-btn-text">중단</span>
+        </button>
+    </div>
+</div>
+
+</html>

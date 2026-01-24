@@ -1,0 +1,9 @@
+/* ================================
+   Create Meeting Page Styles
+   ================================ */
+
+.form-content-new {
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 24px 20px;
+}

@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<div th:fragment="invite-confirm" id="invite-confirm-modal" class="modal hidden">
+    <div class="modal-overlay" onclick="cancelInvite()"></div>
+    <div class="modal-content modal-app-style modal-sm">
+        <div class="modal-header-gradient">
+            <div class="modal-icon">
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                    <circle cx="8.5" cy="7" r="4"></circle>
+                    <line x1="20" y1="8" x2="20" y2="14"></line>
+                    <line x1="23" y1="11" x2="17" y2="11"></line>
+                </svg>
+            </div>
+            <h2>약속 초대</h2>
+            <p id="invite-meeting-name">약속에 참여하시겠습니까?</p>
+        </div>
+        <div class="modal-body invite-confirm-body">
+            <div class="invite-info">
+                <div id="invite-meeting-details" class="invite-meeting-details">
+                    <!-- Meeting info displayed here -->
+                </div>
+            </div>
+        </div>
+        <div class="modal-actions-new">
+            <button type="button" class="btn btn-cancel" onclick="cancelInvite()">아니오</button>
+            <button type="button" class="btn btn-gradient" onclick="confirmInvite()">예, 참여할게요</button>
+        </div>
+    </div>
+</div>
+
+</html>

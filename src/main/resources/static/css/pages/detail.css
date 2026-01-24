@@ -1,0 +1,160 @@
+/* ================================
+   Meeting Detail Page Styles
+   ================================ */
+
+.detail-content-new {
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 24px 20px;
+}
+
+/* App Preview Detail */
+.app-preview-detail {
+    max-width: 480px;
+    margin: 0 auto;
+    background: white;
+    border-radius: 24px;
+    box-shadow: 0 25px 80px rgba(0, 0, 0, 0.15);
+    overflow: hidden;
+}
+
+.preview-header-detail {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 24px;
+    background: var(--gradient-primary);
+    color: white;
+}
+
+.preview-header-left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.preview-header-detail .preview-title {
+    font-weight: 600;
+    font-size: 18px;
+}
+
+.preview-header-detail .preview-time {
+    font-size: 14px;
+    opacity: 0.9;
+}
+
+/* Description */
+.preview-description {
+    padding: 16px 24px;
+    font-size: 14px;
+    color: var(--text-secondary);
+    background: var(--surface-secondary);
+    border-bottom: 1px solid var(--border);
+}
+
+/* Map in Detail */
+.app-preview-detail .preview-map {
+    padding: 16px;
+    background: #f0f4f8;
+}
+
+.detail-map-container-new {
+    width: 100%;
+    height: 180px;
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+/* Status List in Detail */
+.status-list-detail {
+    padding: 16px 20px 20px;
+}
+
+.status-list-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+}
+
+.status-list-header h3 {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin: 0;
+}
+
+.add-member-btn-small {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 6px 12px;
+    background: var(--surface-secondary);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--accent);
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.add-member-btn-small:hover {
+    background: var(--accent);
+    color: white;
+    border-color: var(--accent);
+}
+
+/* Status Item Styles for Detail */
+.status-list-detail .status-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 14px;
+    border-radius: 14px;
+    margin-bottom: 8px;
+    background: var(--surface-secondary);
+    transition: all 0.3s ease;
+}
+
+.status-list-detail .status-item:last-child {
+    margin-bottom: 0;
+}
+
+/* Creator Badge */
+.creator-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 2px 6px;
+    margin-left: 6px;
+    background: var(--gradient-primary);
+    color: white;
+    border-radius: 4px;
+    font-size: 10px;
+    font-weight: 600;
+    vertical-align: middle;
+}
+
+/* Current User Style */
+.status-item.is-me {
+    background: rgba(34, 197, 94, 0.08);
+    border: 1px solid rgba(34, 197, 94, 0.2);
+}
+
+/* Moving Count Badge */
+.moving-count-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 20px;
+    height: 20px;
+    padding: 0 6px;
+    margin-left: 6px;
+    background: #ef4444;
+    color: white;
+    border-radius: 10px;
+    font-size: 12px;
+    font-weight: 700;
+    animation: pulse-badge 2s ease-in-out infinite;
+}

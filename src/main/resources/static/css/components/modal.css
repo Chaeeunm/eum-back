@@ -1,0 +1,493 @@
+/* ================================
+   Modal Styles
+   ================================ */
+
+/* Base Modal */
+.modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+}
+
+.modal-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.65);
+}
+
+.modal-content {
+    position: relative;
+    background: var(--surface);
+    border-radius: var(--radius-lg);
+    padding: 32px;
+    width: 100%;
+    max-width: 400px;
+    box-shadow: var(--shadow-lg);
+}
+
+.modal-content h2 {
+    text-align: center;
+    font-size: 24px;
+    margin-bottom: 24px;
+}
+
+/* Modal Sizes */
+.modal-lg {
+    max-width: 500px;
+    max-height: 80vh;
+    overflow-y: auto;
+}
+
+.modal-sm {
+    max-width: 360px;
+}
+
+/* App Style Modal */
+.modal-app-style {
+    border-radius: 24px;
+    padding: 0;
+    overflow: hidden;
+    max-width: 420px;
+}
+
+.modal-header-gradient {
+    background: var(--gradient-primary);
+    padding: 32px 32px 28px;
+    text-align: center;
+    color: white;
+}
+
+.modal-icon {
+    width: 64px;
+    height: 64px;
+    margin: 0 auto 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 50%;
+}
+
+.modal-header-gradient h2 {
+    font-size: 24px;
+    font-weight: 700;
+    margin-bottom: 8px;
+    color: white;
+}
+
+.modal-header-gradient p {
+    font-size: 14px;
+    opacity: 0.9;
+    margin: 0;
+}
+
+.modal-body {
+    padding: 28px 32px;
+}
+
+.modal-body .form-group-new {
+    margin-bottom: 16px;
+}
+
+.modal-footer-new {
+    text-align: center;
+    padding: 0 32px 28px;
+    font-size: 14px;
+    color: var(--text-secondary);
+}
+
+.modal-footer-new a {
+    color: var(--accent);
+    text-decoration: none;
+    font-weight: 600;
+}
+
+.modal-footer-new a:hover {
+    text-decoration: underline;
+}
+
+/* Modal Actions */
+.modal-actions-new {
+    display: flex;
+    gap: 12px;
+    padding: 20px 32px 28px;
+    border-top: 1px solid var(--border);
+}
+
+.modal-actions-new .btn {
+    flex: 1;
+    padding: 14px;
+}
+
+/* Add Member Modal */
+#add-member-modal .modal-content {
+    display: flex;
+    flex-direction: column;
+    max-height: 85vh;
+}
+
+#add-member-modal .modal-header-gradient {
+    flex-shrink: 0;
+    padding: 24px 32px 20px;
+}
+
+#add-member-modal .modal-header-gradient .modal-icon {
+    width: 52px;
+    height: 52px;
+    margin-bottom: 12px;
+}
+
+#add-member-modal .modal-header-gradient h2 {
+    font-size: 20px;
+    margin-bottom: 4px;
+}
+
+#add-member-modal .modal-body {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-height: 0;
+    overflow: hidden;
+}
+
+#add-member-modal .search-box-new {
+    flex-shrink: 0;
+}
+
+#add-member-modal .modal-actions-new {
+    flex-shrink: 0;
+}
+
+#add-member-modal .selected-users-container-new {
+    flex-shrink: 0;
+    max-height: 100px;
+    overflow-y: auto;
+}
+
+/* Invite Divider */
+.invite-divider {
+    position: relative;
+    text-align: center;
+    margin: 25px 0 15px;
+}
+
+.invite-divider::before {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background-color: #e2e8f0;
+    z-index: 1;
+}
+
+.invite-divider span {
+    position: relative;
+    background: #fff;
+    padding: 0 12px;
+    font-size: 12px;
+    color: #94a3b8;
+    z-index: 2;
+}
+
+/* Invite Link Wrapper */
+.invite-link-wrapper {
+    padding: 0 4px;
+    margin-bottom: 20px;
+}
+
+/* Invite Confirm Modal */
+.invite-confirm-body {
+    text-align: center;
+    padding: 20px 0;
+}
+
+.invite-info {
+    background: var(--bg-secondary);
+    border-radius: 12px;
+    padding: 20px;
+}
+
+.invite-meeting-details {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.invite-meeting-title {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.invite-meeting-title svg {
+    color: var(--primary);
+    flex-shrink: 0;
+}
+
+/* Transport Selection Modal */
+.transport-options {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+    padding: 24px !important;
+}
+
+.transport-option {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    padding: 20px 16px;
+    background: var(--surface-secondary);
+    border: 2px solid transparent;
+    border-radius: 16px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.transport-option:hover {
+    background: white;
+    border-color: var(--accent);
+}
+
+.transport-icon {
+    width: 56px;
+    height: 56px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: white;
+    border-radius: 50%;
+    color: var(--text-primary);
+    transition: all 0.2s ease;
+}
+
+.transport-option:hover .transport-icon {
+    background: var(--gradient-primary);
+    color: white;
+}
+
+.transport-option span {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+/* User Select Item */
+.user-select-item {
+    display: flex;
+    align-items: center;
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--border);
+    cursor: pointer;
+    transition: background 0.2s ease;
+}
+
+.user-select-item:last-child {
+    border-bottom: none;
+}
+
+.user-select-item:hover {
+    background: var(--background);
+}
+
+.user-select-item.selected {
+    background: rgba(0, 149, 246, 0.1);
+}
+
+.user-select-item .checkbox {
+    width: 20px;
+    height: 20px;
+    border: 2px solid var(--border);
+    border-radius: 4px;
+    margin-right: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    transition: all 0.2s ease;
+}
+
+.user-select-item.selected .checkbox {
+    background: var(--accent);
+    border-color: var(--accent);
+}
+
+.user-select-item.selected .checkbox::after {
+    content: '';
+    width: 6px;
+    height: 10px;
+    border: solid white;
+    border-width: 0 2px 2px 0;
+    transform: rotate(45deg);
+    margin-bottom: 2px;
+}
+
+.user-select-item .user-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.user-select-item .user-name {
+    font-weight: 600;
+    font-size: 14px;
+    margin-bottom: 2px;
+}
+
+.user-select-item .user-email {
+    font-size: 12px;
+    color: var(--text-secondary);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* Selected Users List */
+.selected-users-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.selected-user-tag {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    background: var(--accent);
+    color: white;
+    border-radius: 16px;
+    font-size: 13px;
+}
+
+.selected-user-tag .remove-btn {
+    background: none;
+    border: none;
+    color: white;
+    cursor: pointer;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    opacity: 0.8;
+}
+
+.selected-user-tag .remove-btn:hover {
+    opacity: 1;
+}
+
+/* User Select List - New Style */
+.user-select-list-new {
+    max-height: 200px;
+    min-height: 80px;
+    overflow-y: auto;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    flex: 1;
+    min-height: 0;
+}
+
+.user-select-list-new .user-select-item {
+    display: flex;
+    align-items: center;
+    padding: 14px 16px;
+    border-bottom: 1px solid var(--border);
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.user-select-list-new .user-select-item:last-child {
+    border-bottom: none;
+}
+
+.user-select-list-new .user-select-item:hover {
+    background: var(--surface-secondary);
+}
+
+.user-select-list-new .user-select-item.selected {
+    background: rgba(102, 126, 234, 0.1);
+}
+
+.user-select-list-new .checkbox {
+    width: 22px;
+    height: 22px;
+    border: 2px solid var(--border);
+    border-radius: 6px;
+    margin-right: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    transition: all 0.2s ease;
+}
+
+.user-select-list-new .user-select-item.selected .checkbox {
+    background: var(--gradient-primary);
+    border-color: transparent;
+}
+
+.user-select-list-new .user-select-item.selected .checkbox::after {
+    content: '';
+    width: 6px;
+    height: 10px;
+    border: solid white;
+    border-width: 0 2px 2px 0;
+    transform: rotate(45deg);
+    margin-bottom: 2px;
+}
+
+.user-select-list-new .status-avatar {
+    width: 36px;
+    height: 36px;
+    font-size: 14px;
+    margin-right: 12px;
+}
+
+.user-select-list-new .user-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.user-select-list-new .user-name {
+    font-weight: 600;
+    font-size: 14px;
+    color: var(--text-primary);
+    margin-bottom: 2px;
+}
+
+.user-select-list-new .user-email {
+    font-size: 12px;
+    color: var(--text-secondary);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* Selected Users Container - New */
+.selected-users-container-new {
+    margin-top: 16px;
+    padding-top: 16px;
+    border-top: 1px solid var(--border);
+}
+
+.selected-users-container-new h4 {
+    font-size: 13px;
+    color: var(--text-secondary);
+    margin-bottom: 12px;
+    font-weight: 600;
+}

@@ -1,0 +1,222 @@
+/* ================================
+   Animations & Keyframes
+   ================================ */
+
+/* Fade Up Animation */
+@keyframes fadeUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Float In Animation */
+@keyframes floatIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px) scale(0.9);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+/* Gentle Float Animation */
+@keyframes gentleFloat {
+    0%, 100% {
+        transform: translateY(0) rotate(0deg);
+    }
+    50% {
+        transform: translateY(-12px) rotate(1deg);
+    }
+}
+
+/* Card Slide In Animation */
+@keyframes cardSlideIn {
+    from {
+        opacity: 0;
+        transform: translateX(-30px) scale(0.95);
+    }
+    to {
+        opacity: 0.9;
+        transform: translateX(0) scale(1);
+    }
+}
+
+/* Card Float Animation */
+@keyframes cardFloat {
+    0%, 100% {
+        transform: translateY(0);
+    }
+    50% {
+        transform: translateY(-8px);
+    }
+}
+
+/* Card Blink Animation */
+@keyframes cardBlink {
+    0% {
+        opacity: 0;
+        transform: translateX(-30px) scale(0.95);
+    }
+    10% {
+        opacity: 0.9;
+        transform: translateX(0) scale(1);
+    }
+    60% {
+        opacity: 0.9;
+        transform: translateX(0) scale(1);
+    }
+    70% {
+        opacity: 0;
+        transform: translateX(0) scale(1);
+    }
+    100% {
+        opacity: 0;
+        transform: translateX(0) scale(1);
+    }
+}
+
+/* Float Preview Animation */
+@keyframes floatPreview {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+}
+
+/* Bounce Animation */
+@keyframes bounce {
+    0%, 100% { transform: translate(-50%, -50%); }
+    50% { transform: translate(-50%, -60%); }
+}
+
+/* Move Marker Animations */
+@keyframes moveMarker1 {
+    0%, 100% { transform: translate(0, 0); }
+    50% { transform: translate(15px, 10px); }
+}
+
+@keyframes moveMarker2 {
+    0%, 100% { transform: translate(0, 0); }
+    50% { transform: translate(-10px, 8px); }
+}
+
+/* Pulse Marker Animation */
+@keyframes pulse-marker {
+    0%, 100% { box-shadow: 0 2px 8px rgba(0,0,0,0.2), 0 0 0 0 rgba(34, 197, 94, 0.4); }
+    50% { box-shadow: 0 2px 8px rgba(0,0,0,0.2), 0 0 0 8px rgba(34, 197, 94, 0); }
+}
+
+/* Spin Animation */
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* Slide Up Animation */
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateX(-50%) translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(-50%) translateY(0);
+    }
+}
+
+/* Pulse D-day Animation */
+@keyframes pulse-dday {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+}
+
+/* Pulse Badge Animation */
+@keyframes pulse-badge {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+}
+
+/* Pulse Dot Animation */
+@keyframes pulse-dot {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+}
+
+/* Scale In Animation (Scroll Fade) */
+@keyframes scaleIn {
+    from {
+        opacity: 0;
+        transform: translateY(40px) scale(0.95);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+/*메인 페이지 글자 타이핑*/
+.char {
+    display: inline-block;
+    opacity: 0;
+    animation: typingFadeIn 0.1s forwards; /* 글자 하나가 나타나는 자체 속도 */
+    /* 투명해진 글자색을 다시 보이게 설정 */
+        -webkit-text-fill-color: currentcolor;
+}
+
+/* 2. 그라데이션 타이핑 글자 설정 (핵심) */
+.gradient-text .char {
+    /* 부모(h1)의 그라데이션 배경을 글자(span)가 그대로 물려받음 */
+    background: inherit;
+    -webkit-background-clip: text;
+    background-clip: text;
+    /* 다시 글자 내부를 투명하게 해서 배경이 비치게 함 */
+    -webkit-text-fill-color: transparent;
+    /* 브라우저 렌더링 최적화 */
+    display: inline-block;
+}
+
+/* 3. 애니메이션 정의 확인 */
+@keyframes typingFadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(5px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* ================================
+   Scroll Fade Animation (Apple Style)
+   ================================ */
+
+.scroll-fade {
+    opacity: 0;
+    transform: translateY(60px);
+    transition: opacity 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+                transform 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.scroll-fade.visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* Feature cards - use animation only (no transition conflict) */
+.feature-card.scroll-fade {
+    transition: none;
+    opacity: 0;
+    transform: translateY(40px) scale(0.95);
+}
+
+.feature-card.scroll-fade.visible {
+    animation: scaleIn 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+    animation-delay: var(--delay, 1s);
+}

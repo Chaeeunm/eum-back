@@ -1,0 +1,189 @@
+/* ================================
+   Realtime Location Page Styles
+   ================================ */
+
+/* Connection Status */
+.connection-status {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.connection-status .status-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #9ca3af;
+}
+
+.connection-status.connected .status-dot {
+    background: #22c55e;
+    animation: pulse-dot 2s ease-in-out infinite;
+}
+
+.connection-status.disconnected .status-dot {
+    background: #ef4444;
+}
+
+/* Realtime Content */
+.realtime-content {
+    display: flex;
+    flex-direction: column;
+    height: calc(100vh - 60px);
+}
+
+.realtime-map-container {
+    flex: 1;
+    min-height: 300px;
+}
+
+/* Realtime Member List */
+.realtime-member-list {
+    background: white;
+    border-top: 1px solid var(--border);
+    padding: 16px;
+    max-height: 40vh;
+    overflow-y: auto;
+}
+
+.realtime-member-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px;
+    border-radius: 12px;
+    margin-bottom: 8px;
+    background: var(--surface-secondary);
+    transition: all 0.2s ease;
+}
+
+.realtime-member-item:last-child {
+    margin-bottom: 0;
+}
+
+.realtime-member-item.current-user {
+    background: rgba(34, 197, 94, 0.08);
+    border: 1px solid rgba(34, 197, 94, 0.2);
+}
+
+.realtime-member-avatar {
+    width: 40px;
+    height: 40px;
+    background: var(--gradient-primary);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 14px;
+    font-weight: 600;
+    flex-shrink: 0;
+}
+
+.realtime-member-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.realtime-member-name {
+    display: block;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.realtime-member-status {
+    display: block;
+    font-size: 12px;
+    color: var(--text-secondary);
+    margin-top: 2px;
+}
+
+
+/* Departure Control - 위쪽 배치 */
+.departure-control {
+    position: fixed;
+    top: 70px;
+    right: 16px;
+    z-index: 100;
+}
+
+/* Departure Start Button */
+.btn-departure-start {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 10px 16px;
+    background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+    color: white;
+    border: none;
+    border-radius: 10px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 8px rgba(34, 197, 94, 0.3);
+}
+
+.btn-departure-start:hover {
+    background: linear-gradient(135deg, #16a34a 0%, #15803d 100%);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(34, 197, 94, 0.4);
+}
+
+/* Stop Button */
+.btn-stop-small {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 10px 16px;
+    background: #ef4444;
+    color: white;
+    border: none;
+    border-radius: 10px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 8px rgba(239, 68, 68, 0.3);
+}
+
+.btn-stop-small:hover {
+    background: #dc2626;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(239, 68, 68, 0.4);
+}
+
+/* Map Markers */
+.destination-marker {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    animation: bounce 2s ease-in-out infinite;
+}
+
+.realtime-member-marker {
+    width: 36px;
+    height: 36px;
+    background: var(--gradient-primary);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 14px;
+    font-weight: 600;
+    border: 3px solid white;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.realtime-member-marker.current-user {
+    background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+    animation: pulse-marker 2s ease-in-out infinite;
+}

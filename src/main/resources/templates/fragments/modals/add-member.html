@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<div th:fragment="add-member" id="add-member-modal" class="modal hidden">
+    <div class="modal-overlay" onclick="hideModal('add-member')"></div>
+    <div class="modal-content modal-app-style modal-lg">
+        <div class="modal-header-gradient">
+            <div class="modal-icon">
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                    <circle cx="8.5" cy="7" r="4"></circle>
+                    <line x1="20" y1="8" x2="20" y2="14"></line>
+                    <line x1="23" y1="11" x2="17" y2="11"></line>
+                </svg>
+            </div>
+            <h2>멤버 추가</h2>
+            <p>함께할 친구를 초대하세요</p>
+        </div>
+        <div class="modal-body">
+            <div class="search-box-new">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="11" cy="11" r="8"></circle>
+                    <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                </svg>
+                <input type="text" id="user-search" placeholder="이메일로 검색" autocomplete="off">
+                <button type="button" class="search-btn-new" onclick="searchUsers()">검색</button>
+            </div>
+            <div id="user-list" class="user-select-list-new">
+                <!-- User list rendered here -->
+            </div>
+            <div id="user-list-loading" class="loading hidden">
+                <div class="spinner"></div>
+            </div>
+            <div id="selected-users" class="selected-users-container-new hidden">
+                <h4>선택된 멤버</h4>
+                <div id="selected-users-list" class="selected-users-list"></div>
+            </div>
+        </div>
+        <div class="invite-divider">
+            <span>또는 초대 링크로 추가</span>
+        </div>
+
+        <div class="invite-link-wrapper">
+            <button type="button" class="btn-invite-copy" onclick="copyInviteLink()">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path>
+                    <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path>
+                </svg>
+                초대 링크 복사하기
+            </button>
+        </div>
+        <div class="modal-actions-new">
+            <button type="button" class="btn btn-cancel" onclick="hideModal('add-member')">취소</button>
+            <button type="button" class="btn btn-gradient" onclick="addSelectedMembers()">추가하기</button>
+        </div>
+    </div>
+</div>
+
+</html>

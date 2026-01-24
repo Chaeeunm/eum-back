@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<!-- Main page header -->
+<header th:fragment="main-header" class="header header-clean">
+    <h1 class="header-logo">Eum</h1>
+    <div class="header-actions">
+        <button class="btn btn-pill-small" onclick="showPage('create')">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="12" y1="5" x2="12" y2="19"></line>
+                <line x1="5" y1="12" x2="19" y2="12"></line>
+            </svg>
+            새 약속
+        </button>
+        <button class="btn btn-ghost" onclick="logout()">로그아웃</button>
+    </div>
+</header>
+
+<!-- Detail page header -->
+<header th:fragment="detail-header" class="header header-clean">
+    <button class="btn btn-icon" onclick="showPage('main')">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="15,18 9,12 15,6"></polyline>
+        </svg>
+    </button>
+    <h1 class="header-title">약속 상세</h1>
+    <div style="width: 40px;"></div>
+</header>
+
+<!-- Realtime page header -->
+<header th:fragment="realtime-header" class="header header-clean">
+    <button class="btn btn-icon" onclick="exitRealtimePage()">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="15,18 9,12 15,6"></polyline>
+        </svg>
+    </button>
+    <h1 class="header-title">실시간 위치</h1>
+    <div id="connection-status" class="connection-status">
+        <span class="status-dot"></span>
+    </div>
+</header>
+
+<!-- Create page header -->
+<header th:fragment="create-header" class="header header-clean">
+    <button class="btn btn-icon" onclick="showPage('main')">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="15,18 9,12 15,6"></polyline>
+        </svg>
+    </button>
+    <h1 class="header-title">새 약속</h1>
+    <div style="width: 40px;"></div>
+</header>
+
+</html>

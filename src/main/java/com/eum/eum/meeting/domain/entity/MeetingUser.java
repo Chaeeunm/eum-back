@@ -129,7 +129,7 @@ public class MeetingUser extends BaseEntity {
 
 	// ============ 상태 판단 메서드 ============
 
-	//연결 끊김 시 상태 판단
+	//연결 끊김/ 위치 전송 시 상태 판단
 	public void determineStatusOnDisconnect(Double lastLat, Double lastLng, Location meetingLocation) {
 		// 이미 도착했으면 상태 변경 안 함
 		if (this.movementStatus == MovementStatus.ARRIVED) {

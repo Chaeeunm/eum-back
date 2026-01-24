@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<div th:fragment="landing" id="landing-page" class="page">
+    <!-- Hero Section -->
+    <section class="hero-section">
+        <nav class="landing-nav">
+            <div class="nav-logo"><img src="/images/eum-logo.png" alt="Eum"></div>
+            <div class="nav-actions">
+                <button class="btn btn-ghost" onclick="showModal('login')">로그인</button>
+                <button class="btn btn-pill" onclick="showModal('signup')">시작하기</button>
+            </div>
+        </nav>
+
+        <div class="hero-content">
+            <!-- Floating Elements -->
+            <div class="floating-elements">
+                <div class="float-bubble bubble-1">
+                    <span class="bubble-icon">💬</span>
+                    다들 어디야?
+                </div>
+                <div class="float-bubble bubble-2">
+                    <span class="bubble-icon">⏰</span>
+                    몇 분 남았어?
+                </div>
+                <div class="float-card card-3">
+                    <div class="card-icon green">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                            <polyline points="20 6 9 17 4 12"></polyline>
+                        </svg>
+                    </div>
+                    현우님이 도착하였습니다.
+                </div>
+            </div>
+
+            <!-- Main Title -->
+            <div class="hero-title-group">
+                <h1 class="hero-title-line typing-text" data-text="말하지 않아도," >&nbsp;</h1>
+                <h1 class="hero-title-line gradient-text typing-text" data-text="이어지는 우리" data-delay="1800">&nbsp;</h1>
+            </div>
+
+            <p class="hero-subtitle">
+                복잡한 약속 조율은 이제 그만.<br>
+                Eum이 자연스럽게 모두를 연결합니다.
+            </p>
+            <div class="hero-buttons">
+                <button class="btn btn-large btn-primary" onclick="showModal('signup')">
+                    무료로 시작하기
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M5 12h14M12 5l7 7-7 7"/>
+                    </svg>
+                </button>
+                <button class="btn btn-large btn-outline" onclick="document.getElementById('features').scrollIntoView({behavior: 'smooth'})">
+                    더 알아보기
+                </button>
+            </div>
+        </div>
+
+        <!-- App Preview -->
+        <div class="hero-visual">
+            <div class="app-preview">
+                <div class="preview-header">
+                    <span class="preview-title">강남역 저녁 약속</span>
+                    <span class="preview-time">오후 7:00</span>
+                </div>
+
+                <div class="preview-map">
+                    <div class="map-placeholder">
+                        <div class="map-pin destination">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/>
+                            </svg>
+                        </div>
+                        <div class="friend-marker marker-1">
+                            <span>민</span>
+                        </div>
+                        <div class="friend-marker marker-2">
+                            <span>지</span>
+                        </div>
+                        <div class="friend-marker marker-3 arrived">
+                            <span>현</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="status-list">
+                    <div class="status-item arrived">
+                        <div class="status-avatar">현</div>
+                        <div class="status-info">
+                            <span class="status-name">현우</span>
+                            <span class="status-text">도착 완료</span>
+                        </div>
+                        <div class="status-badge success">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                                <polyline points="20 6 9 17 4 12"></polyline>
+                            </svg>
+                        </div>
+                    </div>
+                    <div class="status-item moving">
+                        <div class="status-avatar purple">지</div>
+                        <div class="status-info">
+                            <span class="status-name">지은</span>
+                            <span class="status-text">3분 후 도착</span>
+                        </div>
+                        <div class="status-badge eta">3분</div>
+                    </div>
+                    <div class="status-item moving">
+                        <div class="status-avatar blue">민</div>
+                        <div class="status-info">
+                            <span class="status-name">민수</span>
+                            <span class="status-text">이동 중</span>
+                        </div>
+                        <div class="status-badge eta">12분</div>
+                    </div>
+                    <div class="status-item waiting">
+                        <div class="status-avatar gray">수</div>
+                        <div class="status-info">
+                            <span class="status-name">수진</span>
+                            <span class="status-text">출발 전</span>
+                        </div>
+                        <div class="status-badge waiting-badge">대기</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section id="features" class="features-section">
+        <div class="section-container">
+            <div class="section-header-landing scroll-fade">
+                <h2 class="section-title">왜 Eum인가요?</h2>
+                <p class="section-desc">약속을 만들고 관리하는 가장 스마트한 방법</p>
+            </div>
+
+            <div class="features-grid">
+                <div class="feature-card scroll-fade" data-delay="100">
+                    <div class="feature-icon">
+                        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <polyline points="12 6 12 12 16 14"></polyline>
+                        </svg>
+                    </div>
+                    <h3>실시간 위치 공유</h3>
+                    <p>약속 시간이 다가오면 자동으로 위치를 공유하여 서로의 도착 시간을 확인할 수 있어요.</p>
+                </div>
+
+                <div class="feature-card scroll-fade" data-delay="500">
+                    <div class="feature-icon purple">
+                        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+                        </svg>
+                    </div>
+                    <h3>스마트 알림</h3>
+                    <p>중요한 약속을 놓치지 않도록 맞춤형 알림을 보내드려요. 출발 시간도 알려드릴게요.</p>
+                </div>
+
+                <div class="feature-card scroll-fade" data-delay="1000">
+                    <div class="feature-icon green">
+                        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                            <circle cx="9" cy="7" r="4"></circle>
+                            <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                            <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                        </svg>
+                    </div>
+                    <h3>간편한 멤버 초대</h3>
+                    <p>이메일 하나로 친구들을 초대하고, 함께 약속을 관리할 수 있어요.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="cta-section">
+        <div class="cta-content scroll-fade">
+            <h2>지금 바로 시작하세요</h2>
+            <p>복잡한 설정 없이, 바로 첫 약속을 만들어보세요.</p>
+            <button class="btn btn-large btn-white" onclick="showModal('signup')">
+                무료로 시작하기
+            </button>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <th:block th:replace="~{fragments/components/footer :: landing-footer}" />
+</div>
+
+</html>
