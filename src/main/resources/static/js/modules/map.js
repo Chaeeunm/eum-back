@@ -8,13 +8,23 @@ import {
     detailMap,
     detailMarker,
     ps,
+    routeMap,
+    routeData,
+    routePolylines,
+    selectedMeetingUserId,
+    routeDestinationMarker,
     setCreateMap,
     setCreateMarker,
     setDetailMap,
     setDetailMarker,
     setSelectedLat,
     setSelectedLng,
-    setPs
+    setPs,
+    setRouteMap,
+    setRouteData,
+    setRoutePolylines,
+    setSelectedMeetingUserId,
+    setRouteDestinationMarker
 } from '../core/state.js';
 import { showToast } from '../ui/toast.js';
 import { escapeHtml } from '../utils/helpers.js';
@@ -48,7 +58,7 @@ export function initCreateMap() {
 }
 
 // Place marker on create map
-export function placeMarkerOnCreate(lat, lng) {
+export function placeMarkerOnCreate(lat, lng, name=null) {
     const position = new kakao.maps.LatLng(lat, lng);
     const map = createMap;
 
@@ -66,6 +76,10 @@ export function placeMarkerOnCreate(lat, lng) {
     setSelectedLng(lng);
     document.getElementById('lat').value = lat;
     document.getElementById('lng').value = lng;
+    if (name) {
+            document.getElementById('locationName').value = name;
+            document.getElementById('selected-location').textContent = name;
+        }
 }
 
 // Reverse geocode coordinates to address
@@ -81,9 +95,11 @@ export function reverseGeocode(lat, lng) {
                 ? result[0].road_address.address_name
                 : result[0].address.address_name;
             document.getElementById('selected-location').textContent = address;
+            document.getElementById('locationName').value = address;
         } else {
-            document.getElementById('selected-location').textContent =
-                `${lat.toFixed(6)}, ${lng.toFixed(6)}`;
+         const coordsText = `${lat.toFixed(6)}, ${lng.toFixed(6)}`;
+          document.getElementById('selected-location').textContent = coordsText;
+          document.getElementById('locationName').value = coordsText;
         }
     });
 }
@@ -131,11 +147,16 @@ export function searchLocation() {
 export function selectPlace(place) {
     const lat = parseFloat(place.y);
     const lng = parseFloat(place.x);
+    // 장소 이름(place_name)을 hidden 필드와 화면에 표시
+    const locationNameEl = document.getElementById('locationName');
+    if (locationNameEl) {
+            locationNameEl.value = place.place_name;
+        }
 
     placeMarkerOnCreate(lat, lng);
     createMap.setCenter(new kakao.maps.LatLng(lat, lng));
     createMap.setLevel(3);
-
+// 화면 텍스트 업데이트 (주소 대신 장소 이름으로!)
     document.getElementById('selected-location').textContent = place.place_name;
     document.getElementById('search-results').classList.add('hidden');
     document.getElementById('location-search').value = '';
@@ -172,4 +193,142 @@ export function initDetailMap(lat, lng) {
         map: map
     });
     setDetailMarker(marker);
+}
+
+// Initialize map for route view (past meetings)
+export function initRouteMap(lat, lng) {
+    const container = document.getElementById('route-map');
+    if (!container || typeof kakao === 'undefined') return;
+
+    const position = new kakao.maps.LatLng(lat, lng);
+    const options = {
+        center: position,
+        level: 5
+    };
+
+    const map = new kakao.maps.Map(container, options);
+    setRouteMap(map);
+
+    // Add destination marker
+    const marker = new kakao.maps.Marker({
+        position: position,
+        map: map
+    });
+    setRouteDestinationMarker(marker);
+}
+
+// Draw routes on map
+export function drawRoutes(routes, users) {
+    if (!routeMap) return;
+
+    // Clear existing polylines
+    clearRoutePolylines();
+
+    const newPolylines = [];
+    const colors = ['#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', '#FFEAA7', '#DDA0DD', '#98D8C8'];
+
+    routes.forEach((routeItem, index) => {
+        if (!routeItem.route || routeItem.route.length < 2) return;
+
+        const path = routeItem.route.map(point =>
+            new kakao.maps.LatLng(point.lat, point.lng)
+        );
+
+        const polyline = new kakao.maps.Polyline({
+            path: path,
+            strokeWeight: 4,
+            strokeColor: colors[index % colors.length],
+            strokeOpacity: 0.8,
+            strokeStyle: 'solid'
+        });
+
+        polyline.meetingUserId = routeItem.meetingUserId;
+        polyline.setMap(routeMap);
+        newPolylines.push(polyline);
+    });
+
+    setRoutePolylines(newPolylines);
+
+    // Fit bounds to show all routes
+    fitRouteBounds();
+}
+
+// Show only selected user's route
+export function showUserRoute(meetingUserId) {
+    setSelectedMeetingUserId(meetingUserId);
+
+    routePolylines.forEach(polyline => {
+        if (meetingUserId === null) {
+            // Show all routes
+            polyline.setMap(routeMap);
+            polyline.setOptions({ strokeOpacity: 0.8 });
+        } else if (polyline.meetingUserId === meetingUserId) {
+            // Show selected route with full opacity
+            polyline.setMap(routeMap);
+            polyline.setOptions({ strokeOpacity: 1.0, strokeWeight: 5 });
+        } else {
+            // Dim other routes
+            polyline.setMap(routeMap);
+            polyline.setOptions({ strokeOpacity: 0.2, strokeWeight: 3 });
+        }
+    });
+
+    // Fit bounds to selected route
+    if (meetingUserId !== null) {
+        const selectedPolyline = routePolylines.find(p => p.meetingUserId === meetingUserId);
+        if (selectedPolyline) {
+            const path = selectedPolyline.getPath();
+            if (path.length > 0) {
+                const bounds = new kakao.maps.LatLngBounds();
+                path.forEach(point => bounds.extend(point));
+                routeMap.setBounds(bounds);
+            }
+        }
+    } else {
+        fitRouteBounds();
+    }
+}
+
+// Fit map bounds to show all routes
+function fitRouteBounds() {
+    if (!routeMap || routePolylines.length === 0) return;
+
+    const bounds = new kakao.maps.LatLngBounds();
+    let hasPoints = false;
+
+    routePolylines.forEach(polyline => {
+        const path = polyline.getPath();
+        path.forEach(point => {
+            bounds.extend(point);
+            hasPoints = true;
+        });
+    });
+
+    // Include destination marker
+    if (routeDestinationMarker) {
+        bounds.extend(routeDestinationMarker.getPosition());
+        hasPoints = true;
+    }
+
+    if (hasPoints) {
+        routeMap.setBounds(bounds);
+    }
+}
+
+// Clear all route polylines
+export function clearRoutePolylines() {
+    routePolylines.forEach(polyline => polyline.setMap(null));
+    setRoutePolylines([]);
+    setSelectedMeetingUserId(null);
+}
+
+// Reset route map state
+export function resetRouteMap() {
+    clearRoutePolylines();
+    if (routeDestinationMarker) {
+        routeDestinationMarker.setMap(null);
+        setRouteDestinationMarker(null);
+    }
+    setRouteMap(null);
+    setRouteData([]);
 }

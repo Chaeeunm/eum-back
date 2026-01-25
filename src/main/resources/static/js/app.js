@@ -27,6 +27,8 @@ import {
     openRealtimeFromList,
     loadMeetingDetail,
     createMeeting,
+    selectMemberForRoute,
+    showAllRoutes,
     setShowPageHandler as setMeetingShowPageHandler,
     setOpenDepartureModalHandler,
     setOpenRealtimePageHandler
@@ -106,6 +108,8 @@ window.appModules = {
     openDepartureFromList,
     openRealtimeFromList,
     createMeeting,
+    selectMemberForRoute,
+    showAllRoutes,
 
     // Member
     openAddMemberModal,
@@ -143,6 +147,8 @@ window.goToMeetingDetail = goToMeetingDetail;
 window.openDepartureFromList = openDepartureFromList;
 window.openRealtimeFromList = openRealtimeFromList;
 window.createMeeting = createMeeting;
+window.selectMemberForRoute = selectMemberForRoute;
+window.showAllRoutes = showAllRoutes;
 window.openAddMemberModal = openAddMemberModal;
 window.searchUsers = searchUsers;
 window.removeSelectedUser = removeSelectedUser;

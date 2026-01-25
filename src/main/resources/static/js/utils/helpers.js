@@ -73,6 +73,22 @@ export function isDDay(meetAtStr) {
     return meetDate.getTime() === todayDate.getTime();
 }
 
+// Check if meeting is past (at least 1 day ago)
+export function isPastMeeting(meetAtStr) {
+    if (!meetAtStr) return false;
+
+    const meetAt = new Date(meetAtStr.replace(' ', 'T'));
+    const today = new Date();
+
+    const meetDate = new Date(meetAt.getFullYear(), meetAt.getMonth(), meetAt.getDate());
+    const todayDate = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+
+    const diffTime = todayDate - meetDate;
+    const diffDays = Math.round(diffTime / (1000 * 60 * 60 * 24));
+
+    return diffDays >= 1;
+}
+
 // Escape HTML to prevent XSS
 export function escapeHtml(text) {
     if (!text) return '';

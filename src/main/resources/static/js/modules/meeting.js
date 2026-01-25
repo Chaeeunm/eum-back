@@ -12,13 +12,17 @@ import {
     hasMoreMeetings,
     isLoadingMore,
     currentMeetingTab,
+    routeData,
+    selectedMeetingUserId,
     setCurrentMeetingId,
     setCurrentMeetingData,
     setCurrentMeetingUsers,
     setMeetingsCurrentPage,
     setHasMoreMeetings,
     setIsLoadingMore,
-    setCurrentMeetingTab
+    setCurrentMeetingTab,
+    setRouteData,
+    setSelectedMeetingUserId
 } from '../core/state.js';
 import { apiRequest } from '../core/api.js';
 import { showToast } from '../ui/toast.js';
@@ -27,12 +31,13 @@ import {
     formatDateShort,
     calculateDDay,
     isDDay,
+    isPastMeeting,
     escapeHtml,
     getMovementStatusInfo,
     calculateDistance,
     formatDistance
 } from '../utils/helpers.js';
-import { initDetailMap, resetLocationSelection, initCreateMap } from './map.js';
+import { initDetailMap, resetLocationSelection, initCreateMap, initRouteMap, drawRoutes, showUserRoute } from './map.js';
 import { openAddMemberModal } from './member.js';
 
 // Forward declarations (will be set by router/realtime)
@@ -328,9 +333,20 @@ export async function loadMeetingDetail(meetingId) {
         setCurrentMeetingData(meeting);
         detailEl.innerHTML = createMeetingDetail(meeting);
 
+        const isPast = isPastMeeting(meeting.meetAt);
+
         // Initialize map if location exists
         if (meeting.lat && meeting.lng) {
-            setTimeout(() => initDetailMap(meeting.lat, meeting.lng), 100);
+            if (isPast) {
+                // 지난 약속: 경로 지도 초기화 및 내 경로 기본 표시
+                setTimeout(() => {
+                    initRouteMap(meeting.lat, meeting.lng);
+                    loadRoutesAndShowMine(meeting.users);
+                }, 100);
+            } else {
+                // 일반 약속: 상세 지도 초기화
+                setTimeout(() => initDetailMap(meeting.lat, meeting.lng), 100);
+            }
         }
     } catch (error) {
         detailEl.innerHTML = '<p style="text-align: center; padding: 40px; color: var(--text-secondary);">Failed to load meeting details</p>';
@@ -345,6 +361,7 @@ function createMeetingDetail(meeting) {
 
     const dDayInfo = calculateDDay(meeting.meetAt);
     const timeStr = meeting.meetAt ? formatTime(meeting.meetAt) : '';
+    const isPast = isPastMeeting(meeting.meetAt);
 
     // Participant status list
     let statusListHtml = '';
@@ -363,8 +380,12 @@ function createMeetingDetail(meeting) {
                 distanceHtml = `<div class="member-distance">${formatDistance(distance)}</div>`;
             }
 
+            // 지난 약속이면 클릭 가능하게
+            const clickAttr = isPast ? `onclick="window.appModules.selectMemberForRoute(${u.meetingUserId})"` : '';
+            const clickableClass = isPast ? ' clickable-member' : '';
+
             return `
-                <div class="status-item ${statusInfo.itemClass}${isMe ? ' is-me' : ''}">
+                <div class="status-item ${statusInfo.itemClass}${isMe ? ' is-me' : ''}${clickableClass}" data-meeting-user-id="${u.meetingUserId}" ${clickAttr}>
                     <div class="status-avatar ${avatarColor}">${initial}</div>
                     <div class="status-info">
                         <span class="status-name">${escapeHtml(u.nickName || u.email)}${isMe ? ' (나)' : ''}${u.isCreator ? ' <span class="creator-badge">방장</span>' : ''}</span>
@@ -377,23 +398,38 @@ function createMeetingDetail(meeting) {
         }).join('');
     }
 
-    // Map HTML
+    // Map HTML - 지난 약속이면 경로 지도, 아니면 상세 지도
     let mapHtml = '';
     if (hasLocation) {
-        mapHtml = `
-            <div class="preview-map">
-                <div class="status-list-header">
-                    <h3>약속 장소</h3>
+        if (isPast) {
+            mapHtml = `
+                <div class="preview-map route-map-section" id="route-map-section">
+                    <div class="status-list-header">
+                        <h3>이동 경로</h3>
+                        <button type="button" class="btn btn-show-all-routes" onclick="window.appModules.showAllRoutes()">
+                            전체 보기
+                        </button>
+                    </div>
+                    <div id="route-map" class="route-map-container"></div>
                 </div>
-                <div id="detail-map" class="detail-map-container-new"></div>
-            </div>
-        `;
+            `;
+        } else {
+            mapHtml = `
+                <div class="preview-map">
+                    <div class="status-list-header">
+                        <h3>약속 장소</h3>
+                        <span class="location-name-detail">${escapeHtml(meeting.locationName || '지정된 장소')}</span>
+                    </div>
+                    <div id="detail-map" class="detail-map-container-new"></div>
+                </div>
+            `;
+        }
     }
 
     const isToday = isDDay(meeting.meetAt);
     const movingCount = meeting.users ? meeting.users.filter(u => u.movementStatus === 'MOVING').length : 0;
 
-    // Action buttons
+    // Action buttons (지난 약속은 버튼 없음)
     let actionButtonsHtml = '';
     if (isToday) {
         actionButtonsHtml = `
@@ -429,7 +465,8 @@ function createMeetingDetail(meeting) {
             ${mapHtml}
             <div class="status-list-detail">
                 <div class="status-list-header">
-                    <h3>참가자 (${meeting.users ? meeting.users.length : 0}명)</h3>
+                    <h3>참가자 (${meeting.users ? meeting.users.length : 0}명)${isPast ? ' <span class="route-hint">클릭하여 경로 보기</span>' : ''}</h3>
+                    ${!isPast ? `
                     <button type="button" class="add-member-btn-small" onclick="window.appModules.openAddMemberModal()">
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <line x1="12" y1="5" x2="12" y2="19"></line>
@@ -437,6 +474,7 @@ function createMeetingDetail(meeting) {
                         </svg>
                         추가
                     </button>
+                    ` : ''}
                 </div>
                 ${statusListHtml}
             </div>
@@ -454,6 +492,7 @@ export async function createMeeting(event) {
     const meetAtInput = form.meetAt.value;
     const lat = form.lat.value ? parseFloat(form.lat.value) : null;
     const lng = form.lng.value ? parseFloat(form.lng.value) : null;
+    const locationName = form.locationName ? form.locationName.value : null;
 
     // Convert datetime-local to "yyyy-MM-dd HH:mm" format
     const meetAt = meetAtInput ? meetAtInput.replace('T', ' ') : null;
@@ -463,7 +502,8 @@ export async function createMeeting(event) {
         description: description || null,
         meetAt,
         lat,
-        lng
+        lng,
+        locationName
     };
 
     try {
@@ -484,4 +524,70 @@ export async function createMeeting(event) {
     } catch (error) {
         showToast(error.message || 'Failed to create meeting', 'error');
     }
+}
+
+// Load routes from API and show my route by default
+async function loadRoutesAndShowMine(users) {
+    if (!currentMeetingId) return;
+
+    try {
+        const response = await apiRequest(`/api/routes/meetings/${currentMeetingId}`);
+
+        if (!response.ok) {
+            throw new Error('경로 데이터를 불러올 수 없습니다.');
+        }
+
+        const routes = await response.json();
+        setRouteData(routes);
+
+        // Draw all routes on map
+        drawRoutes(routes, currentMeetingUsers);
+
+        // 내 meetingUserId 찾기 및 기본 선택
+        if (currentUser && users) {
+            const myUser = users.find(u => u.email === currentUser.email);
+            if (myUser && myUser.meetingUserId) {
+                showUserRoute(myUser.meetingUserId);
+                updateMemberSelection(myUser.meetingUserId);
+            }
+        }
+
+    } catch (error) {
+        showToast(error.message || '경로 데이터를 불러올 수 없습니다.', 'error');
+    }
+}
+
+// Select member to show their route
+export function selectMemberForRoute(meetingUserId) {
+    // Toggle selection - if already selected, deselect
+    if (selectedMeetingUserId === meetingUserId) {
+        showUserRoute(null);
+        updateMemberSelection(null);
+    } else {
+        showUserRoute(meetingUserId);
+        updateMemberSelection(meetingUserId);
+    }
+}
+
+// Show all routes
+export function showAllRoutes() {
+    showUserRoute(null);
+    updateMemberSelection(null);
+}
+
+// Update member selection UI
+function updateMemberSelection(meetingUserId) {
+    setSelectedMeetingUserId(meetingUserId);
+
+    // Update visual selection state
+    document.querySelectorAll('.status-item.clickable-member').forEach(item => {
+        const itemId = parseInt(item.dataset.meetingUserId);
+        if (meetingUserId === null) {
+            item.classList.remove('selected-member');
+        } else if (itemId === meetingUserId) {
+            item.classList.add('selected-member');
+        } else {
+            item.classList.remove('selected-member');
+        }
+    });
 }

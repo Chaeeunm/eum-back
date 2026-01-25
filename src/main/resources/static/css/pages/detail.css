@@ -158,3 +158,73 @@
     font-weight: 700;
     animation: pulse-badge 2s ease-in-out infinite;
 }
+
+/* 장소 이름이 길면 ...으로 생략 */
+.location-name-detail, .location-meta {
+    display: block;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+}
+
+/* ================================
+   Route View Styles (Past Meetings)
+   ================================ */
+
+/* Route Map Container */
+.route-map-section {
+    padding: 16px;
+    background: #f0f4f8;
+}
+
+.route-map-container {
+    width: 100%;
+    height: 280px;
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+/* Show All Routes Button */
+.btn-show-all-routes {
+    padding: 6px 12px;
+    background: var(--surface-secondary);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--accent);
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.btn-show-all-routes:hover {
+    background: var(--accent);
+    color: white;
+    border-color: var(--accent);
+}
+
+/* Clickable Member Item */
+.status-item.clickable-member {
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.status-item.clickable-member:hover {
+    background: rgba(102, 126, 234, 0.1);
+    border: 1px solid rgba(102, 126, 234, 0.3);
+}
+
+.status-item.clickable-member.selected-member {
+    background: rgba(102, 126, 234, 0.15);
+    border: 2px solid var(--accent);
+}
+
+/* Route Hint Text */
+.route-hint {
+    font-size: 11px;
+    font-weight: 400;
+    color: var(--text-secondary);
+    margin-left: 8px;
+}

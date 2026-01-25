@@ -46,6 +46,8 @@ public class Meeting extends BaseEntity {
 	@Embedded
 	private Location location;
 
+	private String locationName;
+
 	//멤버들
 	@OneToMany(fetch = FetchType.LAZY,
 		mappedBy = "meeting", //meetingUser의 meeting 필드가 fk를 관리할 것 = 주인
@@ -65,6 +67,7 @@ public class Meeting extends BaseEntity {
 		String description,
 		LocalDateTime meetAt,
 		Location location,
+		String locationName,
 		User creator) {
 
 		validateMeetingTime(meetAt);
@@ -74,6 +77,7 @@ public class Meeting extends BaseEntity {
 			.description(description)
 			.meetAt(meetAt)
 			.location(location)
+			.locationName(locationName)
 			.build();
 
 		// 생성자를 자동으로 참가자로 추가

@@ -22,6 +22,7 @@ public class MeetingResponseDto {
 	private LocalDateTime meetAt;
 	private Double lat;
 	private Double lng;
+	private String locationName;
 	private List<MeetingUserResponseDto> users;
 
 	// 기본 버전 (users 없음)
@@ -36,6 +37,7 @@ public class MeetingResponseDto {
 			.meetAt(meeting.getMeetAt())
 			.lat(lat)
 			.lng(lng)
+			.locationName(meeting.getLocationName())
 			.users(null) // 기본 버전에는 users 없음
 			.build();
 	}

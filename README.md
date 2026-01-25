@@ -7,9 +7,10 @@
 
 - **일정 생성 및 멤버 초대**: 약속을 만들고 함께할 친구들을 초대
 - **실시간 위치 발행**: 약속 당일, 출발 버튼을 누르면 내 위치가 실시간으로 공유됨
+- **실시간 거리 계산**: 하버사인 공식으로 도착지까지 남은 거리를 계산합니다
 - **실시간 위치 확인**: 다른 사람의 위치가 궁금하면 실시간 위치 확인을 통해 이동 중인 위치를 볼 수 있음
 - **자동 도착 감지**: 약속 장소 근처에 도착하면 자동으로 도착 상태로 변경
-- **(todo) 경로 조회**: 사람들이 이동한 경로를 조회할 수 있습니다.
+- **경로 조회**: 사람들이 이동한 경로를 조회할 수 있습니다.
 
 ## 기술 스택
 
@@ -17,7 +18,7 @@
 |-----------|------------------------------------|
 | Language  | Java 21                            |
 | Framework | Spring Boot 3.5.9                  |
-| Database  | H2 (개발용), JPA/Hibernate            |
+| Database  | Postgresql, JPA/Hibernate          |
 | Cache     | Redis                              |
 | Real-time | WebSocket + STOMP                  |
 | Auth      | JWT (Access Token + Refresh Token) |
@@ -178,64 +179,6 @@ src/main/java/com/eum/eum/
     └── session/             # 세션 레지스트리 (Redis 기반)
 ```
 
-## 주요 도메인 엔티티
-
-### Meeting (약속)
-
-| 필드          | 설명              |
-|-------------|-----------------|
-| title       | 약속 제목           |
-| description | 약속 설명           |
-| meetAt      | 약속 시간           |
-| location    | 목적지 좌표 (위도, 경도) |
-
-### MeetingUser (약속 참여자)
-
-| 필드             | 설명                                    |
-|----------------|---------------------------------------|
-| movementStatus | 이동 상태 (PENDING/MOVING/PAUSED/ARRIVED) |
-| transportType  | 이동 수단                                 |
-| departedAt     | 출발 시각                                 |
-| arrivedAt      | 도착 시각                                 |
-| lastMovingTime | 마지막 이동 감지 시간                          |
-| departure      | 출발지 좌표                                |
-| lastLocation   | 최근 위치 좌표                              |
-
-### LocationHistory (위치 기록)
-
-| 필드          | 설명     |
-|-------------|--------|
-| meetingUser | 참여자 정보 |
-| location    | 위치 좌표  |
-| movedAt     | 이동 시각  |
-
-## API 엔드포인트
-
-### REST API
-
-| Method | Endpoint                   | 설명       |
-|--------|----------------------------|----------|
-| POST   | `/api/auth/signup`         | 회원가입     |
-| POST   | `/api/auth/login`          | 로그인      |
-| POST   | `/api/auth/refresh`        | 토큰 재발급   |
-| GET    | `/api/meetings`            | 약속 목록 조회 |
-| POST   | `/api/meetings`            | 약속 생성    |
-| GET    | `/api/meetings/{id}`       | 약속 상세 조회 |
-| PUT    | `/api/meetings/{id}`       | 약속 수정    |
-| DELETE | `/api/meetings/{id}`       | 약속 삭제    |
-| POST   | `/api/meetings/{id}/users` | 참여자 추가   |
-| DELETE | `/api/meetings/{id}/users` | 참여자 제거   |
-
-### WebSocket (STOMP)
-
-| 구분        | 경로                                                               | 설명           |
-|-----------|------------------------------------------------------------------|--------------|
-| Endpoint  | `/ws`                                                            | WebSocket 연결 |
-| Publish   | `/pub/meeting/{meetingId}/init`                                  | 초기 위치 조회 요청  |
-| Publish   | `/pub/meeting/{meetingId}/meeting-user/{meetingUserId}/location` | 위치 발행        |
-| Subscribe | `/sub/meeting/{meetingId}/location`                              | 위치 구독        |
-| Subscribe | `/sub/kick`                                                      | 중복 로그인 알림    |
-
 ## 실행 방법
 
 ### 1. Redis 실행
@@ -259,6 +202,5 @@ http://localhost:8080/swagger-ui.html
 ## 향후 계획
 
 - [ ] Redis Pub/Sub 기반 분산 서버 지원
-- [ ] 이동 경로 시각화
 - [ ] 예상 도착 시간 계산
 - [ ] 푸시 알림 연동

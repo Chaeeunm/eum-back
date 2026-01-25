@@ -21,9 +21,10 @@ public class MeetingCreateRequestDto {
 	private LocalDateTime meetAt;
 	private Double lat;
 	private Double lng;
+	private String locationName;
 
 	public Meeting toEntity(User creator) {
 		Location location = new Location(lat, lng);
-		return Meeting.create(title, description, meetAt, location, creator);
+		return Meeting.create(title, description, meetAt, location, locationName, creator);
 	}
 }

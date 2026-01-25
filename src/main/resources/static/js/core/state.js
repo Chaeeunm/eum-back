@@ -46,6 +46,13 @@ export let isUpdatingHash = false;
 // Invite State
 export let currentInviteCode = null;
 
+// Route State
+export let routeMap = null;
+export let routeData = [];
+export let routePolylines = [];
+export let selectedMeetingUserId = null;
+export let routeDestinationMarker = null;
+
 // API Base URL
 export const API_BASE = '';
 
@@ -152,6 +159,26 @@ export function setIsUpdatingHash(value) {
 
 export function setCurrentInviteCode(code) {
     currentInviteCode = code;
+}
+
+export function setRouteMap(map) {
+    routeMap = map;
+}
+
+export function setRouteData(data) {
+    routeData = data;
+}
+
+export function setRoutePolylines(polylines) {
+    routePolylines = polylines;
+}
+
+export function setSelectedMeetingUserId(id) {
+    selectedMeetingUserId = id;
+}
+
+export function setRouteDestinationMarker(marker) {
+    routeDestinationMarker = marker;
 }
 
 // Clear selected user ids
