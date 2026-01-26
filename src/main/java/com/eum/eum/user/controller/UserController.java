@@ -2,12 +2,17 @@ package com.eum.eum.user.controller;
 
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.eum.eum.user.domain.entity.User;
 import com.eum.eum.user.dto.UserListResponseDto;
+import com.eum.eum.user.dto.UserUpdateDto;
 import com.eum.eum.user.service.UserService;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -39,5 +44,14 @@ public class UserController {
 		@RequestParam(defaultValue = "10") int size
 	) {
 		return ResponseEntity.ok(userService.searchUsersByEmail(email, page, size));
+	}
+
+	@PatchMapping
+	@Operation(summary = "닉네임, 비번변경 API")
+	public ResponseEntity<Boolean> updateUser(
+		@AuthenticationPrincipal User user,
+		@RequestBody UserUpdateDto updateDto
+	) {
+		return ResponseEntity.ok(userService.updateUser(user.getEmail(), updateDto));
 	}
 }

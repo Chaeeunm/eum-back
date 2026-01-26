@@ -60,4 +60,13 @@ public class User extends BaseEntity implements UserDetails {
 	public void clearRefreshToken() {
 		this.refreshToken = null;
 	}
+
+	public void updateProfile(String password, String nickName) {
+		if (password != null && !password.isBlank()) {
+			this.password = password;
+		}
+		if (nickName != null && !nickName.isBlank()) {
+			this.nickName = nickName;
+		}
+	}
 }

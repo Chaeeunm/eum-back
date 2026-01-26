@@ -491,3 +491,182 @@
     margin-bottom: 12px;
     font-weight: 600;
 }
+
+/* ================================
+   Profile Edit Modal
+   ================================ */
+
+.modal-profile {
+    max-width: 400px;
+}
+
+.profile-email {
+    font-size: 13px;
+    opacity: 0.85;
+    word-break: break-all;
+}
+
+.profile-divider {
+    position: relative;
+    text-align: center;
+    margin: 24px 0 20px;
+}
+
+.profile-divider::before {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--border), transparent);
+}
+
+.profile-divider span {
+    position: relative;
+    background: var(--surface);
+    padding: 0 16px;
+    font-size: 12px;
+    color: var(--text-secondary);
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.form-hint {
+    font-size: 12px;
+    color: var(--text-secondary);
+    text-align: center;
+    margin: 4px 0 20px;
+}
+
+.profile-logout-section {
+    margin-top: 24px;
+    padding-top: 20px;
+    border-top: 1px solid var(--border);
+}
+
+.btn-logout {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 14px 20px;
+    background: transparent;
+    color: #ef4444;
+    border: 1px solid #fecaca;
+    border-radius: 12px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.btn-logout:hover {
+    background: #fef2f2;
+    border-color: #ef4444;
+}
+
+.btn-logout svg {
+    stroke: currentColor;
+}
+
+/* Profile Info Sections */
+.profile-info-section {
+    background: var(--surface-secondary);
+    border-radius: 12px;
+    padding: 16px;
+    margin-bottom: 12px;
+}
+
+.profile-info-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.profile-info-label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    color: var(--text-secondary);
+    font-weight: 500;
+}
+
+.profile-info-label svg {
+    color: var(--text-secondary);
+}
+
+.profile-info-value {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.profile-info-value span {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.password-mask {
+    letter-spacing: 2px;
+    color: var(--text-secondary) !important;
+}
+
+.btn-edit-small {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 6px 10px;
+    background: transparent;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--accent);
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.btn-edit-small:hover {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: white;
+}
+
+.btn-edit-small svg {
+    stroke: currentColor;
+}
+
+.edit-input-section {
+    margin-top: 12px;
+    padding-top: 12px;
+    border-top: 1px solid var(--border);
+    animation: slideDown 0.2s ease;
+}
+
+.edit-input-section .form-group-new {
+    margin-bottom: 10px;
+}
+
+.edit-input-section .form-group-new:last-child {
+    margin-bottom: 0;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-8px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.modal-profile .btn-gradient {
+    margin-top: 20px;
+}

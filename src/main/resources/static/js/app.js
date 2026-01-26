@@ -12,7 +12,7 @@ import { showModal, hideModal, switchModal } from './ui/modal.js';
 import { initLandingAnimations } from './ui/animation.js';
 
 // Import Modules
-import { login, signup, logout, setShowPageHandler as setAuthShowPageHandler, setCheckPendingInviteCodeHandler } from './modules/auth.js';
+import { login, signup, logout, openProfileModal, updateProfile, logoutFromProfile, toggleNicknameEdit, togglePasswordEdit, setShowPageHandler as setAuthShowPageHandler, setCheckPendingInviteCodeHandler } from './modules/auth.js';
 import {
     initKakaoPlaces,
     searchLocation,
@@ -86,6 +86,11 @@ window.appModules = {
     login,
     signup,
     logout,
+    openProfileModal,
+    updateProfile,
+    logoutFromProfile,
+    toggleNicknameEdit,
+    togglePasswordEdit,
 
     // Navigation
     showPage,
@@ -135,6 +140,11 @@ window.appModules = {
 window.login = login;
 window.signup = signup;
 window.logout = logout;
+window.openProfileModal = openProfileModal;
+window.updateProfile = updateProfile;
+window.logoutFromProfile = logoutFromProfile;
+window.toggleNicknameEdit = toggleNicknameEdit;
+window.togglePasswordEdit = togglePasswordEdit;
 window.showPage = showPage;
 window.navigateTo = navigateTo;
 window.showModal = showModal;

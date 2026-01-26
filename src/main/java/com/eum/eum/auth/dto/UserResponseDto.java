@@ -17,6 +17,7 @@ import lombok.Setter;
 public class UserResponseDto {
 	private String accessToken;
 	private String email;
+	private String nickName;
 	private UserRole role;
 
 	public static UserResponseDto of(String token) {
@@ -29,6 +30,7 @@ public class UserResponseDto {
 		return UserResponseDto.builder()
 			.accessToken(token)
 			.email(user.getEmail())
+			.nickName(user.getNickName())
 			.role(user.getRole())
 			.build();
 	}
@@ -36,6 +38,7 @@ public class UserResponseDto {
 	public static UserResponseDto of(User user) {
 		return UserResponseDto.builder()
 			.email(user.getEmail())
+			.nickName(user.getNickName())
 			.role(user.getRole())
 			.build();
 	}

@@ -41,6 +41,8 @@
 
 .btn-icon:hover {
     color: var(--accent);
+    transform: none;
+    box-shadow: none;
 }
 
 /* Full Width Button */
