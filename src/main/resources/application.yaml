@@ -3,6 +3,8 @@ spring:
     name: eum
   profiles:
     active: ${SPRING_PROFILE:dev}
+  jackson:
+    time-zone: Asia/Seoul
   jpa:
     properties:
       hibernate:
