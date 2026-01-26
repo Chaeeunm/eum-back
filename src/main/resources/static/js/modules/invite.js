@@ -150,36 +150,63 @@ export async function checkPendingInviteCode() {
     return false;
 }
 
-// Copy text to clipboard with fallback for mobile
-async function copyToClipboard(text) {
-    // Try modern Clipboard API first
-    if (navigator.clipboard && window.isSecureContext) {
-        try {
-            await navigator.clipboard.writeText(text);
-            return true;
-        } catch (err) {
-            // Fall through to fallback
-        }
-    }
-
-    // Fallback for mobile browsers and non-secure contexts
+// Copy text to clipboard with fallback for mobile (especially Safari)
+function copyToClipboard(text) {
+    // Fallback method using textarea - works better in Safari
+    // Safari requires synchronous execution within user gesture context
     const textArea = document.createElement('textarea');
     textArea.value = text;
-    textArea.style.position = 'fixed';
-    textArea.style.left = '-9999px';
-    textArea.style.top = '-9999px';
-    document.body.appendChild(textArea);
-    textArea.focus();
-    textArea.select();
 
-    try {
-        const successful = document.execCommand('copy');
-        document.body.removeChild(textArea);
-        return successful;
-    } catch (err) {
-        document.body.removeChild(textArea);
-        return false;
+    // Prevent zooming on iOS
+    textArea.style.fontSize = '16px';
+
+    // Hide element while keeping it functional
+    textArea.style.position = 'fixed';
+    textArea.style.left = '0';
+    textArea.style.top = '0';
+    textArea.style.width = '2em';
+    textArea.style.height = '2em';
+    textArea.style.padding = '0';
+    textArea.style.border = 'none';
+    textArea.style.outline = 'none';
+    textArea.style.boxShadow = 'none';
+    textArea.style.background = 'transparent';
+    textArea.style.opacity = '0';
+
+    // iOS Safari requires these
+    textArea.setAttribute('readonly', '');
+    textArea.setAttribute('contenteditable', 'true');
+
+    document.body.appendChild(textArea);
+
+    // iOS Safari specific selection
+    if (navigator.userAgent.match(/ipad|iphone/i)) {
+        const range = document.createRange();
+        range.selectNodeContents(textArea);
+        const selection = window.getSelection();
+        selection.removeAllRanges();
+        selection.addRange(range);
+        textArea.setSelectionRange(0, 999999);
+    } else {
+        textArea.focus();
+        textArea.select();
     }
+
+    let successful = false;
+    try {
+        successful = document.execCommand('copy');
+    } catch (err) {
+        // Silent fail
+    }
+
+    document.body.removeChild(textArea);
+
+    // Also try modern API (won't work in Safari after async, but good for other browsers)
+    if (!successful && navigator.clipboard && window.isSecureContext) {
+        navigator.clipboard.writeText(text).catch(() => {});
+    }
+
+    return successful;
 }
 
 // Copy invite link
@@ -201,13 +228,70 @@ export async function copyInviteLink() {
         const inviteCode = await response.text();
         const inviteUrl = `${window.location.origin}?code=${inviteCode}`;
 
-        const copied = await copyToClipboard(inviteUrl);
+        // Try Web Share API first (works best on iOS Safari)
+        if (navigator.share) {
+            try {
+                await navigator.share({
+                    title: '약속 초대',
+                    text: '약속에 참여해주세요!',
+                    url: inviteUrl
+                });
+                showToast('초대 링크를 공유했습니다!', 'success');
+                return;
+            } catch (shareErr) {
+                // User cancelled or share failed - fall through to clipboard
+                if (shareErr.name === 'AbortError') {
+                    return; // User cancelled, don't show error
+                }
+            }
+        }
+
+        // Fallback to clipboard copy
+        const copied = copyToClipboard(inviteUrl);
         if (copied) {
             showToast('초대 링크가 클립보드에 복사되었습니다!', 'success');
         } else {
-            throw new Error('클립보드 복사에 실패했습니다.');
+            // Last resort: show link in a prompt for manual copy
+            showManualCopyModal(inviteUrl);
         }
     } catch (error) {
         showToast(error.message || '링크 복사에 실패했습니다.', 'error');
     }
+}
+
+// Show manual copy modal as last resort
+function showManualCopyModal(url) {
+    const existingModal = document.getElementById('manual-copy-modal');
+    if (existingModal) {
+        existingModal.remove();
+    }
+
+    const modal = document.createElement('div');
+    modal.id = 'manual-copy-modal';
+    modal.className = 'modal';
+    modal.innerHTML = `
+        <div class="modal-content modal-app-style">
+            <div class="modal-header">
+                <h3>초대 링크</h3>
+            </div>
+            <div class="modal-body">
+                <p style="margin-bottom: 12px;">아래 링크를 길게 눌러 복사해주세요:</p>
+                <input type="text" value="${url}" readonly
+                    style="width: 100%; padding: 12px; border: 1px solid var(--border-color); border-radius: 8px; font-size: 14px;"
+                    onclick="this.select();">
+            </div>
+            <div class="modal-actions">
+                <button class="btn btn-gradient" onclick="document.getElementById('manual-copy-modal').remove()">닫기</button>
+            </div>
+        </div>
+    `;
+    document.body.appendChild(modal);
+    modal.classList.add('show');
+
+    // Close on backdrop click
+    modal.addEventListener('click', (e) => {
+        if (e.target === modal) {
+            modal.remove();
+        }
+    });
 }
