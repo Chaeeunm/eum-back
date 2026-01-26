@@ -1,5 +1,7 @@
 package com.eum.eum.meeting.domain.repository;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Optional;
 
 import org.springframework.data.domain.Page;
@@ -28,9 +30,9 @@ public interface MeetingRepository extends JpaRepository<Meeting, Long> {
 			)
 			and m.status = :status
 			and (
-			    (:isPast = true and m.meetAt < CURRENT_DATE)
+			    (:isPast = true and m.meetAt < :cutoffTime)
 			    or
-			    (:isPast = false and m.meetAt >= CURRENT_DATE)
+			    (:isPast = false and m.meetAt >= :cutoffTime)
 			)
 			""",
 		countQuery = """
@@ -44,9 +46,9 @@ public interface MeetingRepository extends JpaRepository<Meeting, Long> {
 			)
 			and m.status = :status
 			and (
-			    (:isPast = true and m.meetAt < CURRENT_DATE)
+			    (:isPast = true and m.meetAt < :cutoffTime)
 			    or
-			    (:isPast = false and m.meetAt >= CURRENT_DATE)
+			    (:isPast = false and m.meetAt >= :cutoffTime)
 			)
 			"""
 	)
@@ -54,6 +56,7 @@ public interface MeetingRepository extends JpaRepository<Meeting, Long> {
 		@Param("userId") Long userId,
 		@Param("status") EntityStatus status,
 		@Param("isPast") boolean isPast,
+		@Param("today") LocalDateTime cutoffTime,
 		Pageable pageable
 	);
 

@@ -40,6 +40,9 @@ export let destinationMarker = null;
 export let currentMeetingUserId = null;
 export let isDepartureMode = false;
 
+// Navigation Route State
+export let navigationPolyline = null;
+
 // Routing State
 export let isUpdatingHash = false;
 
@@ -151,6 +154,10 @@ export function setCurrentMeetingUserId(id) {
 
 export function setIsDepartureMode(value) {
     isDepartureMode = value;
+}
+
+export function setNavigationPolyline(polyline) {
+    navigationPolyline = polyline;
 }
 
 export function setIsUpdatingHash(value) {

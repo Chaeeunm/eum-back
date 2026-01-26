@@ -70,6 +70,13 @@ export async function login(event) {
     }
 }
 
+// Email validation helper
+function isValidEmail(email) {
+    // 이메일 형식: 영문/숫자@영문/숫자.영문 (최소 2자)
+    const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+    return emailRegex.test(email);
+}
+
 // Signup
 export async function signup(event) {
     event.preventDefault();
@@ -78,6 +85,12 @@ export async function signup(event) {
     const email = form.email.value;
     const nickName = form.nickName.value;
     const password = form.password.value;
+
+    // 이메일 형식 검증
+    if (!isValidEmail(email)) {
+        showToast('올바른 이메일 형식을 입력해주세요 (예: user@example.com)', 'error');
+        return;
+    }
 
     try {
         const response = await fetch(API_BASE + '/api/auth/signup', {

@@ -23,6 +23,7 @@ public class MeetingUserResponseDto {
 	private boolean isCreator;
 	private Double lastLat;
 	private Double lastLng;
+	private LocalDateTime lastMovingTime;
 
 	public static MeetingUserResponseDto from(MeetingUser meetingUser) {
 		return MeetingUserResponseDto.builder()
@@ -39,6 +40,7 @@ public class MeetingUserResponseDto {
 			.isCreator(meetingUser.isCreator())
 			.lastLat(meetingUser.getLastLocation() != null ? meetingUser.getLastLocation().getLat() : null)
 			.lastLng(meetingUser.getLastLocation() != null ? meetingUser.getLastLocation().getLng() : null)
+			.lastMovingTime(meetingUser.getLastMovingTime())
 			.build();
 	}
 }

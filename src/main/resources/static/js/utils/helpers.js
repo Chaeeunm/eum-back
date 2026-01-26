@@ -117,6 +117,34 @@ export function formatDistance(meters) {
     return (meters / 1000).toFixed(1) + 'km';
 }
 
+// Format relative time (e.g., "방금 전", "5분 전", "2시간 전")
+export function formatRelativeTime(dateStr) {
+    if (!dateStr) return null;
+
+    // 서버에서 KST로 저장된 시간을 그대로 파싱
+    const date = new Date(dateStr.replace(' ', 'T'));
+    const now = new Date();
+    const diffMs = now - date;
+
+    // 미래 시간이면 방금 전으로 처리
+    if (diffMs < 0) return '방금 전';
+
+    const diffSec = Math.floor(diffMs / 1000);
+    const diffMin = Math.floor(diffSec / 60);
+    const diffHour = Math.floor(diffMin / 60);
+    const diffDay = Math.floor(diffHour / 24);
+
+    if (diffSec < 60) return '방금 전';
+    if (diffMin < 60) return `${diffMin}분 전`;
+    if (diffHour < 24) return `${diffHour}시간 전`;
+    if (diffDay < 7) return `${diffDay}일 전`;
+
+    // 7일 이상은 날짜로 표시
+    const month = date.getMonth() + 1;
+    const day = date.getDate();
+    return `${month}/${day}`;
+}
+
 // Get movement status info
 export function getMovementStatusInfo(status) {
     switch (status) {

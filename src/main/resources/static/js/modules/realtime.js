@@ -16,6 +16,7 @@ import {
     destinationMarker,
     currentMeetingUserId,
     isDepartureMode,
+    navigationPolyline,
     setStompClient,
     setIsConnected,
     setLocationUpdateInterval,
@@ -24,7 +25,8 @@ import {
     setDestinationMarker,
     setCurrentMeetingUserId,
     setIsDepartureMode,
-    setCurrentMeetingUsers
+    setCurrentMeetingUsers,
+    setNavigationPolyline
 } from '../core/state.js';
 
 // Reconnection state
@@ -36,7 +38,7 @@ let lastConnectedMeetingId = null;
 import { apiRequest } from '../core/api.js';
 import { showToast } from '../ui/toast.js';
 import { showModal, hideModal } from '../ui/modal.js';
-import { escapeHtml, getMovementStatusInfo, calculateDistance, formatDistance } from '../utils/helpers.js';
+import { escapeHtml, getMovementStatusInfo, calculateDistance, formatDistance, formatRelativeTime } from '../utils/helpers.js';
 
 // Forward declaration for showPage
 let showPageHandler = null;
@@ -268,6 +270,9 @@ export function initRealtimePage() {
     // Initialize member list
     renderRealtimeMemberList();
 
+    // Display initial markers for all members with lastLat/lastLng
+    displayInitialMemberMarkers();
+
     // Update departure control buttons
     updateDepartureControl();
 
@@ -339,6 +344,52 @@ function initRealtimeMap() {
     }
 }
 
+// Display initial markers for all members with lastLat/lastLng
+function displayInitialMemberMarkers() {
+    if (!currentMeetingUsers || !realtimeMap) return;
+
+    currentMeetingUsers.forEach(user => {
+        // Skip if no location data
+        if (!user.lastLat || !user.lastLng) return;
+
+        const meetingUserId = user.meetingUserId;
+        const lat = user.lastLat;
+        const lng = user.lastLng;
+        const initial = user.nickName ? user.nickName.charAt(0).toUpperCase() : 'U';
+        const isCurrentUser = currentMeetingUserId === meetingUserId;
+        const isActive = user.movementStatus === 'MOVING';
+
+        // Create marker
+        const position = new kakao.maps.LatLng(lat, lng);
+        const markerContent = createMarkerContent(initial, isCurrentUser, isActive);
+
+        const customOverlay = new kakao.maps.CustomOverlay({
+            position: position,
+            content: markerContent,
+            yAnchor: 0.5
+        });
+
+        customOverlay.setMap(realtimeMap);
+        realtimeMarkers[meetingUserId] = customOverlay;
+
+        // Update distance in list
+        updateRealtimeMemberListItem(meetingUserId, lat, lng);
+    });
+}
+
+// Create marker HTML content
+function createMarkerContent(initial, isCurrentUser, isActive) {
+    const activeClass = isActive ? 'active' : 'inactive';
+    const currentClass = isCurrentUser ? 'current-user' : '';
+
+    return `
+        <div class="realtime-member-marker ${currentClass} ${activeClass}">
+            <span>${initial}</span>
+            ${isActive ? '<div class="marker-pulse"></div>' : ''}
+        </div>
+    `;
+}
+
 // Update member location on map
 function updateMemberLocation(locationData) {
     if (!locationData || !locationData.meetingUserId) return;
@@ -347,22 +398,41 @@ function updateMemberLocation(locationData) {
     const arrivedStatus = locationData.isArrived;
 
     // 1. 서버에서 온 상태값 (예: 'PAUSED', 'MOVING', 'ARRIVED')
-        // 만약 arrivedStatus가 true라면 강제로 'ARRIVED' 정보를 가져옵니다.
     const currentStatus = arrivedStatus ? 'ARRIVED' : locationData.movementStatus;
-        const statusInfo = getMovementStatusInfo(currentStatus);
+    const statusInfo = getMovementStatusInfo(currentStatus);
+    const isActive = currentStatus === 'MOVING';
 
-
-        // 2. 리스트 아이템 업데이트
+    // 2. 리스트 아이템 업데이트
     const itemEl = document.querySelector(`.realtime-member-item[data-meeting-user-id="${receivedId}"]`);
     if (itemEl) {
         // 상태 텍스트 변경
         const statusEl = itemEl.querySelector('.realtime-member-status');
         if (statusEl) {
-            statusEl.textContent = statusInfo.text;
+            statusEl.textContent = isActive ? statusInfo.text : statusInfo.text;
         }
         // 상태 클래스 변경
-        itemEl.classList.remove('arrived', 'moving', 'paused', 'waiting');
+        itemEl.classList.remove('arrived', 'moving', 'paused', 'waiting', 'active', 'inactive');
         itemEl.classList.add(statusInfo.itemClass);
+        itemEl.classList.add(isActive ? 'active' : 'inactive');
+
+        // LIVE 배지 업데이트
+        const nameRow = itemEl.querySelector('.realtime-member-name-row');
+        const existingLiveBadge = nameRow?.querySelector('.live-badge');
+        if (isActive && !existingLiveBadge && nameRow) {
+            nameRow.insertAdjacentHTML('beforeend', '<span class="live-badge">LIVE</span>');
+        } else if (!isActive && existingLiveBadge) {
+            existingLiveBadge.remove();
+        }
+
+        // 활성 인디케이터 업데이트
+        const avatarWrap = itemEl.querySelector('.realtime-member-avatar-wrap');
+        const existingIndicator = avatarWrap?.querySelector('.active-indicator');
+        if (isActive && !existingIndicator && avatarWrap) {
+            avatarWrap.insertAdjacentHTML('beforeend', '<div class="active-indicator"></div>');
+        } else if (!isActive && existingIndicator) {
+            existingIndicator.remove();
+        }
+
         // 상태 배지 변경
         const badgeEl = itemEl.querySelector('.status-badge');
         if (badgeEl) {
@@ -370,6 +440,7 @@ function updateMemberLocation(locationData) {
             badgeEl.innerHTML = statusInfo.badge;
         }
     }
+
     // 내 id일 경우 중단 처리
     if (String(receivedId) === String(currentMeetingUserId)) {
         if (arrivedStatus === true) {
@@ -393,13 +464,17 @@ function updateMemberLocation(locationData) {
     if (realtimeMarkers[meetingUserId]) {
         const newPosition = new kakao.maps.LatLng(lat, lng);
         realtimeMarkers[meetingUserId].setPosition(newPosition);
+
+        // Update marker style for active status
+        const markerEl = realtimeMarkers[meetingUserId].getContent();
+        if (typeof markerEl === 'string') {
+            // Content is string, recreate with new style
+            const newContent = createMarkerContent(initial, isCurrentUser, isActive);
+            realtimeMarkers[meetingUserId].setContent(newContent);
+        }
     } else {
         const position = new kakao.maps.LatLng(lat, lng);
-        const markerContent = `
-            <div class="realtime-member-marker ${isCurrentUser ? 'current-user' : ''}">
-                <span>${initial}</span>
-            </div>
-        `;
+        const markerContent = createMarkerContent(initial, isCurrentUser, isActive);
 
         const customOverlay = new kakao.maps.CustomOverlay({
             position: position,
@@ -437,13 +512,27 @@ function renderRealtimeMemberList() {
         const initial = user.nickName ? user.nickName.charAt(0).toUpperCase() : 'U';
         const isCurrentUser = currentMeetingUserId === user.meetingUserId;
         const statusInfo = getMovementStatusInfo(user.movementStatus);
+        const isActive = user.movementStatus === 'MOVING';
+        const lastSeenTime = formatRelativeTime(user.lastMovingTime);
+
+        // 상태에 따른 서브텍스트 결정
+        let subText = statusInfo.text;
+        if (!isActive && lastSeenTime && user.movementStatus !== 'ARRIVED') {
+            subText = `마지막 접속 ${lastSeenTime}`;
+        }
 
         return `
-            <div class="realtime-member-item ${statusInfo.itemClass}${isCurrentUser ? ' current-user' : ''}" data-meeting-user-id="${user.meetingUserId}">
-                <div class="realtime-member-avatar">${initial}</div>
+            <div class="realtime-member-item ${statusInfo.itemClass}${isCurrentUser ? ' current-user' : ''}${isActive ? ' active' : ' inactive'}" data-meeting-user-id="${user.meetingUserId}">
+                <div class="realtime-member-avatar-wrap">
+                    <div class="realtime-member-avatar">${initial}</div>
+                    ${isActive ? '<div class="active-indicator"></div>' : ''}
+                </div>
                 <div class="realtime-member-info">
-                    <span class="realtime-member-name">${escapeHtml(user.nickName || user.email)}${isCurrentUser ? ' (나)' : ''}</span>
-                    <span class="realtime-member-status">${statusInfo.text}</span>
+                    <div class="realtime-member-name-row">
+                        <span class="realtime-member-name">${escapeHtml(user.nickName || user.email)}${isCurrentUser ? ' (나)' : ''}</span>
+                        ${isActive ? '<span class="live-badge">LIVE</span>' : ''}
+                    </div>
+                    <span class="realtime-member-status">${subText}</span>
                 </div>
                 <div class="status-badge ${statusInfo.badgeClass}">${statusInfo.badge}</div>
                 <div class="member-distance" data-meeting-user-id="${user.meetingUserId}">-</div>
@@ -528,13 +617,26 @@ export async function startDeparture(transportType) {
                 // Set departure mode
                 setIsDepartureMode(true);
 
+                // 자동차일 때만 경로 표시
+                const shouldDrawRoute = transportType === 'CAR';
+
                 if (isOnRealtimePage) {
                     // Already on realtime page - just start location updates
                     startLocationUpdates();
+                    // Draw navigation route only for CAR
+                    if (shouldDrawRoute) {
+                        startNavigationRoute(departureLat, departureLng);
+                    }
                 } else {
                     // Navigate to realtime page
                     if (showPageHandler) {
                         showPageHandler('realtime');
+                    }
+                    // Draw route after a short delay to ensure map is initialized (only for CAR)
+                    if (shouldDrawRoute) {
+                        setTimeout(() => {
+                            startNavigationRoute(departureLat, departureLng);
+                        }, 500);
                     }
                 }
 
@@ -673,9 +775,143 @@ export function exitRealtimePage() {
         setDestinationMarker(null);
     }
 
+    // Clean up navigation polyline
+    clearNavigationRoute();
+
     setRealtimeMap(null);
 
     if (showPageHandler) {
         showPageHandler('detail');
+    }
+}
+
+// ================================
+// Navigation Route Functions
+// ================================
+
+// Fetch navigation route from Kakao Mobility API
+export async function fetchNavigationRoute(originLat, originLng, destLat, destLng) {
+    try {
+        const response = await apiRequest(
+            `/api/routes/directions?originLat=${originLat}&originLng=${originLng}&destLat=${destLat}&destLng=${destLng}`
+        );
+
+        if (!response.ok) {
+            console.error('Failed to fetch navigation route');
+            return null;
+        }
+
+        const data = await response.json();
+        return data;
+    } catch (error) {
+        console.error('Navigation route error:', error);
+        return null;
+    }
+}
+
+// Extract path coordinates from Kakao Mobility API response
+function extractRoutePath(response) {
+    const path = [];
+
+    if (!response || !response.routes || response.routes.length === 0) {
+        return path;
+    }
+
+    const route = response.routes[0];
+
+    // Check for route result code
+    if (route.result_code !== 0) {
+        console.error('Route not found:', route.result_msg);
+        return path;
+    }
+
+    // Extract coordinates from sections > roads > vertexes
+    if (route.sections) {
+        route.sections.forEach(section => {
+            if (section.roads) {
+                section.roads.forEach(road => {
+                    const vertexes = road.vertexes;
+                    // vertexes is [lng1, lat1, lng2, lat2, ...] format
+                    for (let i = 0; i < vertexes.length; i += 2) {
+                        path.push(new kakao.maps.LatLng(
+                            vertexes[i + 1],  // lat
+                            vertexes[i]       // lng
+                        ));
+                    }
+                });
+            }
+        });
+    }
+
+    return path;
+}
+
+// Draw navigation route on map
+export function drawNavigationRoute(path) {
+    if (!realtimeMap || path.length === 0) return;
+
+    // Clear existing route
+    clearNavigationRoute();
+
+    // Create polyline
+    const polyline = new kakao.maps.Polyline({
+        path: path,
+        strokeWeight: 6,
+        strokeColor: '#3B82F6',  // Blue
+        strokeOpacity: 0.8,
+        strokeStyle: 'solid'
+    });
+
+    polyline.setMap(realtimeMap);
+    setNavigationPolyline(polyline);
+
+    // Fit map bounds to show the entire route
+    const bounds = new kakao.maps.LatLngBounds();
+    path.forEach(point => bounds.extend(point));
+
+    // Include destination marker
+    if (destinationMarker) {
+        bounds.extend(destinationMarker.getPosition());
+    }
+
+    realtimeMap.setBounds(bounds);
+}
+
+// Clear navigation route from map
+export function clearNavigationRoute() {
+    if (navigationPolyline) {
+        navigationPolyline.setMap(null);
+        setNavigationPolyline(null);
+    }
+}
+
+// Start navigation with route drawing
+export async function startNavigationRoute(originLat, originLng) {
+    if (!currentMeetingData || !currentMeetingData.lat || !currentMeetingData.lng) {
+        console.error('Destination coordinates not available');
+        return;
+    }
+
+    const destLat = currentMeetingData.lat;
+    const destLng = currentMeetingData.lng;
+
+    // Fetch and draw route
+    const routeData = await fetchNavigationRoute(originLat, originLng, destLat, destLng);
+
+    if (routeData) {
+        const path = extractRoutePath(routeData);
+        if (path.length > 0) {
+            drawNavigationRoute(path);
+
+            // Log route info if available
+            if (routeData.routes && routeData.routes[0] && routeData.routes[0].summary) {
+                const summary = routeData.routes[0].summary;
+                const distanceKm = (summary.distance / 1000).toFixed(1);
+                const durationMin = Math.round(summary.duration / 60);
+                console.log(`Route: ${distanceKm}km, ${durationMin}분`);
+            }
+        } else {
+            console.log('Could not extract route path');
+        }
     }
 }

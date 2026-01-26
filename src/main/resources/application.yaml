@@ -3,6 +3,11 @@ spring:
     name: eum
   profiles:
     active: ${SPRING_PROFILE:dev}
+  jpa:
+    properties:
+      hibernate:
+        jdbc:
+          time_zone: Asia/Seoul
 
 logging:
   level:
@@ -12,3 +17,7 @@ jwt:
   secret: ${JWT_SECRET}
   access-expiration: 1800000      # 30분
   refresh-expiration: 1209600000  # 14일
+
+kakao:
+  mobility:
+    api-key: ${KAKAO_MOBILITY_API_KEY:}

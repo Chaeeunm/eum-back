@@ -1,5 +1,9 @@
 package com.eum.eum.meeting.service;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -80,6 +84,8 @@ public class MeetingService {
 		User user = userRepository.findByEmail(email)
 			.orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND, email));
 
+		LocalDateTime cutoffTime = LocalDateTime.now(ZoneId.of("Asia/Seoul")).minusHours(1);
+
 		Sort sort = isPast ? Sort.by(Sort.Direction.DESC, "meetAt") // 지난 일정은 약속 날짜가 최신순
 			: Sort.by(Sort.Direction.ASC, "meetAt"); // 다가오는 일정은 약속 날짜가 현재날짜와 가까운 순
 
@@ -89,6 +95,7 @@ public class MeetingService {
 			user.getId(),
 			EntityStatus.ACTIVE,
 			isPast,
+			cutoffTime,
 			pageable);
 		return meetingPage.map(MeetingResponseDto::from);
 	}
