@@ -21,8 +21,8 @@ services:
 
   redis:
     image: redis:7-alpine
-    expose:
-      - "6379"
+    ports:
+      - "6379:6379"
     volumes:
       - redis-data:/data
     restart: unless-stopped
@@ -32,13 +32,12 @@ services:
     container_name: eum-app
     ports:
       - "127.0.0.1:8080:8080"
+    env_file:
+      - .env
     environment:
       SPRING_PROFILES_ACTIVE: dev
       SPRING_DATA_REDIS_HOST: redis
       SPRING_DATA_REDIS_PORT: "6379"
-      JWT_SECRET: ${JWT_SECRET}
-      SPRING_DATASOURCE_USERNAME: ${DB_USER}
-      SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD}
 
     depends_on:
       postgres:
