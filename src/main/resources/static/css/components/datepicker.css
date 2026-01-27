@@ -1,8 +1,8 @@
 /* ================================
-   Flatpickr Custom Styles
+   Flatpickr Custom Styles - Final
    ================================ */
 
-/* Container */
+/* 1. 컨테이너 & 중앙 정렬 */
 .flatpickr-calendar {
     font-family: 'Noto Sans KR', sans-serif;
     border: none;
@@ -14,56 +14,112 @@
 
 .flatpickr-calendar.open {
     z-index: 10000;
+    position: fixed !important;
+    top: 50% !important;
+    left: 50% !important;
+    transform: translate(-50%, -50%) !important;
 }
 
-/* Header - Month Navigation */
+/* 2. 헤더 - 월/년도 (모두 흰색 & 초강력 두께) */
 .flatpickr-months {
     background: var(--gradient-primary);
-    padding: 12px 8px;
-}
-
-.flatpickr-months .flatpickr-month {
-    height: 36px;
+    padding: 8px 10px;
 }
 
 .flatpickr-current-month {
-    font-size: 16px;
-    font-weight: 600;
-    color: white;
-    padding-top: 4px;
+    font-size: 18px;
+    color: white !important;
+    font-weight: 900 !important;
+    display: flex;
+    align-items: center;
 }
 
+/* 월 드롭다운 흰색 설정 */
 .flatpickr-current-month .flatpickr-monthDropdown-months {
-    background: transparent;
-    color: white;
-    font-weight: 600;
-    appearance: none;
-    -webkit-appearance: none;
+    background: transparent !important;
+    color: white !important;
+    font-weight: 900 !important;
+    padding: 2px 5px;
+    margin-right: 5px;
+    cursor: pointer;
 }
 
+/* 년도 입력창 흰색 설정 */
 .flatpickr-current-month input.cur-year {
-    color: white;
-    font-weight: 600;
+    color: white !important;
+    font-weight: 900 !important;
+    cursor: default;
 }
 
-.flatpickr-months .flatpickr-prev-month,
-.flatpickr-months .flatpickr-next-month {
-    color: white;
-    fill: white;
-    padding: 8px;
+/* 3. 년도 옆 화살표 크기 키우기 */
+.flatpickr-current-month .numInputWrapper span {
+    width: 20px !important;
+    border: none !important;
 }
 
-.flatpickr-months .flatpickr-prev-month:hover,
-.flatpickr-months .flatpickr-next-month:hover {
-    color: rgba(255, 255, 255, 0.8);
+.flatpickr-current-month .numInputWrapper span:after {
+    content: "";
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    border-left: 6px solid transparent !important;
+    border-right: 6px solid transparent !important;
 }
 
-.flatpickr-months .flatpickr-prev-month svg,
-.flatpickr-months .flatpickr-next-month svg {
-    fill: white;
+.flatpickr-current-month .numInputWrapper span.arrowUp:after {
+    border-bottom: 8px solid white !important;
+    top: 25% !important;
 }
 
-/* Weekday Headers */
+.flatpickr-current-month .numInputWrapper span.arrowDown:after {
+    border-top: 8px solid white !important;
+    bottom: 25% !important;
+}
+
+/* 4. 시간 선택기 (짤림 방지 및 가독성) */
+.flatpickr-time {
+    background: var(--surface-secondary);
+    border-top: 1px solid var(--border);
+    padding: 15px 10px !important;
+    height: 70px !important; /* 높이 고정으로 짤림 방지 */
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+    gap: 15px;
+}
+
+.flatpickr-time .numInputWrapper {
+    height: 45px !important;
+    width: 65px !important; /* 시/분 박스 너비 확보 */
+    flex: none !important;
+    background: transparent !important;
+}
+
+.flatpickr-time input {
+    font-size: 20px !important; /* 숫자 더 큼직하게 */
+    font-weight: 700 !important;
+    color: var(--text-primary) !important;
+    background: transparent !important;
+    border: none !important;
+    border-radius: 10px !important;
+    height: 100% !important;
+}
+
+.flatpickr-time input:hover {
+    background: rgba(0, 0, 0, 0.05) !important;
+}
+
+/* AM/PM 버튼 */
+.flatpickr-time .flatpickr-am-pm {
+    height: 45px !important;
+    width: 55px !important;
+    font-weight: 700 !important;
+    border-radius: 10px !important;
+    background: white !important;
+    border: none !important;
+}
+
+/* 5. 요일 & 날짜 스타일 */
 .flatpickr-weekdays {
     background: var(--surface-secondary);
     padding: 8px 0;
@@ -72,145 +128,34 @@
 .flatpickr-weekday {
     color: var(--text-secondary);
     font-size: 12px;
-    font-weight: 600;
-}
-
-/* Days */
-.flatpickr-days {
-    padding: 8px;
-}
-
-.dayContainer {
-    gap: 2px;
+    font-weight: 700;
 }
 
 .flatpickr-day {
     color: var(--text-primary);
-    font-size: 14px;
-    font-weight: 500;
     border-radius: 10px;
     height: 38px;
     line-height: 38px;
-    margin: 1px;
-    border: none;
 }
 
-.flatpickr-day:hover {
-    background: var(--surface-secondary);
-    border: none;
+.flatpickr-day.selected {
+    background: var(--gradient-primary) !important;
+    color: white !important;
+    border: none !important;
 }
 
 .flatpickr-day.today {
-    background: var(--surface-secondary);
-    border: 2px solid var(--accent);
+    border: 2px solid var(--accent) !important;
 }
 
-.flatpickr-day.today:hover {
-    background: var(--surface-secondary);
-}
-
-.flatpickr-day.selected,
-.flatpickr-day.selected:hover {
-    background: var(--gradient-primary);
-    border: none;
-    color: white;
-}
-
-.flatpickr-day.prevMonthDay,
-.flatpickr-day.nextMonthDay {
-    color: var(--text-secondary);
-    opacity: 0.5;
-}
-
-.flatpickr-day.flatpickr-disabled,
-.flatpickr-day.flatpickr-disabled:hover {
-    color: var(--text-secondary);
-    opacity: 0.3;
-    cursor: not-allowed;
-}
-
-/* Time Picker */
-.flatpickr-time {
-    background: var(--surface-secondary);
-    border-top: 1px solid var(--border);
-    padding: 12px;
-    max-height: none;
-    height: auto;
-}
-
-.flatpickr-time input {
-    font-size: 18px;
-    font-weight: 600;
-    color: var(--text-primary);
-    background: white;
-    border: 1px solid var(--border);
-    border-radius: 10px;
-    padding: 8px;
-}
-
-.flatpickr-time input:hover,
-.flatpickr-time input:focus {
-    border-color: var(--accent);
-    background: white;
+/* 이전/다음 버튼 */
+.flatpickr-months .flatpickr-prev-month,
+.flatpickr-months .flatpickr-next-month {
+    color: white !important;
+    fill: white !important;
+    transform: translateY(10%); /* 화살표를 헤더 정중앙에 수직 정렬 */
 }
 
 .flatpickr-time .flatpickr-time-separator {
-    font-size: 18px;
-    font-weight: 600;
-    color: var(--text-secondary);
-}
-
-.flatpickr-time .flatpickr-am-pm {
-    font-size: 14px;
-    font-weight: 600;
-    color: var(--text-primary);
-    background: white;
-    border: 1px solid var(--border);
-    border-radius: 10px;
-}
-
-.flatpickr-time .flatpickr-am-pm:hover {
-    background: var(--surface-secondary);
-}
-
-/* Arrow adjustment */
-.numInputWrapper span {
-    border: none;
-}
-
-.numInputWrapper span:hover {
-    background: transparent;
-}
-
-.numInputWrapper span.arrowUp:after {
-    border-bottom-color: var(--text-secondary);
-}
-
-.numInputWrapper span.arrowDown:after {
-    border-top-color: var(--text-secondary);
-}
-
-/* Mobile Optimizations */
-@media (max-width: 400px) {
-    .flatpickr-calendar {
-        width: calc(100vw - 40px);
-        max-width: 320px;
-    }
-
-    .flatpickr-day {
-        height: 36px;
-        line-height: 36px;
-        font-size: 13px;
-    }
-}
-
-/* Input styling when flatpickr is active */
-.flatpickr-input.active {
-    border-color: var(--accent) !important;
-}
-
-/* Alt input (display input) */
-.flatpickr-input[readonly] {
-    cursor: pointer;
-    background: white;
+    display: none !important;
 }

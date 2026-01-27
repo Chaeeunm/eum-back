@@ -507,6 +507,41 @@ export function initDatePicker() {
         onReady: function(selectedDates, dateStr, instance) {
             // 스타일 커스터마이징을 위한 클래스 추가
             instance.calendarContainer.classList.add('eum-datepicker');
+
+            // 시/분 라벨 추가
+            const timeContainer = instance.calendarContainer.querySelector('.flatpickr-time');
+            if (timeContainer) {
+                const hourWrapper = timeContainer.querySelector('.flatpickr-hour')?.closest('.numInputWrapper');
+                const minuteWrapper = timeContainer.querySelector('.flatpickr-minute')?.closest('.numInputWrapper');
+
+                if (hourWrapper && !hourWrapper.nextElementSibling?.classList.contains('time-label')) {
+                    const hourLabel = document.createElement('span');
+                    hourLabel.className = 'time-label';
+                    hourLabel.textContent = '시';
+                    hourWrapper.parentNode.insertBefore(hourLabel, hourWrapper.nextSibling);
+                }
+
+                if (minuteWrapper && !minuteWrapper.nextElementSibling?.classList.contains('time-label')) {
+                    const minuteLabel = document.createElement('span');
+                    minuteLabel.className = 'time-label';
+                    minuteLabel.textContent = '분';
+                    minuteWrapper.parentNode.insertBefore(minuteLabel, minuteWrapper.nextSibling);
+                }
+
+                // 시간 입력 제한 (0-23)
+                const hourInput = timeContainer.querySelector('.flatpickr-hour');
+                if (hourInput) {
+                    hourInput.setAttribute('min', '0');
+                    hourInput.setAttribute('max', '23');
+                }
+
+                // 분 입력 제한 (0-59)
+                const minuteInput = timeContainer.querySelector('.flatpickr-minute');
+                if (minuteInput) {
+                    minuteInput.setAttribute('min', '0');
+                    minuteInput.setAttribute('max', '59');
+                }
+            }
         }
     });
 }
