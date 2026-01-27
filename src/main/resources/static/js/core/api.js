@@ -37,34 +37,6 @@ async function refreshToken() {
     }
 }
 
-// Validate token on initial load
-export async function validateToken() {
-    if (!accessToken) {
-        return false;
-    }
-
-    try {
-        const response = await fetch(API_BASE + '/api/auth/validate', {
-            method: 'GET',
-            headers: {
-                'Authorization': `Bearer ${accessToken}`
-            },
-            credentials: 'include'
-        });
-
-        if (response.ok) {
-            return true;
-        }
-
-        // Token invalid - try refresh
-        const refreshed = await refreshToken();
-        return refreshed;
-    } catch (error) {
-        console.error('Token validation error:', error);
-        return false;
-    }
-}
-
 // Main API request helper
 export async function apiRequest(url, options = {}) {
     const headers = {

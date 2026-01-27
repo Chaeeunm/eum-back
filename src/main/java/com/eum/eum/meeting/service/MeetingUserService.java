@@ -14,7 +14,6 @@ import com.eum.eum.meeting.domain.entity.MeetingUser;
 import com.eum.eum.meeting.domain.entity.MovementStatus;
 import com.eum.eum.meeting.domain.repository.MeetingRepository;
 import com.eum.eum.meeting.domain.repository.MeetingUserRepository;
-import com.eum.eum.meeting.dto.MeetingUserAddRequestDto;
 import com.eum.eum.meeting.dto.MeetingUserDeleteRequestDto;
 import com.eum.eum.meeting.dto.MeetingUserResponseDto;
 import com.eum.eum.meeting.dto.MeetingUserUpdateDto;
@@ -125,9 +124,11 @@ public class MeetingUserService {
 		//비즈니스 로직에서는 출발 처리만 가능
 		switch (movementStatus) {
 			case MOVING -> targetMeetingUser.depart(updateDto.getDepartureLat(), updateDto.getDepartureLng());
-			case PAUSED -> targetMeetingUser.pause();
+			case PAUSED -> targetMeetingUser.pauseAndPublish();
 			case PENDING, ARRIVED -> throw new BusinessException(ErrorCode.INVALID_INPUT, "해당 상태로는 직접 변경할 수 없습니다");
 		}
+
+		meetingUserRepository.save(targetMeetingUser);// 이벤트 발행을 위함
 
 		return MeetingUserResponseDto.from(targetMeetingUser);
 	}

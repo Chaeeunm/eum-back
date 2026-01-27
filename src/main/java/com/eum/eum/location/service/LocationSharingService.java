@@ -5,7 +5,6 @@ import static com.eum.eum.location.domain.constrants.LocationTrackingConstants.*
 import java.time.LocalDateTime;
 import java.util.List;
 
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -60,7 +59,7 @@ public class LocationSharingService {
 				.orElseThrow(() -> new BusinessException(ErrorCode.DATA_NOT_FOUND));
 
 			// 이미 ARRIVED면 안에서 알아서 return하므로 중복 업데이트 방지가 됨!
-			meetingUser.determineStatusOnDisconnect(
+			meetingUser.determineStatusOnDisconnectAndPublish(
 				requestDto.getLat(),
 				requestDto.getLng(),
 				new Location(goal.getTargetLat(), goal.getTargetLng())
@@ -69,11 +68,12 @@ public class LocationSharingService {
 			// 2. 중요: 아직 상태가 ARRIVED가 아닐 때만 메시지를 만듭니다!
 			// (안 그러면 5초마다 계속 "OO님이 도착했습니다!"가 도배돼요)
 			if (meetingUser.getMovementStatus() != MovementStatus.ARRIVED) {
-				meetingUser.determineStatusOnDisconnect(
+				meetingUser.determineStatusOnDisconnectAndPublish(
 					requestDto.getLat(),
 					requestDto.getLng(),
 					new Location(goal.getTargetLat(), goal.getTargetLng())
 				);
+				meetingUserRepository.save(meetingUser);// 이벤트 발행을 위함
 				message = meetingUser.getUser().getNickName() + "님이 도착했습니다!";
 				movementStatus = MovementStatus.ARRIVED;
 			}
@@ -124,12 +124,13 @@ public class LocationSharingService {
 		//20m 이내면 도착으로 바꾸기
 		//아니면 pause로 바꾸기
 		if (lastLocation != null) {
-			meetingUser.determineStatusOnDisconnect(lastLocation.getLat(), lastLocation.getLng(),
+			meetingUser.determineStatusOnDisconnectAndPublish(lastLocation.getLat(), lastLocation.getLng(),
 				meeting.getLocation());
+			meetingUserRepository.save(meetingUser);
 		} else {
 			log.info("마지막 위치를 불러오지 못했습니다. ");
 			if (meetingUser.getMovementStatus() != MovementStatus.ARRIVED) {
-				meetingUser.pause();
+				meetingUser.pauseAndPublish();
 			}
 		}
 	}

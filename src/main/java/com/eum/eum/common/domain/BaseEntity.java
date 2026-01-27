@@ -5,6 +5,7 @@ import java.time.LocalDateTime;
 import org.hibernate.annotations.ColumnDefault;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.domain.AbstractAggregateRoot;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import jakarta.persistence.EntityListeners;
@@ -18,7 +19,7 @@ import lombok.Setter;
 @Setter
 @MappedSuperclass
 @EntityListeners(AuditingEntityListener.class)
-public class BaseEntity {
+public class BaseEntity extends AbstractAggregateRoot<BaseEntity> {
 	@CreatedDate
 	private LocalDateTime createdAt;
 
@@ -28,3 +29,5 @@ public class BaseEntity {
 	@Enumerated(EnumType.STRING)
 	private EntityStatus status = EntityStatus.ACTIVE;  //객체 생성시 기본값
 }
+
+//AbstractAggregateRoot를 통한 이벤트 발행 save() 가 호출될 떄 트리거됨

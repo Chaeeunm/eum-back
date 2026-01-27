@@ -23,3 +23,7 @@ jwt:
 kakao:
   mobility:
     api-key: ${KAKAO_MOBILITY_API_KEY:}
+
+
+fcm:
+  key-base64: ${FCM_KEY_BASE64}

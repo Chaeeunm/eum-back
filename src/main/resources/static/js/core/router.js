@@ -12,11 +12,12 @@ import {
     setCurrentMeetingData,
     setCurrentMeetingUsers
 } from './state.js';
-import { apiRequest, validateToken } from './api.js';
+import { apiRequest } from './api.js';
 import { showToast } from '../ui/toast.js';
 import { loadMeetings, loadMeetingDetail } from '../modules/meeting.js';
 import { resetLocationSelection, initCreateMap } from '../modules/map.js';
 import { initRealtimePage } from '../modules/realtime.js';
+import { initFCM } from '../modules/fcm.js';
 
 // Handle route change based on URL hash
 export function handleRouteChange() {
@@ -25,6 +26,9 @@ export function handleRouteChange() {
         showPage('landing');
         return;
     }
+
+    // 로그인된 상태면 FCM 초기화 (포그라운드 알림 수신 위해)
+    initFCM();
 
     const hash = window.location.hash;
 
@@ -151,7 +155,7 @@ export function showPage(page, shouldUpdateHash = true) {
 }
 
 // Initialize router
-export async function initRouter() {
+export function initRouter() {
     // Handle browser back/forward
     window.addEventListener('hashchange', () => {
         if (isUpdatingHash) {
@@ -160,21 +164,6 @@ export async function initRouter() {
         }
         handleRouteChange();
     });
-
-    // Validate token if exists
-    if (accessToken) {
-        const isValid = await validateToken();
-        if (!isValid) {
-            // Clear invalid token
-            localStorage.removeItem('accessToken');
-            localStorage.removeItem('currentUser');
-            // Force state update (import setters)
-            const { setAccessToken, setCurrentUser } = await import('./state.js');
-            setAccessToken(null);
-            setCurrentUser(null);
-            showToast('로그인이 만료되었습니다. 다시 로그인해주세요.', 'error');
-        }
-    }
 
     // Initial route handling
     handleRouteChange();

@@ -1,5 +1,6 @@
 package com.eum.eum.meeting.domain.repository;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -10,4 +11,6 @@ public interface MeetingUserRepository extends JpaRepository<MeetingUser, Long> 
 	boolean existsByMeetingIdAndUserId(Long meetingId, Long userId);
 
 	Optional<MeetingUser> findByMeetingIdAndUserId(Long meetingId, Long userId);
+
+	List<MeetingUser> findAllByMeetingId(Long meetingId);
 }

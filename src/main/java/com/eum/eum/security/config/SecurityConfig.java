@@ -48,7 +48,7 @@ public class SecurityConfig {
 			.authorizeHttpRequests(
 				auth -> auth.requestMatchers(
 						"/",
-						"/css/**", "/js/**", "/images/**",
+						"/css/**", "/js/**", "/images/**", "/firebase-messaging-sw.js",
 						"/.well-known/**",
 						"/swagger-ui/**", "/v3/api-docs/**", "/api/auth/**", "/h2-console/**",
 						"/ws/**",

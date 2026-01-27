@@ -7,6 +7,7 @@ import com.eum.eum.common.domain.BaseEntity;
 import com.eum.eum.common.util.LocationUtil;
 import com.eum.eum.location.domain.constrants.LocationTrackingConstants;
 import com.eum.eum.location.domain.entity.Location;
+import com.eum.eum.meeting.event.MovementStatusChangedEvent;
 import com.eum.eum.user.domain.entity.User;
 
 import jakarta.persistence.AttributeOverride;
@@ -95,9 +96,31 @@ public class MeetingUser extends BaseEntity {
 	}
 
 	// ============ 상태 전환 메서드 ============
+	//save()를 명시적으로 호출해야 이벤트가 최종적으로 발행
+
+	/**
+	 * MovementStatus 변경 및 이벤트 발행
+	 * 내부적으로만 사용되는 단일 진입점
+	 */
+	private void changeMovementStatus(MovementStatus newStatus) {
+		if (this.movementStatus == newStatus) {
+			return; // 같은 상태면 변경 안 함
+		}
+		this.movementStatus = newStatus;
+
+		registerEvent(new MovementStatusChangedEvent(
+			this.meeting.getId(),
+			this.id,
+			this.user.getUsername(),
+			this.user.getNickName(),
+			newStatus,
+			LocalDateTime.now()
+		));
+	}
 
 	/**
 	 * 출발 또는 재출발 (PENDING/PAUSED → MOVING)
+	 * save()를 명시적으로 호출해야 이벤트가 최종적으로 발행
 	 */
 	public void depart(Double lat, Double lng) {
 		if (this.movementStatus == MovementStatus.MOVING) {
@@ -108,38 +131,40 @@ public class MeetingUser extends BaseEntity {
 		if (this.departedAt == null)
 			this.departedAt = LocalDateTime.now();
 		this.lastMovingTime = LocalDateTime.now();
-		this.movementStatus = MovementStatus.MOVING;
+		changeMovementStatus(MovementStatus.MOVING);
 	}
 
 	/**
 	 * 도착
+	 * save()를 명시적으로 호출해야 이벤트가 최종적으로 발행
 	 */
-	public void arrive(Double lat, Double lng) {
+	public void arriveAndPublish(Double lat, Double lng) {
 		updateLastLocation(lat, lng);
 		this.arrivedAt = LocalDateTime.now();
-		this.movementStatus = MovementStatus.ARRIVED;
+		changeMovementStatus(MovementStatus.ARRIVED);
 	}
 
 	/**
 	 * 일시정지
+	 * save()를 명시적으로 호출해야 이벤트가 최종적으로 발행
 	 */
-	public void pause() {
-		this.movementStatus = MovementStatus.PAUSED;
+	public void pauseAndPublish() {
+		changeMovementStatus(MovementStatus.PAUSED);
 	}
 
 	// ============ 상태 판단 메서드 ============
 
 	//연결 끊김/ 위치 전송 시 상태 판단
-	public void determineStatusOnDisconnect(Double lastLat, Double lastLng, Location meetingLocation) {
+	public void determineStatusOnDisconnectAndPublish(Double lastLat, Double lastLng, Location meetingLocation) {
 		// 이미 도착했으면 상태 변경 안 함
 		if (this.movementStatus == MovementStatus.ARRIVED) {
 			return;
 		}
 
 		if (meetingLocation.isWithin(lastLat, lastLng, LocationTrackingConstants.ARRIVAL_DISTANCE_METERS)) {
-			arrive(lastLat, lastLng);
+			arriveAndPublish(lastLat, lastLng);
 		} else {
-			pause();
+			pauseAndPublish();
 		}
 	}
 
@@ -180,7 +205,7 @@ public class MeetingUser extends BaseEntity {
 	/**
 	 * Batch에서 정지/도착 상태 판단
 	 */
-	public void checkAndUpdatePauseStatus(Location meetingLocation, Double currentLat, Double currentLng) {
+	public void checkAndUpdateMovementAndPublish(Location meetingLocation, Double currentLat, Double currentLng) {
 		// MOVING 상태가 아니면 체크 불필요
 		if (!this.movementStatus.equals(MovementStatus.MOVING)) {
 			return;
@@ -191,7 +216,7 @@ public class MeetingUser extends BaseEntity {
 			currentLat,
 			currentLng,
 			LocationTrackingConstants.ARRIVAL_DISTANCE_METERS)) {
-			arrive(currentLat, currentLng);
+			arriveAndPublish(currentLat, currentLng);
 			return;
 		}
 
@@ -202,7 +227,7 @@ public class MeetingUser extends BaseEntity {
 				LocalDateTime.now()
 			);
 			if (diff.compareTo(LocationTrackingConstants.PAUSE_THRESHOLD) >= 0) {
-				pause();
+				pauseAndPublish();
 			}
 		}
 	}

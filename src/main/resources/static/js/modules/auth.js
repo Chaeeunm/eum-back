@@ -12,6 +12,7 @@ import {
 import { showToast } from '../ui/toast.js';
 import { showModal, hideModal } from '../ui/modal.js';
 import { setLogoutHandler, apiRequest } from '../core/api.js';
+import { initFCM, unsubscribeFCM } from './fcm.js';
 
 // Forward declarations (will be set by router)
 let showPageHandler = null;
@@ -55,6 +56,9 @@ export async function login(event) {
 
         hideModal('login');
         showToast('Welcome!', 'success');
+
+        // FCM 초기화 (로그인 후 알림 권한 요청)
+        initFCM();
 
         // Check pending invite code, or go to main page
         if (checkPendingInviteCodeHandler) {
@@ -126,6 +130,9 @@ export async function signup(event) {
         hideModal('signup');
         showToast('Welcome to Eum!', 'success');
 
+        // FCM 초기화 (로그인 후 알림 권한 요청)
+        initFCM();
+
         // Check pending invite code, or go to main page
         if (checkPendingInviteCodeHandler) {
             const hasInvite = await checkPendingInviteCodeHandler();
@@ -141,7 +148,10 @@ export async function signup(event) {
 }
 
 // Logout
-export function logout(showMessage = true) {
+export async function logout(showMessage = true) {
+    // FCM 토큰 삭제 (다른 기기에서 알림 방지)
+    await unsubscribeFCM();
+
     setAccessToken(null);
     setCurrentUser(null);
     localStorage.removeItem('accessToken');

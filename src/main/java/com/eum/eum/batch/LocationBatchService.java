@@ -80,7 +80,6 @@ public class LocationBatchService {
 				}
 
 				MeetingUser meetingUser = meetingUserMap.get(location.getMeetingUserId());
-
 				if (meetingUser == null) {
 					log.warn("MeetingUser not found, skip: {}", location.getMeetingUserId());
 					continue;
@@ -100,12 +99,12 @@ public class LocationBatchService {
 							));
 					}
 
-					//도착 or pause상태 판단
-					meetingUser.checkAndUpdatePauseStatus(
-						meetingLocation,
-						location.getLat(),
-						location.getLng()
-					);
+					// //도착 or pause상태 판단 -> 웹소켓에서 직접 처리
+					// meetingUser.checkAndUpdatePauseStatus(
+					// 	meetingLocation,
+					// 	location.getLat(),
+					// 	location.getLng()
+					// );
 
 					// 성공한 userId 기록
 					successUserIds.add(meetingUser.getUser().getId());
