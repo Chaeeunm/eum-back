@@ -5,22 +5,27 @@ import { showToast } from '../ui/toast.js';
 
 let currentFcmToken = null;
 let isInitialized = false;
+let messaging = null;
 
-export const initFCM = async () => {
-    // 이미 초기화됐으면 스킵
-    if (isInitialized) {
-        return currentFcmToken;
-    }
+// Safari 감지
+const isSafari = () => {
+    const ua = navigator.userAgent;
+    return ua.includes('Safari') && !ua.includes('Chrome') && !ua.includes('Chromium');
+};
 
-    console.log("FCM 초기화 시작...");
+// iOS 감지
+const isIOS = () => {
+    return /iPad|iPhone|iPod/.test(navigator.userAgent) ||
+        (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+};
 
-    // 1. Firebase 라이브러리 로드 확인
+// Firebase 초기화 (권한 요청 없이)
+const initFirebase = () => {
     if (typeof firebase === 'undefined') {
-        console.error("Firebase SDK가 로드되지 않았습니다. index.html에 script 태그를 확인하세요.");
-        return;
+        console.error("Firebase SDK가 로드되지 않았습니다.");
+        return null;
     }
 
-    // 2. 설정값
     const firebaseConfig = {
         apiKey: "AIzaSyCTSkZFWbr2bU6Dhc8nqCO9CBfd7Opcc1I",
         authDomain: "eum-web-push.firebaseapp.com",
@@ -31,12 +36,11 @@ export const initFCM = async () => {
         measurementId: "G-159ETRW3PG"
     };
 
-    // 3. 앱 초기화 (중복 방지)
     if (!firebase.apps.length) {
         firebase.initializeApp(firebaseConfig);
     }
 
-    const messaging = firebase.messaging();
+    messaging = firebase.messaging();
 
     // 포그라운드 메시지 수신 핸들러
     messaging.onMessage((payload) => {
@@ -47,14 +51,22 @@ export const initFCM = async () => {
         }
     });
 
+    return messaging;
+};
+
+// 실제 권한 요청 및 토큰 발급
+const requestPermissionAndGetToken = async () => {
+    if (!messaging) {
+        messaging = initFirebase();
+        if (!messaging) return null;
+    }
+
     try {
-        // 4. 권한 요청
         const permission = await Notification.requestPermission();
 
         if (permission === 'granted') {
             console.log('알림 권한 허용됨');
 
-            // 5. 토큰 가져오기
             const token = await messaging.getToken({
                 vapidKey: 'BEMV9IOmR6ORyBqRB2Xe90qKWKwAPUY-9jF3lqx3tYLiSd8X-kWDA-OdIF8HD42IThhvyPxFQSUadx9yjiqKLWw'
             });
@@ -77,6 +89,114 @@ export const initFCM = async () => {
     } catch (err) {
         console.error('FCM 처리 중 에러:', err);
     }
+    return null;
+};
+
+// Safari용 알림 권한 요청 프롬프트 표시
+const showSafariNotificationPrompt = () => {
+    // 이미 권한이 있으면 스킵
+    if (Notification.permission === 'granted') {
+        requestPermissionAndGetToken();
+        return;
+    }
+
+    // 이미 거부됐으면 안내 메시지
+    if (Notification.permission === 'denied') {
+        showToast('알림이 차단되어 있습니다. 브라우저 설정에서 허용해주세요.', 'warning');
+        return;
+    }
+
+    // iOS Safari의 경우 PWA 안내
+    if (isIOS() && !window.navigator.standalone) {
+        showToast('알림을 받으려면 "홈 화면에 추가" 후 앱을 실행해주세요.', 'info');
+        return;
+    }
+
+    // 알림 권한 요청 버튼이 있는 토스트/배너 표시
+    const banner = document.createElement('div');
+    banner.id = 'notification-permission-banner';
+    banner.innerHTML = `
+        <div style="
+            position: fixed;
+            bottom: 80px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--surface-color, #fff);
+            border: 1px solid var(--border-color, #e0e0e0);
+            border-radius: 12px;
+            padding: 16px 20px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+            z-index: 10000;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            max-width: 90%;
+        ">
+            <span style="font-size: 14px;">약속 알림을 받으시겠어요?</span>
+            <button id="enable-notification-btn" style="
+                background: var(--primary-color, #6366f1);
+                color: white;
+                border: none;
+                padding: 8px 16px;
+                border-radius: 8px;
+                font-size: 14px;
+                cursor: pointer;
+            ">허용</button>
+            <button id="dismiss-notification-btn" style="
+                background: transparent;
+                border: none;
+                padding: 8px;
+                cursor: pointer;
+                color: var(--text-secondary, #666);
+            ">✕</button>
+        </div>
+    `;
+    document.body.appendChild(banner);
+
+    document.getElementById('enable-notification-btn').addEventListener('click', async () => {
+        banner.remove();
+        await requestPermissionAndGetToken();
+    });
+
+    document.getElementById('dismiss-notification-btn').addEventListener('click', () => {
+        banner.remove();
+    });
+};
+
+export const initFCM = async () => {
+    // 이미 초기화됐으면 스킵
+    if (isInitialized) {
+        return currentFcmToken;
+    }
+
+    // Notification API 지원 확인
+    if (!('Notification' in window)) {
+        console.warn('이 브라우저는 알림을 지원하지 않습니다.');
+        return null;
+    }
+
+    // Firebase 초기화
+    if (!initFirebase()) {
+        return null;
+    }
+
+    // 이미 권한이 있으면 바로 토큰 발급
+    if (Notification.permission === 'granted') {
+        return await requestPermissionAndGetToken();
+    }
+
+    // Safari인 경우 사용자 제스처 기반 프롬프트 표시
+    if (isSafari()) {
+        console.log('Safari 감지: 사용자 제스처 기반 권한 요청 필요');
+        // 약간의 딜레이 후 프롬프트 표시 (페이지 로드 완료 후)
+        setTimeout(() => {
+            showSafariNotificationPrompt();
+        }, 2000);
+        return null;
+    }
+
+    // 다른 브라우저는 기존 방식대로 권한 요청
+    return await requestPermissionAndGetToken();
 };
 
 export const unsubscribeFCM = async () => {
