@@ -357,3 +357,79 @@
 .btn-invite-copy svg {
     color: #6366f1;
 }
+
+/* Mobile-friendly Tooltip */
+[data-tooltip] {
+    position: relative;
+}
+
+[data-tooltip]::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    bottom: calc(100% + 8px);
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 8px 12px;
+    background: rgba(0, 0, 0, 0.85);
+    color: white;
+    font-size: 12px;
+    font-weight: 500;
+    line-height: 1.4;
+    white-space: nowrap;
+    border-radius: 8px;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.2s, visibility 0.2s;
+    z-index: 1000;
+    pointer-events: none;
+    max-width: 200px;
+    white-space: normal;
+    text-align: center;
+}
+
+[data-tooltip]::before {
+    content: '';
+    position: absolute;
+    bottom: calc(100% + 2px);
+    left: 50%;
+    transform: translateX(-50%);
+    border: 6px solid transparent;
+    border-top-color: rgba(0, 0, 0, 0.85);
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.2s, visibility 0.2s;
+    z-index: 1000;
+}
+
+/* Desktop: hover */
+@media (hover: hover) {
+    [data-tooltip]:hover::after,
+    [data-tooltip]:hover::before {
+        opacity: 1;
+        visibility: visible;
+    }
+}
+
+/* Mobile: active/focus (tap and hold) */
+@media (hover: none) {
+    [data-tooltip]:active::after,
+    [data-tooltip]:active::before,
+    [data-tooltip]:focus::after,
+    [data-tooltip]:focus::before {
+        opacity: 1;
+        visibility: visible;
+    }
+}
+
+/* Tooltip positioned below */
+[data-tooltip-pos="bottom"]::after {
+    bottom: auto;
+    top: calc(100% + 8px);
+}
+
+[data-tooltip-pos="bottom"]::before {
+    bottom: auto;
+    top: calc(100% + 2px);
+    border-top-color: transparent;
+    border-bottom-color: rgba(0, 0, 0, 0.85);
+}

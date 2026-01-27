@@ -12,7 +12,8 @@ import {
 import { showToast } from '../ui/toast.js';
 import { showModal, hideModal } from '../ui/modal.js';
 import { setLogoutHandler, apiRequest } from '../core/api.js';
-import { initFCM, unsubscribeFCM } from './fcm.js';
+import { initFCM, unsubscribeFCM, requestNotificationPermission, getNotificationStatus, resetFCMState } from './fcm.js';
+import { getNotificationStatusInfo } from '../utils/helpers.js';
 
 // Forward declarations (will be set by router)
 let showPageHandler = null;
@@ -149,8 +150,9 @@ export async function signup(event) {
 
 // Logout
 export async function logout(showMessage = true) {
-    // FCM 토큰 삭제 (다른 기기에서 알림 방지)
+    // FCM 토큰 삭제 및 상태 리셋 (다음 로그인에서 다시 초기화 가능)
     await unsubscribeFCM();
+    resetFCMState();
 
     setAccessToken(null);
     setCurrentUser(null);
@@ -174,6 +176,150 @@ export async function logout(showMessage = true) {
 // Register logout handler with API module
 setLogoutHandler(logout);
 
+// 알림 UI 상태 업데이트
+export function updateNotificationUI() {
+    const statusText = document.getElementById('notification-status-text');
+    const btn = document.getElementById('btn-fcm-setup');
+    const guideContainer = document.getElementById('notification-guide-container');
+
+    if (!statusText || !btn) return;
+
+    const status = getNotificationStatus();
+    const info = getNotificationStatusInfo(status.permission, status.supported);
+
+    // 배지 업데이트
+    statusText.textContent = info.text;
+    statusText.className = `status-badge ${info.badgeClass}`;
+
+    // 버튼 업데이트
+    btn.innerHTML = info.btnIcon ? `${info.btnIcon} ${info.btnText}` : info.btnText;
+    btn.disabled = info.btnDisabled;
+    btn.classList.toggle('btn-disabled', info.btnDisabled);
+
+    // 가이드 숨기기 (기본)
+    if (guideContainer) guideContainer.classList.add('hidden');
+
+    // 현재 가이드 타입 저장 (버튼 클릭 시 사용)
+    btn.dataset.guideType = info.guideType || '';
+}
+
+// 알림 설정 버튼 클릭 핸들러
+export async function handleNotificationClick() {
+    const btn = document.getElementById('btn-fcm-setup');
+    const guideContainer = document.getElementById('notification-guide-container');
+    const guideType = btn?.dataset.guideType;
+
+    // 가이드가 필요한 경우 - 토글
+    if (guideType) {
+        if (guideContainer) {
+            const isHidden = guideContainer.classList.contains('hidden');
+            guideContainer.classList.toggle('hidden');
+
+            if (isHidden) {
+                // 가이드 내용 업데이트
+                updateGuideContent(guideType);
+            }
+        }
+        return;
+    }
+
+    // 권한 요청 중 로딩 표시
+    if (btn) {
+        btn.disabled = true;
+        btn.innerHTML = `
+            <svg class="spin" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21 12a9 9 0 1 1-6.219-8.56"></path>
+            </svg>
+            요청 중...
+        `;
+    }
+
+    const token = await requestNotificationPermission();
+    const newStatus = getNotificationStatus();
+    const newInfo = getNotificationStatusInfo(newStatus.permission, newStatus.supported);
+
+    if (token) {
+        showToast('알림이 활성화되었습니다!', 'success');
+    } else if (newInfo.guideType === 'denied') {
+        showToast('알림이 차단되었습니다. 브라우저 설정에서 변경해주세요.', 'warning');
+    }
+
+    updateNotificationUI();
+}
+
+// 가이드 내용 업데이트
+function updateGuideContent(guideType) {
+    const guideContainer = document.getElementById('notification-guide-container');
+    if (!guideContainer) return;
+
+    let content = '';
+
+    switch (guideType) {
+        case 'denied':
+            content = `
+                <div class="notification-guide denied-guide">
+                    <div class="guide-header">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <line x1="12" y1="8" x2="12" y2="12"></line>
+                            <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                        </svg>
+                        알림이 차단되어 있어요
+                    </div>
+                    <div class="guide-steps">
+                        <div class="guide-step"><span class="step-num">1</span> 주소창 왼쪽의 <code>자물쇠</code> 아이콘 클릭</div>
+                        <div class="guide-step"><span class="step-num">2</span> <code>알림</code> → <code>허용</code>으로 변경</div>
+                        <div class="guide-step"><span class="step-num">3</span> 페이지 새로고침</div>
+                    </div>
+                </div>
+            `;
+            break;
+        case 'granted':
+            content = `
+                <div class="notification-guide granted-guide">
+                    <div class="guide-header granted">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <path d="M12 16v-4"></path>
+                            <path d="M12 8h.01"></path>
+                        </svg>
+                        알림을 끄려면
+                    </div>
+                    <div class="guide-steps">
+                        <div class="guide-step"><span class="step-num">1</span> 주소창 왼쪽의 <code>자물쇠</code> 아이콘 클릭</div>
+                        <div class="guide-step"><span class="step-num">2</span> <code>알림</code> → <code>차단</code>으로 변경</div>
+                    </div>
+                    <div class="guide-note">변경 후 페이지를 새로고침하세요</div>
+                </div>
+            `;
+            break;
+        case 'ios-pwa':
+            content = `
+                <div class="notification-guide ios-guide">
+                    <div class="guide-header ios">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <rect x="5" y="2" width="14" height="20" rx="2" ry="2"></rect>
+                            <line x1="12" y1="18" x2="12.01" y2="18"></line>
+                        </svg>
+                        iPhone에서 알림 받기
+                    </div>
+                    <div class="guide-steps">
+                        <div class="guide-step"><span class="step-num">1</span> Safari 하단의 <code>공유</code> 버튼 탭</div>
+                        <div class="guide-step"><span class="step-num">2</span> <code>홈 화면에 추가</code> 선택</div>
+                        <div class="guide-step"><span class="step-num">3</span> 홈 화면에서 앱 실행 후 알림 허용</div>
+                    </div>
+                    <div class="guide-note">iOS 16.4 이상에서만 지원됩니다</div>
+                </div>
+            `;
+            break;
+    }
+
+    guideContainer.innerHTML = content;
+}
+
+// 전역 함수로 등록 (onclick에서 호출)
+window.handleNotificationClick = handleNotificationClick;
+
 // Open profile modal
 export function openProfileModal() {
     const emailEl = document.getElementById('profile-edit-email');
@@ -193,6 +339,9 @@ export function openProfileModal() {
     document.getElementById('profile-password-confirm').value = '';
 
     showModal('profile-edit');
+
+    // 알림 상태 업데이트
+    updateNotificationUI();
 }
 
 // Toggle nickname edit

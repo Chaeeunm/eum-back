@@ -179,3 +179,73 @@ export function getMovementStatusInfo(status) {
             };
     }
 }
+
+// iOS 감지
+export function isIOS() {
+    return /iPad|iPhone|iPod/.test(navigator.userAgent) ||
+        (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+}
+
+// PWA로 실행 중인지 확인
+export function isPWA() {
+    return window.navigator.standalone === true ||
+        window.matchMedia('(display-mode: standalone)').matches;
+}
+
+// Get notification permission status info
+export function getNotificationStatusInfo(permission, supported = true) {
+    const ios = isIOS();
+    const pwa = isPWA();
+
+    if (!supported) {
+        return {
+            text: '미지원',
+            badgeClass: 'unsupported',
+            btnText: '미지원',
+            btnDisabled: true,
+            guideType: null
+        };
+    }
+
+    // iOS에서 PWA가 아닌 경우
+    if (ios && !pwa) {
+        return {
+            text: 'PWA 필요',
+            badgeClass: 'default',
+            btnIcon: null,
+            btnText: '설정 안내',
+            btnDisabled: false,
+            guideType: 'ios-pwa'
+        };
+    }
+
+    switch (permission) {
+        case 'granted':
+            return {
+                text: '허용됨',
+                badgeClass: 'granted',
+                btnIcon: null,
+                btnText: '해제 안내',
+                btnDisabled: false,
+                guideType: 'granted'
+            };
+        case 'denied':
+            return {
+                text: '차단됨',
+                badgeClass: 'denied',
+                btnIcon: null,
+                btnText: '설정 안내',
+                btnDisabled: false,
+                guideType: 'denied'
+            };
+        default:
+            return {
+                text: '설정 필요',
+                badgeClass: 'default',
+                btnIcon: null,
+                btnText: '허용하기',
+                btnDisabled: false,
+                guideType: null
+            };
+    }
+}

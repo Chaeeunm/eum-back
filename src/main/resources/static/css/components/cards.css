@@ -229,6 +229,26 @@
     color: white;
 }
 
+.status-badge.granted {
+    background: rgba(52, 199, 89, 0.15);
+    color: var(--success);
+}
+
+.status-badge.denied {
+    background: rgba(255, 59, 48, 0.15);
+    color: var(--error);
+}
+
+.status-badge.default {
+    background: rgba(134, 134, 139, 0.15);
+    color: var(--text-secondary);
+}
+
+.status-badge.unsupported {
+    background: rgba(134, 134, 139, 0.1);
+    color: var(--text-secondary);
+}
+
 /* Member Distance - 공통 */
 .member-distance {
     font-size: 13px;

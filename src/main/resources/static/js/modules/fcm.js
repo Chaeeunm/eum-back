@@ -212,11 +212,16 @@ const showSafariNotificationPrompt = () => {
     });
 };
 
+let hasAttemptedInit = false; // 초기화 시도 여부 (재시도 방지)
+
 export const initFCM = async () => {
-    // 이미 초기화됐으면 스킵
-    if (isInitialized) {
+    // 이미 초기화됐거나 시도한 적 있으면 스킵
+    if (isInitialized || hasAttemptedInit) {
         return currentFcmToken;
     }
+
+    // 초기화 시도 표시 (한 번만 시도)
+    hasAttemptedInit = true;
 
     // Notification API 지원 확인
     if (!('Notification' in window)) {
@@ -248,6 +253,13 @@ export const initFCM = async () => {
     return await requestPermissionAndGetToken();
 };
 
+// 로그아웃 시 초기화 상태 리셋 (다음 로그인에서 다시 시도 가능)
+export const resetFCMState = () => {
+    hasAttemptedInit = false;
+    isInitialized = false;
+    currentFcmToken = null;
+};
+
 export const unsubscribeFCM = async () => {
     if (!currentFcmToken) {
         console.warn('삭제할 FCM 토큰이 없습니다.');
@@ -264,4 +276,19 @@ export const unsubscribeFCM = async () => {
     } catch (err) {
         console.error('FCM 토큰 삭제 중 에러:', err);
     }
+};
+
+// 알림 권한 요청 (외부에서 호출 가능)
+export const requestNotificationPermission = requestPermissionAndGetToken;
+
+// 알림 상태 확인
+export const getNotificationStatus = () => {
+    if (!('Notification' in window)) {
+        return { supported: false, permission: null, hasToken: false };
+    }
+    return {
+        supported: true,
+        permission: Notification.permission,
+        hasToken: !!currentFcmToken
+    };
 };

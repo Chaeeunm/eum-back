@@ -213,13 +213,13 @@ function createMeetingCard(meeting) {
     if (isToday) {
         actionButtonsHtml = `
             <div class="meeting-card-actions" onclick="event.stopPropagation()">
-                <button type="button" class="btn btn-departure-small" onclick="window.appModules.openDepartureFromList(${meeting.id})" title="내 위치를 공유하며 약속 장소로 출발합니다">
+                <button type="button" class="btn btn-departure-small" onclick="window.appModules.openDepartureFromList(${meeting.id})" data-tooltip="내 위치를 공유하며 약속 장소로 출발합니다">
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <polygon points="5 3 19 12 5 21 5 3"></polygon>
                     </svg>
                     출발
                 </button>
-                <button type="button" class="btn btn-realtime-small" onclick="window.appModules.openRealtimeFromList(${meeting.id})" title="참가자들의 실시간 위치를 지도에서 확인합니다">
+                <button type="button" class="btn btn-realtime-small" onclick="window.appModules.openRealtimeFromList(${meeting.id})" data-tooltip="참가자들의 실시간 위치를 지도에서 확인합니다">
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
                         <circle cx="12" cy="10" r="3"></circle>
@@ -434,13 +434,13 @@ function createMeetingDetail(meeting) {
     if (isToday) {
         actionButtonsHtml = `
             <div class="meeting-card-actions">
-                <button type="button" class="btn btn-departure-small" onclick="window.appModules.openDepartureModal()" title="내 위치를 공유하며 약속 장소로 출발합니다">
+                <button type="button" class="btn btn-departure-small" onclick="window.appModules.openDepartureModal()" data-tooltip="내 위치를 공유하며 약속 장소로 출발합니다">
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <polygon points="5 3 19 12 5 21 5 3"></polygon>
                     </svg>
                     출발
                 </button>
-                <button type="button" class="btn btn-realtime-small" onclick="window.appModules.openRealtimePage()" title="참가자들의 실시간 위치를 지도에서 확인합니다">
+                <button type="button" class="btn btn-realtime-small" onclick="window.appModules.openRealtimePage()" data-tooltip="참가자들의 실시간 위치를 지도에서 확인합니다">
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
                         <circle cx="12" cy="10" r="3"></circle>
