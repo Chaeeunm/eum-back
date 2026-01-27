@@ -96,6 +96,7 @@
 
 .search-box-new input {
     flex: 1;
+    min-width: 0;
     border: none;
     background: none;
     padding: 10px 0;
@@ -113,6 +114,8 @@
     font-weight: 600;
     cursor: pointer;
     transition: all 0.2s ease;
+    flex-shrink: 0;
+    white-space: nowrap;
 }
 
 .search-btn-new:hover {

@@ -602,7 +602,8 @@
 .profile-info-value {
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: 8px;
+    flex-shrink: 0;
 }
 
 .profile-info-value span {
@@ -629,6 +630,8 @@
     color: var(--accent);
     cursor: pointer;
     transition: all 0.2s ease;
+    flex-shrink: 0;
+    white-space: nowrap;
 }
 
 .btn-edit-small:hover {

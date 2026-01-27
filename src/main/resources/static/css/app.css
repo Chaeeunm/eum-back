@@ -19,6 +19,7 @@
 @import 'components/cards.css';
 @import 'components/toast.css';
 @import 'components/loading.css';
+@import 'components/datepicker.css';
 
 /* Pages */
 @import 'pages/landing.css';

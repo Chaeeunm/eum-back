@@ -44,6 +44,7 @@ import { openAddMemberModal } from './member.js';
 let showPageHandler = null;
 let openDepartureModalHandler = null;
 let openRealtimePageHandler = null;
+let datePicker = null;
 
 export function setShowPageHandler(handler) {
     showPageHandler = handler;
@@ -482,6 +483,34 @@ function createMeetingDetail(meeting) {
     `;
 }
 
+// Initialize date picker for create page
+export function initDatePicker() {
+    const meetAtInput = document.getElementById('meetAt');
+    if (!meetAtInput) return;
+
+    // Destroy existing instance
+    if (datePicker) {
+        datePicker.destroy();
+    }
+
+    // Initialize flatpickr
+    datePicker = flatpickr(meetAtInput, {
+        locale: 'ko',
+        enableTime: true,
+        dateFormat: 'Y-m-d H:i',
+        altInput: true,
+        altFormat: 'Y년 m월 d일 H:i',
+        minDate: 'today',
+        time_24hr: true,
+        minuteIncrement: 5,
+        disableMobile: true,  // 모바일에서도 커스텀 UI 사용
+        onReady: function(selectedDates, dateStr, instance) {
+            // 스타일 커스터마이징을 위한 클래스 추가
+            instance.calendarContainer.classList.add('eum-datepicker');
+        }
+    });
+}
+
 // Create meeting
 export async function createMeeting(event) {
     event.preventDefault();
@@ -494,8 +523,8 @@ export async function createMeeting(event) {
     const lng = form.lng.value ? parseFloat(form.lng.value) : null;
     const locationName = form.locationName ? form.locationName.value : null;
 
-    // Convert datetime-local to "yyyy-MM-dd HH:mm" format
-    const meetAt = meetAtInput ? meetAtInput.replace('T', ' ') : null;
+    // flatpickr format is already "yyyy-MM-dd HH:mm"
+    const meetAt = meetAtInput || null;
 
     const payload = {
         title,

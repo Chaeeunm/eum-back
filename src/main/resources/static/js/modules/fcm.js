@@ -20,6 +20,12 @@ const isIOS = () => {
         (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
 };
 
+// PWA로 실행 중인지 확인
+const isPWA = () => {
+    return window.navigator.standalone === true ||
+        window.matchMedia('(display-mode: standalone)').matches;
+};
+
 // Service Worker 등록 및 활성화 대기
 const registerServiceWorker = async () => {
     if (!('serviceWorker' in navigator)) {
@@ -283,6 +289,28 @@ export const requestNotificationPermission = requestPermissionAndGetToken;
 
 // 알림 상태 확인
 export const getNotificationStatus = () => {
+    // iOS는 PWA에서만 Notification API 지원
+    // 비PWA에서도 supported: true 반환하여 "PWA 필요" 안내 표시
+    if (isIOS()) {
+        const pwa = isPWA();
+        if (!pwa) {
+            // iOS 비PWA: Notification API 없지만 supported: true로 반환
+            // helpers.js에서 "PWA 필요" 안내 표시됨
+            return { supported: true, permission: null, hasToken: false };
+        }
+        // iOS PWA: Notification API 있음
+        if ('Notification' in window) {
+            return {
+                supported: true,
+                permission: Notification.permission,
+                hasToken: !!currentFcmToken
+            };
+        }
+        // iOS PWA인데 Notification API 없는 경우 (iOS 16.4 미만)
+        return { supported: false, permission: null, hasToken: false };
+    }
+
+    // 일반 브라우저
     if (!('Notification' in window)) {
         return { supported: false, permission: null, hasToken: false };
     }

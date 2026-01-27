@@ -14,7 +14,7 @@ import {
 } from './state.js';
 import { apiRequest } from './api.js';
 import { showToast } from '../ui/toast.js';
-import { loadMeetings, loadMeetingDetail } from '../modules/meeting.js';
+import { loadMeetings, loadMeetingDetail, initDatePicker } from '../modules/meeting.js';
 import { resetLocationSelection, initCreateMap } from '../modules/map.js';
 import { initRealtimePage } from '../modules/realtime.js';
 import { initFCM } from '../modules/fcm.js';
@@ -140,7 +140,10 @@ export function showPage(page, shouldUpdateHash = true) {
             document.getElementById('create-page').classList.remove('hidden');
             document.getElementById('create-meeting-form').reset();
             resetLocationSelection();
-            setTimeout(() => initCreateMap(), 100);
+            setTimeout(() => {
+                initCreateMap();
+                initDatePicker();
+            }, 100);
             break;
         case 'realtime':
             document.getElementById('realtime-page').classList.remove('hidden');
