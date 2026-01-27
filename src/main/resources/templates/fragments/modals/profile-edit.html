@@ -89,6 +89,24 @@
                             </div>
                         </div>
                     </div>
+
+                    <div class="profile-info-section">
+                        <div class="profile-info-row">
+                            <div class="profile-info-label">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+                                    <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+                                </svg>
+                                푸시 알림
+                            </div>
+                            <div class="profile-info-value">
+                                <span id="notification-status-text" style="font-size: 13px; color: var(--text-secondary);">설정 필요</span>
+                                <button type="button" id="btn-fcm-setup" class="btn-edit-small" onclick="handleNotificationClick()">
+                                    설정
+                                </button>
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
                 <button type="submit" class="btn btn-gradient btn-full">저장하기</button>

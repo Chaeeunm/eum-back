@@ -134,8 +134,16 @@ public class JwtTokenProvider {
 	 * @return true: 유효한 토큰, false: 만료되었거나 유효하지 않은 토큰
 	 */
 	public boolean validateToken(String token) {
-		Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token);
-		return true;
+		try {
+			Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token);
+			return true;
+		} catch (ExpiredJwtException e) {
+			log.debug("만료된 JWT 토큰입니다.");
+			return false;
+		} catch (Exception e) {
+			log.debug("유효하지 않은 JWT 토큰입니다: {}", e.getMessage());
+			return false;
+		}
 	}
 
 	/**

@@ -6,6 +6,7 @@ import { showToast } from '../ui/toast.js';
 let currentFcmToken = null;
 let isInitialized = false;
 let messaging = null;
+let swRegistration = null;
 
 // Safari 감지
 const isSafari = () => {
@@ -17,6 +18,44 @@ const isSafari = () => {
 const isIOS = () => {
     return /iPad|iPhone|iPod/.test(navigator.userAgent) ||
         (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+};
+
+// Service Worker 등록 및 활성화 대기
+const registerServiceWorker = async () => {
+    if (!('serviceWorker' in navigator)) {
+        console.warn('Service Worker를 지원하지 않는 브라우저입니다.');
+        return null;
+    }
+
+    try {
+        const registration = await navigator.serviceWorker.register('/firebase-messaging-sw.js');
+        console.log('Service Worker 등록 성공:', registration.scope);
+
+        // Service Worker가 활성화될 때까지 대기
+        if (registration.installing) {
+            await new Promise((resolve) => {
+                registration.installing.addEventListener('statechange', (e) => {
+                    if (e.target.state === 'activated') {
+                        resolve();
+                    }
+                });
+            });
+        } else if (registration.waiting) {
+            await new Promise((resolve) => {
+                registration.waiting.addEventListener('statechange', (e) => {
+                    if (e.target.state === 'activated') {
+                        resolve();
+                    }
+                });
+            });
+        }
+        // registration.active가 이미 있으면 바로 사용 가능
+
+        return registration;
+    } catch (err) {
+        console.error('Service Worker 등록 실패:', err);
+        return null;
+    }
 };
 
 // Firebase 초기화 (권한 요청 없이)
@@ -61,6 +100,15 @@ const requestPermissionAndGetToken = async () => {
         if (!messaging) return null;
     }
 
+    // Service Worker가 등록되지 않았으면 등록
+    if (!swRegistration) {
+        swRegistration = await registerServiceWorker();
+        if (!swRegistration) {
+            console.error('Service Worker 등록 실패로 FCM 토큰을 가져올 수 없습니다.');
+            return null;
+        }
+    }
+
     try {
         const permission = await Notification.requestPermission();
 
@@ -68,7 +116,8 @@ const requestPermissionAndGetToken = async () => {
             console.log('알림 권한 허용됨');
 
             const token = await messaging.getToken({
-                vapidKey: 'BEMV9IOmR6ORyBqRB2Xe90qKWKwAPUY-9jF3lqx3tYLiSd8X-kWDA-OdIF8HD42IThhvyPxFQSUadx9yjiqKLWw'
+                vapidKey: 'BEMV9IOmR6ORyBqRB2Xe90qKWKwAPUY-9jF3lqx3tYLiSd8X-kWDA-OdIF8HD42IThhvyPxFQSUadx9yjiqKLWw',
+                serviceWorkerRegistration: swRegistration
             });
 
             if (token) {
