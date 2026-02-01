@@ -35,6 +35,11 @@ let maxReconnectAttempts = 5;
 let reconnectTimeout = null;
 let isReconnecting = false;
 let lastConnectedMeetingId = null;
+
+// Location tracking state
+let watchId = null;
+let latestPosition = null;
+let lastSentAt = 0;
 import { apiRequest } from '../core/api.js';
 import { showToast } from '../ui/toast.js';
 import { showModal, hideModal } from '../ui/modal.js';
@@ -195,10 +200,7 @@ export function disconnectWebSocket() {
     isReconnecting = false;
     lastConnectedMeetingId = null;
 
-    if (locationUpdateInterval) {
-        clearInterval(locationUpdateInterval);
-        setLocationUpdateInterval(null);
-    }
+    stopLocationUpdates();
 
     if (stompClient && isConnected) {
         stompClient.disconnect(function() {
@@ -492,10 +494,7 @@ function updateMemberLocation(locationData) {
 
 
 function handleArrivalStop() {
-    if (locationUpdateInterval) {
-        clearInterval(locationUpdateInterval);
-        setLocationUpdateInterval(null);
-    }
+    stopLocationUpdates();
     setIsDepartureMode(false);
 
     // Update buttons
@@ -670,54 +669,71 @@ export async function startDeparture(transportType) {
     );
 }
 
-// Start location updates (every 5 seconds)
-export function startLocationUpdates() {
+// Stop location updates (GPS watch + backup interval)
+function stopLocationUpdates() {
+    if (watchId !== null) {
+        navigator.geolocation.clearWatch(watchId);
+        watchId = null;
+    }
     if (locationUpdateInterval) {
         clearInterval(locationUpdateInterval);
+        setLocationUpdateInterval(null);
     }
-
-    // Send immediately
-    sendCurrentLocation();
-
-    // Send every 5 seconds
-    const interval = setInterval(() => {
-        sendCurrentLocation();
-    }, 5000);
-    setLocationUpdateInterval(interval);
-
-    // Update buttons
-    updateDepartureControl();
+    latestPosition = null;
 }
 
-// Send current location via WebSocket
-function sendCurrentLocation() {
-    if (!stompClient || !isConnected || !currentMeetingUserId) return;
+// Start location updates (watchPosition + 5초 쓰로틀링)
+export function startLocationUpdates() {
+    stopLocationUpdates();
+    lastSentAt = 0;
 
-    navigator.geolocation.getCurrentPosition(
+    // watchPosition: OS가 GPS 전력을 효율적으로 관리
+    watchId = navigator.geolocation.watchPosition(
         (position) => {
-            const locationData = {
-                meetingUserId: currentMeetingUserId,
-                lat: position.coords.latitude,
-                lng: position.coords.longitude,
-                movedAt: new Date().toISOString().slice(0, 16).replace('T', ' ')
-            };
+            latestPosition = position;
 
-            stompClient.send(
-                `/pub/meeting/${currentMeetingId}/meeting-user/${currentMeetingUserId}/location`,
-                {},
-                JSON.stringify(locationData)
-            );
-
-            console.log('Location sent:', locationData);
+            const now = Date.now();
+            if (now - lastSentAt >= 5000) {
+                sendLocation(position);
+                lastSentAt = now;
+            }
         },
         (error) => {
-            console.error('Failed to get location:', error);
+            console.error('Location watch error:', error);
         },
         {
             enableHighAccuracy: true,
-            timeout: 5000,
-            maximumAge: 0
+            maximumAge: 3000
         }
+    );
+
+    // 보험: watchPosition 콜백이 5초 내에 안 올 때 마지막 위치 전송
+    const interval = setInterval(() => {
+        if (latestPosition && Date.now() - lastSentAt >= 5000) {
+            sendLocation(latestPosition);
+            lastSentAt = Date.now();
+        }
+    }, 5000);
+    setLocationUpdateInterval(interval);
+
+    updateDepartureControl();
+}
+
+// Send location data via WebSocket
+function sendLocation(position) {
+    if (!stompClient || !isConnected || !currentMeetingUserId) return;
+
+    const locationData = {
+        meetingUserId: currentMeetingUserId,
+        lat: position.coords.latitude,
+        lng: position.coords.longitude,
+        movedAt: new Date().toISOString().slice(0, 16).replace('T', ' ')
+    };
+
+    stompClient.send(
+        `/pub/meeting/${currentMeetingId}/meeting-user/${currentMeetingUserId}/location`,
+        {},
+        JSON.stringify(locationData)
     );
 }
 
@@ -725,8 +741,7 @@ function sendCurrentLocation() {
 export async function toggleDeparture() {
     if (locationUpdateInterval) {
         // 현재 위치 공유 중 → 중단
-        clearInterval(locationUpdateInterval);
-        setLocationUpdateInterval(null);
+        stopLocationUpdates();
 
         // Update to PAUSED status
         try {
