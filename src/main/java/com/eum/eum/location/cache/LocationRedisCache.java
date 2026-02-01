@@ -59,7 +59,6 @@ public class LocationRedisCache implements LocationCache<LocationRedisEntity> {
 		String hashKey = LocationRedisEntity.hashKey(userId);
 
 		Object raw = redisTemplate.opsForHash().get(redisKey, hashKey);
-		log.info("DEBUG - raw: {}, type: {}", raw, raw != null ? raw.getClass().getName() : "null");
 
 		if (raw == null) {
 			return null;

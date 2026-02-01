@@ -54,26 +54,17 @@ public class LocationSharingService {
 		MovementStatus movementStatus = MovementStatus.MOVING;
 
 		if (isArrived) {
-			// DB에서 해당 유저 정보를 가져와서 엔티티 메서드 호출
 			MeetingUser meetingUser = meetingUserRepository.findByMeetingIdAndUserId(meetingId, userId)
 				.orElseThrow(() -> new BusinessException(ErrorCode.DATA_NOT_FOUND));
 
-			// 이미 ARRIVED면 안에서 알아서 return하므로 중복 업데이트 방지가 됨!
-			meetingUser.determineStatusOnDisconnectAndPublish(
-				requestDto.getLat(),
-				requestDto.getLng(),
-				new Location(goal.getTargetLat(), goal.getTargetLng())
-			);
-
-			// 2. 중요: 아직 상태가 ARRIVED가 아닐 때만 메시지를 만듭니다!
-			// (안 그러면 5초마다 계속 "OO님이 도착했습니다!"가 도배돼요)
+			// 이미 도착한 상태면 중복 처리 방지 (5초마다 "도착했습니다!" 도배 방지)
 			if (meetingUser.getMovementStatus() != MovementStatus.ARRIVED) {
 				meetingUser.determineStatusOnDisconnectAndPublish(
 					requestDto.getLat(),
 					requestDto.getLng(),
 					new Location(goal.getTargetLat(), goal.getTargetLng())
 				);
-				meetingUserRepository.save(meetingUser);// 이벤트 발행을 위함
+				meetingUserRepository.save(meetingUser); // 이벤트 발행을 위함
 				message = meetingUser.getUser().getNickName() + "님이 도착했습니다!";
 				movementStatus = MovementStatus.ARRIVED;
 			}
