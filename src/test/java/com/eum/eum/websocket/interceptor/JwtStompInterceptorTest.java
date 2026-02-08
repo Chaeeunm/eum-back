@@ -23,6 +23,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetailsService;
 
 import com.eum.eum.common.exception.BusinessException;
+import com.eum.eum.meeting.domain.repository.MeetingUserRepository;
 import com.eum.eum.security.jwt.JwtTokenProvider;
 import com.eum.eum.user.domain.entity.User;
 import com.eum.eum.user.domain.entity.UserRole;
@@ -36,6 +37,9 @@ class JwtStompInterceptorTest {
 
 	@Mock
 	private UserDetailsService userDetailsService;
+
+	@Mock
+	private MeetingUserRepository meetingUserRepository;
 
 	@Mock
 	private MessageChannel channel;
@@ -76,6 +80,7 @@ class JwtStompInterceptorTest {
 			given(jwtTokenProvider.getUsername(VALID_TOKEN)).willReturn(USERNAME);
 			given(userDetailsService.loadUserByUsername(USERNAME)).willReturn(testUser);
 			given(jwtTokenProvider.getAuthentication(testUser)).willReturn(mockAuth);
+			given(meetingUserRepository.existsByMeetingIdAndUserId(MEETING_ID, testUser.getId())).willReturn(true);
 
 			// when
 			Message<?> result = interceptor.preSend(message, channel);
@@ -85,6 +90,27 @@ class JwtStompInterceptorTest {
 			StompHeaderAccessor accessor = StompHeaderAccessor.wrap(result);
 			assertThat(accessor.getUser()).isNotNull();
 			assertThat(accessor.getSessionAttributes().get("meetingId")).isEqualTo(MEETING_ID);
+		}
+
+		@Test
+		@DisplayName("약속 참가자가 아니면 예외가 발생한다")
+		void shouldThrowExceptionWhenNotParticipant() {
+			// given
+			Message<?> message = createConnectMessage(BEARER_TOKEN, MEETING_ID.toString());
+			Authentication mockAuth = mock(Authentication.class);
+
+			given(jwtTokenProvider.getAccessTokenFromAuthorization(BEARER_TOKEN)).willReturn(VALID_TOKEN);
+			given(jwtTokenProvider.validateToken(VALID_TOKEN)).willReturn(true);
+			given(jwtTokenProvider.getUsername(VALID_TOKEN)).willReturn(USERNAME);
+			given(userDetailsService.loadUserByUsername(USERNAME)).willReturn(testUser);
+			given(jwtTokenProvider.getAuthentication(testUser)).willReturn(mockAuth);
+			given(meetingUserRepository.existsByMeetingIdAndUserId(MEETING_ID, testUser.getId())).willReturn(false);
+
+			// when & then
+			assertThatThrownBy(() -> interceptor.preSend(message, channel))
+				.isInstanceOf(BusinessException.class)
+				.extracting("code")
+				.isEqualTo("ACCESS-001");
 		}
 
 		@Test
@@ -166,7 +192,7 @@ class JwtStompInterceptorTest {
 			// given
 			Authentication auth = mock(Authentication.class);
 			given(auth.getName()).willReturn(USERNAME);
-			Message<?> message = createSendMessage(auth, "/pub/location");
+			Message<?> message = createSendMessage(auth, "/pub/meeting/1/meeting-user/1/location", MEETING_ID);
 
 			// when
 			Message<?> result = interceptor.preSend(message, channel);
@@ -176,10 +202,25 @@ class JwtStompInterceptorTest {
 		}
 
 		@Test
+		@DisplayName("세션의 meetingId와 다른 약속에 메시지를 전송하면 예외가 발생한다")
+		void shouldThrowExceptionWhenSendingToDifferentMeeting() {
+			// given
+			Authentication auth = mock(Authentication.class);
+			given(auth.getName()).willReturn(USERNAME);
+			Message<?> message = createSendMessage(auth, "/pub/meeting/999/meeting-user/1/location", MEETING_ID);
+
+			// when & then
+			assertThatThrownBy(() -> interceptor.preSend(message, channel))
+				.isInstanceOf(BusinessException.class)
+				.extracting("code")
+				.isEqualTo("ACCESS-001");
+		}
+
+		@Test
 		@DisplayName("인증되지 않은 사용자는 메시지를 전송할 수 없다")
 		void shouldThrowExceptionWhenNotAuthenticated() {
 			// given
-			Message<?> message = createSendMessage(null, "/pub/location");
+			Message<?> message = createSendMessage(null, "/pub/location", MEETING_ID);
 
 			// when & then
 			assertThatThrownBy(() -> interceptor.preSend(message, channel))
@@ -194,11 +235,11 @@ class JwtStompInterceptorTest {
 	class Subscribe {
 
 		@Test
-		@DisplayName("인증된 사용자는 일반 경로를 구독할 수 있다")
-		void shouldAllowSubscribeToGeneralPath() {
+		@DisplayName("인증된 사용자는 자신의 약속 경로를 구독할 수 있다")
+		void shouldAllowSubscribeToOwnMeetingPath() {
 			// given
 			Authentication auth = mock(Authentication.class);
-			Message<?> message = createSubscribeMessage(auth, "/sub/meeting/1");
+			Message<?> message = createSubscribeMessage(auth, "/sub/meeting/1/location", MEETING_ID);
 
 			// when
 			Message<?> result = interceptor.preSend(message, channel);
@@ -208,12 +249,27 @@ class JwtStompInterceptorTest {
 		}
 
 		@Test
+		@DisplayName("세션의 meetingId와 다른 약속을 구독하면 예외가 발생한다")
+		void shouldThrowExceptionWhenSubscribingToDifferentMeeting() {
+			// given
+			Authentication auth = mock(Authentication.class);
+			given(auth.getName()).willReturn(USERNAME);
+			Message<?> message = createSubscribeMessage(auth, "/sub/meeting/999/location", MEETING_ID);
+
+			// when & then
+			assertThatThrownBy(() -> interceptor.preSend(message, channel))
+				.isInstanceOf(BusinessException.class)
+				.extracting("code")
+				.isEqualTo("ACCESS-001");
+		}
+
+		@Test
 		@DisplayName("자신의 user queue 경로를 구독할 수 있다")
 		void shouldAllowSubscribeToOwnUserQueue() {
 			// given
 			Authentication auth = mock(Authentication.class);
 			given(auth.getName()).willReturn(USERNAME);
-			Message<?> message = createSubscribeMessage(auth, "/user/queue/" + USERNAME + "/notifications");
+			Message<?> message = createSubscribeMessage(auth, "/user/queue/" + USERNAME + "/notifications", MEETING_ID);
 
 			// when
 			Message<?> result = interceptor.preSend(message, channel);
@@ -228,7 +284,7 @@ class JwtStompInterceptorTest {
 			// given
 			Authentication auth = mock(Authentication.class);
 			given(auth.getName()).willReturn(USERNAME);
-			Message<?> message = createSubscribeMessage(auth, "/user/queue/other@test.com/notifications");
+			Message<?> message = createSubscribeMessage(auth, "/user/queue/other@test.com/notifications", MEETING_ID);
 
 			// when & then
 			assertThatThrownBy(() -> interceptor.preSend(message, channel))
@@ -241,7 +297,7 @@ class JwtStompInterceptorTest {
 		@DisplayName("인증되지 않은 사용자는 구독할 수 없다")
 		void shouldThrowExceptionWhenNotAuthenticated() {
 			// given
-			Message<?> message = createSubscribeMessage(null, "/sub/meeting/1");
+			Message<?> message = createSubscribeMessage(null, "/sub/meeting/1/location", MEETING_ID);
 
 			// when & then
 			assertThatThrownBy(() -> interceptor.preSend(message, channel))
@@ -288,20 +344,28 @@ class JwtStompInterceptorTest {
 		return MessageBuilder.createMessage(new byte[0], accessor.getMessageHeaders());
 	}
 
-	private Message<?> createSendMessage(Authentication auth, String destination) {
+	private Message<?> createSendMessage(Authentication auth, String destination, Long sessionMeetingId) {
 		StompHeaderAccessor accessor = StompHeaderAccessor.create(StompCommand.SEND);
 		accessor.setSessionId("session-123");
 		accessor.setDestination(destination);
 		accessor.setUser(auth);
 
+		Map<String, Object> sessionAttributes = new HashMap<>();
+		sessionAttributes.put("meetingId", sessionMeetingId);
+		accessor.setSessionAttributes(sessionAttributes);
+
 		return MessageBuilder.createMessage(new byte[0], accessor.getMessageHeaders());
 	}
 
-	private Message<?> createSubscribeMessage(Authentication auth, String destination) {
+	private Message<?> createSubscribeMessage(Authentication auth, String destination, Long sessionMeetingId) {
 		StompHeaderAccessor accessor = StompHeaderAccessor.create(StompCommand.SUBSCRIBE);
 		accessor.setSessionId("session-123");
 		accessor.setDestination(destination);
 		accessor.setUser(auth);
+
+		Map<String, Object> sessionAttributes = new HashMap<>();
+		sessionAttributes.put("meetingId", sessionMeetingId);
+		accessor.setSessionAttributes(sessionAttributes);
 
 		return MessageBuilder.createMessage(new byte[0], accessor.getMessageHeaders());
 	}

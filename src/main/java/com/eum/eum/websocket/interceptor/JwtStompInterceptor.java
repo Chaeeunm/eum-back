@@ -1,5 +1,8 @@
 package com.eum.eum.websocket.interceptor;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageChannel;
 import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
@@ -12,7 +15,9 @@ import org.springframework.stereotype.Component;
 
 import com.eum.eum.common.exception.ErrorCode;
 import com.eum.eum.common.exception.BusinessException;
+import com.eum.eum.meeting.domain.repository.MeetingUserRepository;
 import com.eum.eum.security.jwt.JwtTokenProvider;
+import com.eum.eum.user.domain.entity.User;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -24,6 +29,9 @@ import lombok.extern.slf4j.Slf4j;
 public class JwtStompInterceptor implements ChannelInterceptor {
 	private final JwtTokenProvider jwtTokenProvider;
 	private final UserDetailsService userDetailsService;
+	private final MeetingUserRepository meetingUserRepository;
+
+	private static final Pattern MEETING_ID_PATTERN = Pattern.compile("/(?:sub|pub)/meeting/(\\d+)/");
 
 	@Override
 	public Message<?> preSend(
@@ -64,6 +72,13 @@ public class JwtStompInterceptor implements ChannelInterceptor {
 					if (meetingIdStr == null)
 						throw new BusinessException(ErrorCode.INVALID_INPUT, "meetingId를 입력해주세요");
 					Long meetingId = Long.parseLong(meetingIdStr);
+
+					// 약속 참가자 검증
+					User connectUser = (User)userDetails;
+					if (!meetingUserRepository.existsByMeetingIdAndUserId(meetingId, connectUser.getId())) {
+						throw new BusinessException(ErrorCode.ACCESS_DENIED);
+					}
+
 					accessor.getSessionAttributes().put("meetingId", meetingId);
 
 					log.info("WebSocket 인증 성공 - User: {}, SessionId: {}",
@@ -86,6 +101,7 @@ public class JwtStompInterceptor implements ChannelInterceptor {
 				if (auth == null) {
 					throw new BusinessException(ErrorCode.UNAUTHORIZED);
 				}
+				validateMeetingAccess(accessor, auth);
 				log.debug("메시지 전송 - User: {}, Destination: {}",
 					auth.getName(), accessor.getDestination());
 				break;
@@ -96,6 +112,9 @@ public class JwtStompInterceptor implements ChannelInterceptor {
 				}
 
 				String destination = accessor.getDestination();
+				// meetingId 경로 권한 체크
+				validateMeetingAccess(accessor, subscribeAuth);
+
 				// 특정 경로에 대한 권한 체크
 				if (destination != null && destination.startsWith("/user/queue/")) {
 					String targetUser = destination.split("/")[3];
@@ -112,6 +131,30 @@ public class JwtStompInterceptor implements ChannelInterceptor {
 				break;
 		}
 		return message;
+	}
+
+	/**
+	 * 구독/발행 경로의 meetingId가 세션에 저장된 meetingId와 일치하는지 검증
+	 */
+	private void validateMeetingAccess(StompHeaderAccessor accessor, Authentication auth) {
+		String destination = accessor.getDestination();
+		if (destination == null) {
+			return;
+		}
+
+		Matcher matcher = MEETING_ID_PATTERN.matcher(destination);
+		if (!matcher.find()) {
+			return;
+		}
+
+		Long destMeetingId = Long.parseLong(matcher.group(1));
+		Long sessionMeetingId = (Long)accessor.getSessionAttributes().get("meetingId");
+
+		if (!destMeetingId.equals(sessionMeetingId)) {
+			log.warn("권한 없는 약속 접근 시도 - User: {}, Session meetingId: {}, Destination meetingId: {}",
+				auth.getName(), sessionMeetingId, destMeetingId);
+			throw new BusinessException(ErrorCode.ACCESS_DENIED);
+		}
 	}
 
 }
