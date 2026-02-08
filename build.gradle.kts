@@ -73,4 +73,11 @@ tasks.withType<Test> {
     // 테스트 일꾼의 작업 경로를 한글이 없는 곳으로 명시합니다.
     systemProperty("file.encoding", "UTF-8")
     systemProperty("user.home", "C:/gradle_tmp")
+
+    // 테스트 로그 상세 출력
+    testLogging {
+        events("passed", "skipped", "failed")
+        showStandardStreams = true  // System.out.println 출력
+        exceptionFormat = org.gradle.api.tasks.testing.logging.TestExceptionFormat.FULL
+    }
 }
