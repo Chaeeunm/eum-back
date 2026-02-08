@@ -91,6 +91,10 @@ export function connectWebSocket(meetingId, onConnected) {
     // Disable debug logs
     client.debug = null;
 
+    // Heartbeat 설정 (10초) - 서버 설정과 동일하게
+    client.heartbeat.outgoing = 10000; // 클라이언트 → 서버
+    client.heartbeat.incoming = 10000; // 서버 → 클라이언트
+
     const headers = {
         'Authorization': `Bearer ${accessToken}`,
         'meetingId': meetingId.toString()
@@ -319,7 +323,7 @@ function initRealtimeMap() {
             {
                 enableHighAccuracy: true,
                 timeout: 5000,
-                maximumAge: 0
+                maximumAge: 30000 // 30초 이내에 측정된 위치가 있다면 새로 GPS 안 켜고 그 값을 재사용해!
             }
         );
     }
@@ -703,7 +707,8 @@ export function startLocationUpdates() {
         },
         {
             enableHighAccuracy: true,
-            maximumAge: 3000
+            maximumAge: 3000,
+            timeout: 10000
         }
     );
 

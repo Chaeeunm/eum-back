@@ -36,7 +36,8 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
 	@Override
 	public void configureMessageBroker(MessageBrokerRegistry config) {
-		config.enableSimpleBroker("/sub"); //서버 -> 클라이언트로 메시지 보내는 주소 : 클라이언트가 구독하는 주소
+		config.enableSimpleBroker("/sub") //서버 -> 클라이언트로 메시지 보내는 주소 : 클라이언트가 구독하는 주소
+			.setHeartbeatValue(new long[]{10000, 10000}); // 10초마다 heartbeat (서버→클라, 클라→서버)
 		//브로커 역할을 하는 경량 메시지 큐를 활성화
 		// 클라이언트: "/pub/room/1" 구독
 		// 서버: 해당 구독자들에게 메시지 브로드캐스트
