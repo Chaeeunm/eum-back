@@ -149,7 +149,13 @@ export function connectWebSocket(meetingId, onConnected) {
         setIsConnected(false);
         updateConnectionStatus(false);
 
-        // Attempt reconnection
+        const status = error?.headers?.status;
+        if (status) {
+            showToast(error?.headers?.message || '연결 오류가 발생했습니다.', 'error');
+            exitRealtimePage();
+            return;
+        }
+
         attemptReconnect(meetingId, onConnected);
     });
 

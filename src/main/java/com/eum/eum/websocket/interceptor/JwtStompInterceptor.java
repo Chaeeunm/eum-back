@@ -22,7 +22,6 @@ import com.eum.eum.user.domain.entity.User;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
-//todo 예외 전역처리
 @Component
 @Slf4j
 @RequiredArgsConstructor

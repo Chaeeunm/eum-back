@@ -9,6 +9,7 @@ import org.springframework.web.socket.config.annotation.StompEndpointRegistry;
 import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerConfigurer;
 
 import com.eum.eum.common.config.TaskConfig;
+import com.eum.eum.websocket.handler.StompErrorHandler;
 import com.eum.eum.websocket.interceptor.JwtStompInterceptor;
 
 import lombok.RequiredArgsConstructor;
@@ -26,11 +27,13 @@ import lombok.RequiredArgsConstructor;
 public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
 	private final JwtStompInterceptor jwtStompInterceptor;
+	private final StompErrorHandler stompErrorHandler;
 	private final TaskScheduler heartbeatScheduler;
 
 	//웹소켓 연결 진입점 설정 (HTTP -> WS 업그레이드 시킬 url)
 	@Override
 	public void registerStompEndpoints(StompEndpointRegistry registry) {
+		registry.setErrorHandler(stompErrorHandler);
 		registry.addEndpoint("/ws") //handshake url 등록 그위에 handshake interceptor를 연결
 			.addInterceptors()//인증 인터셉터 추가
 			.setAllowedOriginPatterns("*")
