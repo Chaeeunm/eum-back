@@ -8,11 +8,14 @@
 ### 주요 기능
 
 - **일정 생성 및 멤버 초대**: 약속을 만들고 함께할 친구들을 초대
+- **링크 기반 초대**: 초대 링크를 생성하여 공유하면 간편하게 약속에 참여 (Redis에 24시간 TTL로 저장)
 - **실시간 위치 발행**: 약속 당일, 출발 버튼을 누르면 내 위치가 실시간으로 공유됨
 - **실시간 거리 계산**: 하버사인 공식으로 도착지까지 남은 거리를 계산합니다
 - **실시간 위치 확인**: 다른 사람의 위치가 궁금하면 실시간 위치 확인을 통해 이동 중인 위치를 볼 수 있음
 - **자동 도착 감지**: 약속 장소 근처에 도착하면 자동으로 도착 상태로 변경
 - **경로 조회**: 사람들이 이동한 경로를 조회할 수 있습니다.
+- **푸시 알림**: 같은 약속 참여자가 출발/도착 시 FCM 푸시 알림으로 실시간 알림 수신
+- **PWA 지원**: 홈 화면에 추가하여 네이티브 앱처럼 사용 가능
 
 ## 기술 스택
 
@@ -25,6 +28,8 @@
 | Real-time | WebSocket + STOMP                  |
 | Auth      | JWT (Access Token + Refresh Token) |
 | Build     | Gradle (Kotlin DSL)                |
+| Push      | Firebase Cloud Messaging (FCM)     |
+| PWA       | Web App Manifest, Service Worker   |
 | Docs      | Swagger                            |
 
 ## 아키텍처
@@ -156,12 +161,14 @@ src/main/java/com/eum/eum/
 │   └── service/             # 위치 저장/조회/삭제 서비스
 │
 ├── meeting/                 # 약속 관리
-│   ├── controller/          # 약속 CRUD API
+│   ├── controller/          # 약속 CRUD API, 초대 API
 │   ├── domain/
 │   │   └── entity/          # Meeting, MeetingUser, MovementStatus
+│   │       └── redis/       # MeetingInviteRedisEntity (초대 링크)
 │   ├── dto/                 # 약속 요청/응답 DTO
+│   ├── event/               # MovementStatusChangedEvent
 │   ├── repository/          # JPA Repository
-│   └── service/             # 약속 비즈니스 로직
+│   └── service/             # 약속 비즈니스 로직, 초대 서비스
 │
 ├── security/                # 보안 설정
 │   ├── config/              # Spring Security 설정
@@ -173,6 +180,13 @@ src/main/java/com/eum/eum/
 │   │   └── entity/          # User, UserRole
 │   ├── dto/                 # 사용자 DTO
 │   └── repository/          # 사용자 Repository
+│
+├── webpush/                 # FCM 푸시 알림
+│   ├── FcmService.java              # 푸시 발송 서비스
+│   ├── WebPushController.java       # 토큰 저장/삭제 API
+│   ├── PushSubscription.java        # FCM 토큰 엔티티
+│   ├── PushSubscriptionService.java # 토큰 관리 서비스
+│   └── PushSubscriptionRepository.java
 │
 └── websocket/               # WebSocket 관리
     ├── config/              # STOMP 설정
@@ -254,8 +268,68 @@ docker-compose up -d redis postgres
 http://localhost:8080/swagger-ui.html
 ```
 
+## 링크 기반 초대
+
+초대 링크를 통해 비로그인 사용자도 약속 정보를 확인하고, 로그인 후 자동으로 참여할 수 있습니다.
+
+### 흐름
+
+```
+[약속 생성자]
+    │ POST /api/meeting/{meetingId}/invite
+    ▼
+[Redis에 초대 코드 저장] ── TTL: 24시간
+    │
+    ▼
+[초대 링크 공유] ── ?code={inviteCode}
+    │
+    ▼
+[수신자 링크 접속]
+    │ GET /api/meeting/invite/{inviteCode} (인증 불필요)
+    ▼
+[약속 정보 확인 모달]
+    │
+    ├─ 로그인 상태 → POST /api/meeting/join/{inviteCode} → 약속 참여
+    └─ 비로그인 → 로그인 후 자동 참여 (localStorage에 코드 저장)
+```
+
+## FCM 푸시 알림
+
+약속 참여자의 출발/도착 상태 변경 시 같은 약속의 다른 참여자에게 푸시 알림을 전송합니다.
+
+### 알림 흐름
+
+```
+[MeetingUser 상태 변경] ── depart() / arrive()
+    │
+    ▼
+[MovementStatusChangedEvent 발행]
+    │
+    ▼ @TransactionalEventListener (AFTER_COMMIT, @Async)
+    │
+[PushNotificationEventListener]
+    │
+    ├─ 본인 제외 참여자 FCM 토큰 조회
+    ▼
+[FcmService.send()] → Firebase → 수신 기기
+```
+
+### 알림 메시지
+
+| 상태 변경        | 알림 내용             |
+|--------------|-------------------|
+| 출발 (MOVING)  | "{닉네임}님이 출발했습니다!" |
+| 도착 (ARRIVED) | "{닉네임}님이 도착했습니다!" |
+
+### 수신 처리
+
+| 상태              | 처리 위치                      | 동작          |
+|-----------------|----------------------------|-------------|
+| 포그라운드 (앱 열린 상태) | `fcm.js`                   | Toast 알림 표시 |
+| 백그라운드 (앱 닫힌 상태) | `firebase-messaging-sw.js` | 시스템 알림      |
+
 ## 향후 계획
 
 - [ ] Redis Pub/Sub 기반 분산 서버 지원
 - [ ] 예상 도착 시간 계산
-- [ ] 푸시 알림 연동
+- [x] 푸시 알림 연동
