@@ -358,6 +358,26 @@
     color: #6366f1;
 }
 
+/* Danger Button */
+.btn-danger {
+    background: var(--error);
+    color: white;
+}
+
+.btn-danger:hover {
+    opacity: 0.9;
+}
+
+/* Muted Button */
+.btn-muted {
+    background: var(--text-secondary);
+    color: white;
+}
+
+.btn-muted:hover {
+    opacity: 0.9;
+}
+
 /* Mobile-friendly Tooltip */
 [data-tooltip] {
     position: relative;

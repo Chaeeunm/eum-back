@@ -228,3 +228,19 @@
     color: var(--text-secondary);
     margin-left: 8px;
 }
+
+/* ================================
+   More Menu (⋮) Button
+   ================================ */
+
+/* Header-specific icon button override (white on gradient) */
+.meeting-more-btn {
+    width: 32px;
+    height: 32px;
+    color: white;
+    border-radius: 8px;
+}
+
+.meeting-more-btn:hover {
+    background: rgba(255, 255, 255, 0.35);
+}

@@ -26,6 +26,7 @@ import {
 } from '../core/state.js';
 import { apiRequest } from '../core/api.js';
 import { showToast } from '../ui/toast.js';
+import { showModal, hideModal } from '../ui/modal.js';
 import {
     formatTime,
     formatDateShort,
@@ -459,7 +460,37 @@ function createMeetingDetail(meeting) {
                     <span class="preview-title">${escapeHtml(meeting.title)}</span>
                     <span class="dday-tag-small ${dDayInfo.class}">${dDayInfo.text}</span>
                 </div>
-                <span class="preview-time">${timeStr}</span>
+                <div style="display:flex;align-items:center;gap:8px;">
+                    <span class="preview-time">${timeStr}</span>
+                    <div class="dropdown-wrapper">
+                        <button type="button" class="btn btn-icon meeting-more-btn" onclick="event.stopPropagation(); window.appModules.toggleMeetingMenu()">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="12" cy="5" r="1"></circle>
+                                <circle cx="12" cy="12" r="1"></circle>
+                                <circle cx="12" cy="19" r="1"></circle>
+                            </svg>
+                        </button>
+                        <div class="dropdown-menu" id="meeting-menu-dropdown">
+                            ${isPast
+                                ? `<button type="button" class="dropdown-item muted" onclick="window.appModules.confirmHideMeeting()">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <polyline points="3 6 5 6 21 6"></polyline>
+                                        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                                    </svg>
+                                    약속 삭제
+                                  </button>`
+                                : `<button type="button" class="dropdown-item danger" onclick="window.appModules.confirmLeaveMeeting()">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+                                        <polyline points="16 17 21 12 16 7"></polyline>
+                                        <line x1="21" y1="12" x2="9" y2="12"></line>
+                                    </svg>
+                                    약속 나가기
+                                  </button>`
+                            }
+                        </div>
+                    </div>
+                </div>
             </div>
             ${meeting.description ? `<div class="preview-description">${escapeHtml(meeting.description)}</div>` : ''}
             ${actionButtonsHtml}
@@ -637,6 +668,117 @@ export function selectMemberForRoute(meetingUserId) {
 export function showAllRoutes() {
     showUserRoute(null);
     updateMemberSelection(null);
+}
+
+// Toggle meeting more menu dropdown
+export function toggleMeetingMenu() {
+    const dropdown = document.getElementById('meeting-menu-dropdown');
+    if (!dropdown) return;
+
+    const isOpen = dropdown.classList.contains('show');
+
+    if (isOpen) {
+        dropdown.classList.remove('show');
+        document.removeEventListener('click', closeMeetingMenuOnOutsideClick);
+    } else {
+        dropdown.classList.add('show');
+        setTimeout(() => {
+            document.addEventListener('click', closeMeetingMenuOnOutsideClick);
+        }, 0);
+    }
+}
+
+function closeMeetingMenuOnOutsideClick(e) {
+    const dropdown = document.getElementById('meeting-menu-dropdown');
+    const btn = e.target.closest('.meeting-more-btn');
+    if (!btn && dropdown) {
+        dropdown.classList.remove('show');
+        document.removeEventListener('click', closeMeetingMenuOnOutsideClick);
+    }
+}
+
+// Confirm leave meeting (upcoming)
+export function confirmLeaveMeeting() {
+    // Close dropdown
+    const dropdown = document.getElementById('meeting-menu-dropdown');
+    if (dropdown) dropdown.classList.remove('show');
+
+    // Set modal content
+    document.getElementById('meeting-action-title').textContent = '약속 나가기';
+    document.getElementById('meeting-action-desc').textContent = '이 약속에서 나가면 참가자 목록에서 제거되며, 다시 초대받아야 참여할 수 있습니다.';
+
+    const confirmBtn = document.getElementById('meeting-action-confirm-btn');
+    confirmBtn.textContent = '나가기';
+    confirmBtn.className = 'btn btn-danger';
+    confirmBtn.onclick = () => leaveMeeting();
+
+    showModal('meeting-action-confirm');
+}
+
+// Confirm hide meeting (past)
+export function confirmHideMeeting() {
+    // Close dropdown
+    const dropdown = document.getElementById('meeting-menu-dropdown');
+    if (dropdown) dropdown.classList.remove('show');
+
+    // Set modal content
+    document.getElementById('meeting-action-title').textContent = '약속 삭제';
+    document.getElementById('meeting-action-desc').textContent = '이 약속이 내 목록에서 삭제됩니다. 다른 참가자에게는 계속 표시됩니다.';
+
+    const confirmBtn = document.getElementById('meeting-action-confirm-btn');
+    confirmBtn.textContent = '삭제';
+    confirmBtn.className = 'btn btn-muted';
+    confirmBtn.onclick = () => hideMeeting();
+
+    showModal('meeting-action-confirm');
+}
+
+// Leave meeting API call
+export async function leaveMeeting() {
+    if (!currentMeetingId) return;
+
+    try {
+        const response = await apiRequest(`/meeting/${currentMeetingId}/user/leave`, {
+            method: 'DELETE'
+        });
+
+        if (!response.ok) {
+            const error = await response.json().catch(() => ({}));
+            throw new Error(error.message || '약속 나가기에 실패했습니다.');
+        }
+
+        hideModal('meeting-action-confirm');
+        showToast('약속에서 나갔습니다.', 'success');
+        if (showPageHandler) {
+            showPageHandler('main');
+        }
+    } catch (error) {
+        showToast(error.message || '약속 나가기에 실패했습니다.', 'error');
+    }
+}
+
+// Hide meeting API call
+export async function hideMeeting() {
+    if (!currentMeetingId) return;
+
+    try {
+        const response = await apiRequest(`/meeting/${currentMeetingId}/user/hide`, {
+            method: 'DELETE'
+        });
+
+        if (!response.ok) {
+            const error = await response.json().catch(() => ({}));
+            throw new Error(error.message || '약속 삭제에 실패했습니다.');
+        }
+
+        hideModal('meeting-action-confirm');
+        showToast('약속이 삭제되었습니다.', 'success');
+        if (showPageHandler) {
+            showPageHandler('main');
+        }
+    } catch (error) {
+        showToast(error.message || '약속 삭제에 실패했습니다.', 'error');
+    }
 }
 
 // Update member selection UI

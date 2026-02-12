@@ -29,6 +29,11 @@ import {
     createMeeting,
     selectMemberForRoute,
     showAllRoutes,
+    toggleMeetingMenu,
+    confirmLeaveMeeting,
+    confirmHideMeeting,
+    leaveMeeting,
+    hideMeeting,
     setShowPageHandler as setMeetingShowPageHandler,
     setOpenDepartureModalHandler,
     setOpenRealtimePageHandler
@@ -115,6 +120,11 @@ window.appModules = {
     createMeeting,
     selectMemberForRoute,
     showAllRoutes,
+    toggleMeetingMenu,
+    confirmLeaveMeeting,
+    confirmHideMeeting,
+    leaveMeeting,
+    hideMeeting,
 
     // Member
     openAddMemberModal,
@@ -159,6 +169,11 @@ window.openRealtimeFromList = openRealtimeFromList;
 window.createMeeting = createMeeting;
 window.selectMemberForRoute = selectMemberForRoute;
 window.showAllRoutes = showAllRoutes;
+window.toggleMeetingMenu = toggleMeetingMenu;
+window.confirmLeaveMeeting = confirmLeaveMeeting;
+window.confirmHideMeeting = confirmHideMeeting;
+window.leaveMeeting = leaveMeeting;
+window.hideMeeting = hideMeeting;
 window.openAddMemberModal = openAddMemberModal;
 window.searchUsers = searchUsers;
 window.removeSelectedUser = removeSelectedUser;
