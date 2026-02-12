@@ -4,6 +4,7 @@ import java.time.Duration;
 import java.time.LocalDateTime;
 
 import com.eum.eum.common.domain.BaseEntity;
+import com.eum.eum.common.domain.EntityStatus;
 import com.eum.eum.common.util.LocationUtil;
 import com.eum.eum.location.domain.constrants.LocationTrackingConstants;
 import com.eum.eum.location.domain.entity.Location;
@@ -260,6 +261,10 @@ public class MeetingUser extends BaseEntity {
 					this.lastLocation.setLng(lng);
 			}
 		}
+	}
+
+	public void softDelete() {
+		setStatus(EntityStatus.DELETED);
 	}
 
 	public boolean isOwner(Long userId) {

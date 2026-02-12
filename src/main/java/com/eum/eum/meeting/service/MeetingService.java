@@ -53,7 +53,7 @@ public class MeetingService {
 		Meeting targetMeeting = meetingRepository.findById(meetingId)
 			.orElseThrow(() -> new BusinessException(ErrorCode.DATA_NOT_FOUND, "일정", meetingId));
 
-		if (!meetingUserRepository.existsByMeetingIdAndUserId(meetingId, user.getId())) {
+		if (!meetingUserRepository.existsByMeetingIdAndUserIdAndStatus(meetingId, user.getId(), EntityStatus.ACTIVE)) {
 			throw new BusinessException(ErrorCode.ACCESS_DENIED);
 		}
 
@@ -71,7 +71,7 @@ public class MeetingService {
 		Meeting targetMeeting = meetingRepository.findByIdWithUsers(meetingId)
 			.orElseThrow(() -> new BusinessException(ErrorCode.DATA_NOT_FOUND, "일정", meetingId));
 
-		if (!meetingUserRepository.existsByMeetingIdAndUserId(meetingId, user.getId())) {
+		if (!meetingUserRepository.existsByMeetingIdAndUserIdAndStatus(meetingId, user.getId(), EntityStatus.ACTIVE)) {
 			throw new BusinessException(ErrorCode.ACCESS_DENIED);
 		}
 
@@ -94,6 +94,7 @@ public class MeetingService {
 		Page<Meeting> meetingPage = meetingRepository.findMeetingsByUserIdAndStatus(
 			user.getId(),
 			EntityStatus.ACTIVE,
+			EntityStatus.ACTIVE,
 			isPast,
 			cutoffTime,
 			pageable);
@@ -112,7 +113,7 @@ public class MeetingService {
 		// Meeting targetMeeting = meetingRepository.findById(meetingId)
 		// 	.orElseThrow(() -> new RestException(ErrorCode.DATA_NOT_FOUND, "일정", meetingId));
 
-		if (!meetingUserRepository.existsByMeetingIdAndUserId(meetingId, user.getId())) {
+		if (!meetingUserRepository.existsByMeetingIdAndUserIdAndStatus(meetingId, user.getId(), EntityStatus.ACTIVE)) {
 			throw new BusinessException(ErrorCode.ACCESS_DENIED);
 		}
 

@@ -27,6 +27,7 @@ public interface MeetingRepository extends JpaRepository<Meeting, Long> {
 			    from MeetingUser mu
 			    where mu.meeting = m
 			    and mu.user.id = :userId
+			    and mu.status = :meetingUserStatus
 			)
 			and m.status = :status
 			and (
@@ -43,6 +44,7 @@ public interface MeetingRepository extends JpaRepository<Meeting, Long> {
 			    from MeetingUser mu
 			    where mu.meeting = m
 			    and mu.user.id = :userId
+			    and mu.status = :meetingUserStatus
 			)
 			and m.status = :status
 			and (
@@ -55,6 +57,7 @@ public interface MeetingRepository extends JpaRepository<Meeting, Long> {
 	Page<Meeting> findMeetingsByUserIdAndStatus(
 		@Param("userId") Long userId,
 		@Param("status") EntityStatus status,
+		@Param("meetingUserStatus") EntityStatus meetingUserStatus,
 		@Param("isPast") boolean isPast,
 		@Param("today") LocalDateTime cutoffTime,
 		Pageable pageable

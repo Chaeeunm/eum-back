@@ -52,6 +52,26 @@ public class MeetingUserController {
 		return ResponseEntity.ok(meetingUserService.deleteMeetingUsers(meetingId, requestDto, user.getEmail()));
 	}
 
+	@DeleteMapping("/meeting/{meetingId}/user/leave")
+	@Operation(summary = "일정 나가기 API", description = "본인이 약속에서 나가는 API (물리 삭제)")
+	public ResponseEntity<Void> leaveMeeting(
+		@PathVariable(value = "meetingId") Long meetingId,
+		@AuthenticationPrincipal User user
+	) {
+		meetingUserService.leaveMeeting(meetingId, user.getEmail());
+		return ResponseEntity.noContent().build();
+	}
+
+	@DeleteMapping("/meeting/{meetingId}/user/hide")
+	@Operation(summary = "일정 삭제 API", description = "본인의 일정 목록에서 숨기는 API (soft delete)")
+	public ResponseEntity<Void> hideMeeting(
+		@PathVariable(value = "meetingId") Long meetingId,
+		@AuthenticationPrincipal User user
+	) {
+		meetingUserService.hideMeeting(meetingId, user.getEmail());
+		return ResponseEntity.noContent().build();
+	}
+
 	@PatchMapping("/meeting/{meetingUserId}/user")
 	@Operation(summary = "약속 참가자 정보 수정 API", description = "약속 참가자의 위치, 출발 상태 등을 수정하는 API")
 	public ResponseEntity<MeetingUserResponseDto> updateMeetingUser(

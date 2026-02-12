@@ -6,6 +6,7 @@ import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.eum.eum.common.domain.EntityStatus;
 import com.eum.eum.common.exception.ErrorCode;
 import com.eum.eum.common.exception.BusinessException;
 import com.eum.eum.common.util.CustomBeanUtils;
@@ -78,7 +79,8 @@ public class MeetingUserService {
 		Meeting meeting = meetingRepository.findByIdWithUsers(meetingId)
 			.orElseThrow(() -> new BusinessException(ErrorCode.DATA_NOT_FOUND, "일정", meetingId));
 
-		if (!meetingUserRepository.existsByMeetingIdAndUserId(meetingId, requestUser.getId())) {
+		if (!meetingUserRepository.existsByMeetingIdAndUserIdAndStatus(meetingId, requestUser.getId(),
+			EntityStatus.ACTIVE)) {
 			throw new BusinessException(ErrorCode.ACCESS_DENIED);
 		}
 
@@ -99,6 +101,35 @@ public class MeetingUserService {
 
 		meeting.getUsers().removeAll(usersToRemove);
 		return true;
+	}
+
+	@Transactional
+	public void leaveMeeting(Long meetingId, String email) {
+		User user = userRepository.findByEmail(email)
+			.orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND, email));
+
+		Meeting meeting = meetingRepository.findByIdWithUsers(meetingId)
+			.orElseThrow(() -> new BusinessException(ErrorCode.DATA_NOT_FOUND, "일정", meetingId));
+
+		MeetingUser targetMeetingUser = meeting.getUsers().stream()
+			.filter(mu -> mu.getUser().getId().equals(user.getId()))
+			.findFirst()
+			.orElseThrow(() -> new BusinessException(ErrorCode.ACCESS_DENIED));
+
+		//meeting에 orphanRemoval 설정해놓은 이상 삭제는 부모 리스트에서 제거하는 방식으로 통일하는 것이 안전하다.
+		//장점 : 같은 트랜젝션 안에서 meeting.getUSers()를 조회해도 삭제 상태이기 떄문에 영속성 컨텍스트를 일치시킬 수 있다.
+		meeting.getUsers().remove(targetMeetingUser);
+	}
+
+	@Transactional
+	public void hideMeeting(Long meetingId, String email) {
+		User user = userRepository.findByEmail(email)
+			.orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND, email));
+
+		MeetingUser meetingUser = meetingUserRepository.findByMeetingIdAndUserId(meetingId, user.getId())
+			.orElseThrow(() -> new BusinessException(ErrorCode.ACCESS_DENIED));
+
+		meetingUser.softDelete();
 	}
 
 	@Transactional
