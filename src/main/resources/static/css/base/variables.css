@@ -3,24 +3,78 @@
    ================================ */
 
 :root {
+    /* === Brand === */
     --primary: #1d1d1f;
     --secondary: #86868b;
     --accent: #0071e3;
     --accent-hover: #0077ed;
+    --indigo: #6366f1;
+
+    /* === Semantic Colors === */
+    --error: #ef4444;
+    --error-dark: #dc2626;
+    --error-light: #fecaca;
+    --error-bg: #fef2f2;
+
+    --success: #22c55e;
+    --success-dark: #16a34a;
+    --success-light: #bbf7d0;
+    --success-bg: #f0fdf4;
+
+    --warning: #fbbf24;
+    --warning-dark: #f59e0b;
+
+    --info: #3b82f6;
+    --info-dark: #1d4ed8;
+    --info-light: #bfdbfe;
+    --info-bg: #eff6ff;
+
+    /* === Gray Scale === */
+    --gray-50: #f8fafc;
+    --gray-100: #f1f5f9;
+    --gray-200: #e5e7eb;
+    --gray-300: #cbd5e1;
+    --gray-400: #9ca3af;
+    --gray-500: #6b7280;
+    --gray-600: #475569;
+
+    /* === Surfaces === */
     --background: #ffffff;
     --surface: #ffffff;
     --surface-secondary: #f5f5f7;
+    --surface-blue: #f0f4f8;
     --border: #d2d2d7;
-    --error: #ff3b30;
-    --success: #34c759;
+
+    /* === Text === */
     --text-primary: #1d1d1f;
     --text-secondary: #86868b;
+
+    /* === RGB Channels (for rgba() usage) === */
+    --error-rgb: 239, 68, 68;
+    --success-rgb: 34, 197, 94;
+    --accent-rgb: 0, 113, 227;
+    --primary-purple-rgb: 102, 126, 234;
+    --info-rgb: 59, 130, 246;
+    --warning-rgb: 251, 191, 36;
+    --secondary-rgb: 134, 134, 139;
+    --indigo-rgb: 99, 102, 241;
+
+    /* === Shadows === */
     --shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
     --shadow-lg: 0 12px 40px rgba(0, 0, 0, 0.12);
+
+    /* === Radius === */
     --radius: 12px;
     --radius-lg: 20px;
+
+    /* === Gradients === */
     --gradient-primary: linear-gradient(135deg, #8b9cf4 0%, #a78bda 100%);
     --gradient-primary-dark: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     --gradient-purple: linear-gradient(135deg, #c084fc 0%, #818cf8 100%);
     --gradient-green: linear-gradient(135deg, #4ade80 0%, #22c55e 100%);
+    --gradient-success: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+    --gradient-error: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+    --gradient-blue: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+    --gradient-amber: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+    --gradient-gray: linear-gradient(135deg, #9ca3af 0%, #6b7280 100%);
 }

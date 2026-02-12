@@ -188,7 +188,7 @@
     left: 0;
     right: 0;
     height: 1px;
-    background-color: #e2e8f0;
+    background-color: var(--gray-200);
     z-index: 1;
 }
 
@@ -197,7 +197,7 @@
     background: #fff;
     padding: 0 12px;
     font-size: 12px;
-    color: #94a3b8;
+    color: var(--gray-400);
     z-index: 2;
 }
 
@@ -420,7 +420,7 @@
 }
 
 .user-select-list-new .user-select-item.selected {
-    background: rgba(102, 126, 234, 0.1);
+    background: rgba(var(--primary-purple-rgb), 0.1);
 }
 
 .user-select-list-new .checkbox {
@@ -554,8 +554,8 @@
     gap: 8px;
     padding: 14px 20px;
     background: transparent;
-    color: #ef4444;
-    border: 1px solid #fecaca;
+    color: var(--error);
+    border: 1px solid var(--error-light);
     border-radius: 12px;
     font-size: 14px;
     font-weight: 600;
@@ -564,8 +564,8 @@
 }
 
 .btn-logout:hover {
-    background: #fef2f2;
-    border-color: #ef4444;
+    background: var(--error-bg);
+    border-color: var(--error);
 }
 
 .btn-logout svg {
@@ -696,18 +696,18 @@
 }
 
 .notification-guide.denied-guide {
-    background: linear-gradient(135deg, #fef3f2 0%, #fef2f2 100%);
-    border: 1px solid #fecaca;
+    background: linear-gradient(135deg, #fef3f2 0%, var(--error-bg) 100%);
+    border: 1px solid var(--error-light);
 }
 
 .notification-guide.granted-guide {
-    background: linear-gradient(135deg, #f0fdf4 0%, #ecfdf5 100%);
-    border: 1px solid #bbf7d0;
+    background: linear-gradient(135deg, var(--success-bg) 0%, #ecfdf5 100%);
+    border: 1px solid var(--success-light);
 }
 
 .notification-guide.ios-guide {
-    background: linear-gradient(135deg, #eff6ff 0%, #eef2ff 100%);
-    border: 1px solid #bfdbfe;
+    background: linear-gradient(135deg, var(--info-bg) 0%, #eef2ff 100%);
+    border: 1px solid var(--info-light);
 }
 
 .guide-header {
@@ -781,17 +781,17 @@
 }
 
 .denied-guide code {
-    background: rgba(239, 68, 68, 0.1);
+    background: rgba(var(--error-rgb), 0.1);
     color: var(--error);
 }
 
 .granted-guide code {
-    background: rgba(34, 197, 94, 0.1);
+    background: rgba(var(--success-rgb), 0.1);
     color: var(--success);
 }
 
 .ios-guide code {
-    background: rgba(99, 102, 241, 0.1);
+    background: rgba(var(--indigo-rgb), 0.1);
     color: var(--accent);
 }
 
@@ -805,13 +805,13 @@
 }
 
 .denied-guide .guide-note {
-    border-color: #fecaca;
+    border-color: var(--error-light);
 }
 
 .granted-guide .guide-note {
-    border-color: #bbf7d0;
+    border-color: var(--success-light);
 }
 
 .ios-guide .guide-note {
-    border-color: #bfdbfe;
+    border-color: var(--info-light);
 }

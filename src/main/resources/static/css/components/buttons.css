@@ -153,7 +153,7 @@
 .btn-gradient:hover {
     opacity: 0.9;
     transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+    box-shadow: 0 4px 12px rgba(var(--primary-purple-rgb), 0.4);
 }
 
 /* Cancel Button */
@@ -257,7 +257,7 @@
 .btn-departure-main:hover {
     opacity: 0.9;
     transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+    box-shadow: 0 4px 12px rgba(var(--primary-purple-rgb), 0.4);
 }
 
 .btn-departure-small {
@@ -280,7 +280,7 @@
 .btn-departure-small:hover {
     opacity: 0.9;
     transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+    box-shadow: 0 4px 12px rgba(var(--primary-purple-rgb), 0.3);
 }
 
 /* Realtime Button */
@@ -338,10 +338,10 @@
     justify-content: center;
     gap: 8px;
     padding: 10px;
-    background-color: #f8fafc;
-    border: 1px dashed #cbd5e1;
+    background-color: var(--gray-50);
+    border: 1px dashed var(--gray-300);
     border-radius: 10px;
-    color: #475569;
+    color: var(--gray-600);
     font-size: 13px;
     font-weight: 500;
     cursor: pointer;
@@ -349,13 +349,13 @@
 }
 
 .btn-invite-copy:hover {
-    background-color: #f1f5f9;
-    border-color: #6366f1;
-    color: #6366f1;
+    background-color: var(--gray-100);
+    border-color: var(--indigo);
+    color: var(--indigo);
 }
 
 .btn-invite-copy svg {
-    color: #6366f1;
+    color: var(--indigo);
 }
 
 /* Danger Button */

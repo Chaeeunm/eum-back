@@ -93,7 +93,7 @@
     border-radius: 24px;
     font-size: 15px;
     font-weight: 500;
-    color: #1d1d1f;
+    color: var(--text-primary);
     box-shadow:
         0 8px 32px rgba(0, 0, 0, 0.08),
         inset 0 0 0 1px rgba(255, 255, 255, 0.5);
@@ -126,7 +126,7 @@
     border-radius: 16px;
     font-size: 14px;
     font-weight: 500;
-    color: #1d1d1f;
+    color: var(--text-primary);
     box-shadow:
         0 4px 24px rgba(0, 0, 0, 0.06),
         0 1px 2px rgba(0, 0, 0, 0.04);
@@ -140,7 +140,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: var(--gradient-primary-dark);
     border-radius: 8px;
     color: white;
     flex-shrink: 0;
@@ -151,7 +151,7 @@
 }
 
 .card-icon.green {
-    background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+    background: var(--gradient-success);
 }
 
 .float-card.card-1 {
@@ -212,7 +212,7 @@
 
 .preview-map {
     padding: 16px;
-    background: #f0f4f8;
+    background: var(--surface-blue);
 }
 
 .map-placeholder {
@@ -254,7 +254,7 @@
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    color: #ef4444;
+    color: var(--error);
     filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));
     z-index: 10;
     animation: bounce 2s ease-in-out infinite;
@@ -321,7 +321,7 @@
 }
 
 .status-item.arrived {
-    background: rgba(34, 197, 94, 0.1);
+    background: rgba(var(--success-rgb), 0.1);
 }
 
 .status-avatar {
@@ -343,11 +343,11 @@
 }
 
 .status-avatar.blue {
-    background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+    background: var(--gradient-blue);
 }
 
 .status-avatar.gray {
-    background: #9ca3af;
+    background: var(--gray-400);
 }
 
 .status-avatar.green {
@@ -381,7 +381,7 @@
 }
 
 .status-badge.success {
-    background: #22c55e;
+    background: var(--success);
     color: white;
     display: flex;
     align-items: center;
@@ -396,8 +396,8 @@
 }
 
 .status-badge.waiting-badge {
-    background: #e5e7eb;
-    color: #6b7280;
+    background: var(--gray-200);
+    color: var(--gray-500);
 }
 
 /* Features Section */

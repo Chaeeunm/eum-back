@@ -37,7 +37,7 @@
     outline: none;
     border-color: var(--accent);
     background: white;
-    box-shadow: 0 0 0 3px rgba(0, 113, 227, 0.1);
+    box-shadow: 0 0 0 3px rgba(var(--accent-rgb), 0.1);
 }
 
 .form-group-new input::placeholder,
@@ -60,7 +60,7 @@
 .input-icon-wrapper:focus-within {
     border-color: var(--accent);
     background: white;
-    box-shadow: 0 0 0 3px rgba(0, 113, 227, 0.1);
+    box-shadow: 0 0 0 3px rgba(var(--accent-rgb), 0.1);
 }
 
 .input-icon-wrapper svg {
@@ -177,7 +177,7 @@
     align-items: center;
     gap: 8px;
     padding: 10px 14px;
-    background: rgba(0, 113, 227, 0.08);
+    background: rgba(var(--accent-rgb), 0.08);
     border-radius: 10px;
 }
 
