@@ -51,6 +51,7 @@ import {
     startDeparture,
     startDepartureFromRealtime,
     toggleDeparture,
+    toggleEmojiPopup,
     exitRealtimePage,
     setShowPageHandler as setRealtimeShowPageHandler
 } from './modules/realtime.js';
@@ -138,6 +139,7 @@ window.appModules = {
     startDeparture,
     startDepartureFromRealtime,
     toggleDeparture,
+    toggleEmojiPopup,
     exitRealtimePage,
 
     // Invite
@@ -183,6 +185,7 @@ window.openDepartureModal = openDepartureModal;
 window.startDeparture = startDeparture;
 window.startDepartureFromRealtime = startDepartureFromRealtime;
 window.toggleDeparture = toggleDeparture;
+window.toggleEmojiPopup = toggleEmojiPopup;
 window.exitRealtimePage = exitRealtimePage;
 window.confirmInvite = confirmInvite;
 window.cancelInvite = cancelInvite;

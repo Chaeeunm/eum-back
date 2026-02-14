@@ -1,7 +1,9 @@
 package com.eum.eum.location.controller;
 
 import java.security.Principal;
+import java.util.List;
 
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.Header;
 import org.springframework.messaging.handler.annotation.MessageMapping;
@@ -10,9 +12,14 @@ import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 
+import com.eum.eum.location.dto.EmojiRequestDto;
+import com.eum.eum.location.dto.EmojiResponseDto;
 import com.eum.eum.location.dto.LocationRequestDto;
 import com.eum.eum.location.dto.LocationResponseDto;
+import com.eum.eum.location.dto.PokeRequestDto;
+import com.eum.eum.location.dto.PokeResponseDto;
 import com.eum.eum.location.service.LocationSharingService;
+import com.eum.eum.meeting.event.FcmPushEvent;
 import com.eum.eum.user.domain.entity.User;
 
 import lombok.RequiredArgsConstructor;
@@ -22,6 +29,7 @@ import lombok.RequiredArgsConstructor;
 public class LocationWebSocketController {
 	private final LocationSharingService locationSharingService;
 	private final SimpMessagingTemplate messagingTemplate;
+	private final ApplicationEventPublisher eventPublisher;
 
 	// 1. 실시간 위치 확인 버튼 클릭 ->
 	// 2. /pub/meeting/{meetingId}/init 현재 접속 정보 가져옴
@@ -48,10 +56,50 @@ public class LocationWebSocketController {
 		Principal principal,
 		LocationRequestDto request
 	) {
-		Authentication authentication = (Authentication) principal;
-		User user = (User) authentication.getPrincipal();
+		Authentication authentication = (Authentication)principal;
+		User user = (User)authentication.getPrincipal();
 		Long userId = user.getId();
 
 		return locationSharingService.pubLocation(userId, meetingId, request);
+	}
+
+	// 재촉/비난 (Poke)
+	@MessageMapping("/meeting/{meetingId}/poke")
+	@SendTo("/sub/meeting/{meetingId}/poke")
+	public PokeResponseDto poke(
+		@DestinationVariable Long meetingId,
+		Principal principal,
+		PokeRequestDto request
+	) {
+		Authentication authentication = (Authentication)principal;
+		User sender = (User)authentication.getPrincipal();
+
+		String senderNickName = sender.getNickName();
+		String pokeMessage = "URGE".equals(request.pokeType())
+			? "👋 " + senderNickName + "님이 " + request.targetNickName() + "님을 재촉하였습니다!"
+			: "😤 " + senderNickName + "님이 " + request.targetNickName() + "님을 비난하였습니다!";
+
+		// FCM 푸시 발송
+		eventPublisher.publishEvent(new FcmPushEvent(
+			request.targetUserId(),
+			pokeMessage
+		));
+
+		return new PokeResponseDto(request.targetUserId(), request.targetNickName(), request.pokeType());
+	}
+
+	// 이모티콘 리액션 (Emoji Broadcast)
+	@MessageMapping("/meeting/{meetingId}/meeting-user/{meetingUserId}/emoji")
+	@SendTo("/sub/meeting/{meetingId}/emoji")
+	public EmojiResponseDto emoji(
+		@DestinationVariable Long meetingId,
+		@DestinationVariable Long meetingUserId,
+		Principal principal,
+		EmojiRequestDto request
+	) {
+		Authentication authentication = (Authentication)principal;
+		User user = (User)authentication.getPrincipal();
+
+		return new EmojiResponseDto(meetingUserId, user.getNickName(), request.emoji());
 	}
 }

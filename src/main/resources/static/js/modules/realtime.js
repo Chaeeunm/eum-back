@@ -40,6 +40,15 @@ let lastConnectedMeetingId = null;
 let watchId = null;
 let latestPosition = null;
 let lastSentAt = 0;
+
+// Emoji mapping
+const EMOJI_MAP = {
+    RUNNING: '🏃', ANGRY: '😡', CRYING: '😢', LAUGHING: '😄',
+    YAWNING: '🥱', SLEEPING: '😴', CHEERING: '📣'
+};
+
+// Emoji bubble cleanup timers
+const emojiBubbleTimers = {};
 import { apiRequest } from '../core/api.js';
 import { showToast } from '../ui/toast.js';
 import { showModal, hideModal } from '../ui/modal.js';
@@ -140,7 +149,27 @@ export function connectWebSocket(meetingId, onConnected) {
             }
         });
 
-        // 4. Request initial data
+        // 4. Subscribe to poke broadcast
+        client.subscribe(`/sub/meeting/${meetingId}/poke`, function(message) {
+            const pokeData = JSON.parse(message.body);
+            if (pokeData) {
+                const pokeMessage = pokeData.pokeType === 'URGE'
+                    ? `👋 ${pokeData.nickName}님이 재촉 당했습니다!`
+                    : `😤 ${pokeData.nickName}님이 비난 당했습니다!`;
+                showToast(pokeMessage, 'default');
+            }
+        });
+
+        // 5. Subscribe to emoji broadcast
+        client.subscribe(`/sub/meeting/${meetingId}/emoji`, function(message) {
+            const emojiData = JSON.parse(message.body);
+            if (emojiData) {
+                showEmojiBubbleOnMarker(emojiData.meetingUserId, emojiData.emoji);
+                showEmojiOnAvatar(emojiData.meetingUserId, emojiData.emoji);
+            }
+        });
+
+        // 6. Request initial data
         client.send(`/pub/meeting/${meetingId}/init`, {}, '{}');
 
         if (onConnected) onConnected();
@@ -284,6 +313,9 @@ export function initRealtimePage() {
 
     // Display initial markers for all members with lastLat/lastLng
     displayInitialMemberMarkers();
+
+    // Initialize emoji bar and poke listeners
+    initEmojiAndPokeListeners();
 
     // Update departure control buttons
     updateDepartureControl();
@@ -530,6 +562,9 @@ function renderRealtimeMemberList() {
             subText = `마지막 접속 ${lastSeenTime}`;
         }
 
+        // 미도착 + 본인이 아닌 유저에게 재촉/비난 버튼 표시
+        const showPoke = !isCurrentUser && user.movementStatus !== 'ARRIVED';
+
         return `
             <div class="realtime-member-item ${statusInfo.itemClass}${isCurrentUser ? ' current-user' : ''}${isActive ? ' active' : ' inactive'}" data-meeting-user-id="${user.meetingUserId}">
                 <div class="realtime-member-avatar-wrap">
@@ -543,6 +578,12 @@ function renderRealtimeMemberList() {
                     </div>
                     <span class="realtime-member-status">${subText}</span>
                 </div>
+                ${showPoke ? `
+                <div class="poke-actions">
+                    <button class="btn-poke" data-target-user-id="${user.userId}" data-target-nickname="${user.nickName}" data-poke-type="URGE" title="재촉">👋</button>
+                    <button class="btn-poke" data-target-user-id="${user.userId}" data-target-nickname="${user.nickName}" data-poke-type="BLAME" title="비난">😤</button>
+                </div>
+                ` : ''}
                 <div class="status-badge ${statusInfo.badgeClass}">${statusInfo.badge}</div>
                 <div class="member-distance" data-meeting-user-id="${user.meetingUserId}">-</div>
             </div>
@@ -808,6 +849,145 @@ export function exitRealtimePage() {
 
     if (showPageHandler) {
         showPageHandler('detail');
+    }
+}
+
+// ================================
+// Poke & Emoji Functions
+// ================================
+
+// Send poke via WebSocket (10초 쿨다운)
+let lastPokeTime = 0;
+function sendPoke(targetUserId, targetNickName, pokeType) {
+    if (!stompClient || !isConnected || !currentMeetingId) return;
+
+    const now = Date.now();
+    if (now - lastPokeTime < 10000) {
+        const remaining = Math.ceil((10000 - (now - lastPokeTime)) / 1000);
+        showToast(`${remaining}초 후에 다시 보낼 수 있습니다.`, 'default');
+        return;
+    }
+    lastPokeTime = now;
+
+    stompClient.send(
+        `/pub/meeting/${currentMeetingId}/poke`,
+        {},
+        JSON.stringify({ targetUserId, targetNickName, pokeType })
+    );
+    showToast(pokeType === 'URGE' ? '재촉을 보냈습니다!' : '비난을 보냈습니다!', 'default');
+}
+
+// Send emoji via WebSocket
+function sendEmoji(emoji) {
+    if (!stompClient || !isConnected || !currentMeetingId) return;
+    stompClient.send(
+        `/pub/meeting/${currentMeetingId}/meeting-user/${currentMeetingUserId}/emoji`,
+        {},
+        JSON.stringify({ emoji })
+    );
+}
+
+// Show emoji bubble above map marker
+function showEmojiBubbleOnMarker(meetingUserId, emoji) {
+    const marker = realtimeMarkers[meetingUserId];
+    if (!marker) return;
+
+    const emojiChar = EMOJI_MAP[emoji] || emoji;
+
+    // Get or create marker content element
+    const content = marker.getContent();
+    if (typeof content !== 'string') return;
+
+    // Clear existing timer
+    if (emojiBubbleTimers[meetingUserId]) {
+        clearTimeout(emojiBubbleTimers[meetingUserId]);
+    }
+
+    // Inject bubble into marker content
+    const bubbleHtml = `<div class="marker-emoji-bubble">${emojiChar}</div>`;
+    const newContent = content.replace(
+        /<div class="marker-emoji-bubble">.*?<\/div>/g, ''
+    ).replace(
+        '<div class="realtime-member-marker',
+        bubbleHtml + '<div class="realtime-member-marker'
+    );
+    marker.setContent(newContent);
+
+    // Remove bubble after 3 seconds
+    emojiBubbleTimers[meetingUserId] = setTimeout(() => {
+        const currentContent = marker.getContent();
+        if (typeof currentContent === 'string') {
+            marker.setContent(currentContent.replace(/<div class="marker-emoji-bubble">.*?<\/div>/g, ''));
+        }
+    }, 3000);
+}
+
+// Show emoji on member list avatar temporarily
+function showEmojiOnAvatar(meetingUserId, emoji) {
+    const itemEl = document.querySelector(`.realtime-member-item[data-meeting-user-id="${meetingUserId}"]`);
+    if (!itemEl) return;
+
+    const avatarEl = itemEl.querySelector('.realtime-member-avatar');
+    if (!avatarEl) return;
+
+    const emojiChar = EMOJI_MAP[emoji] || emoji;
+    const originalContent = avatarEl.textContent;
+
+    // Replace avatar with emoji
+    avatarEl.textContent = emojiChar;
+    avatarEl.classList.add('avatar-emoji');
+
+    // Restore after 3 seconds
+    setTimeout(() => {
+        avatarEl.textContent = originalContent;
+        avatarEl.classList.remove('avatar-emoji');
+    }, 3000);
+}
+
+// Toggle emoji popup visibility
+export function toggleEmojiPopup() {
+    const popup = document.getElementById('emoji-popup');
+    if (!popup) return;
+    popup.classList.toggle('show');
+}
+
+// Initialize emoji popup and poke button event listeners
+function initEmojiAndPokeListeners() {
+    // Emoji popup buttons
+    const emojiPopup = document.getElementById('emoji-popup');
+    if (emojiPopup) {
+        emojiPopup.addEventListener('click', (e) => {
+            const btn = e.target.closest('.emoji-btn');
+            if (!btn) return;
+            const emoji = btn.dataset.emoji;
+            if (emoji) {
+                sendEmoji(emoji);
+                emojiPopup.classList.remove('show');
+            }
+        });
+    }
+
+    // Close emoji popup when clicking outside
+    document.addEventListener('click', (e) => {
+        const popup = document.getElementById('emoji-popup');
+        const toggleBtn = document.getElementById('emoji-toggle-btn');
+        if (popup && popup.classList.contains('show') &&
+            !popup.contains(e.target) && !toggleBtn.contains(e.target)) {
+            popup.classList.remove('show');
+        }
+    });
+
+    // Poke buttons (delegated on member list)
+    const memberList = document.getElementById('realtime-member-list');
+    if (memberList) {
+        memberList.addEventListener('click', (e) => {
+            const btn = e.target.closest('.btn-poke');
+            if (!btn) return;
+            const targetUserId = Number(btn.dataset.targetUserId);
+            const targetNickname = btn.dataset.targetNickname;
+            const pokeType = btn.dataset.pokeType;
+            if (targetUserId && pokeType) sendPoke(targetUserId, targetNickname, pokeType);
+        });
     }
 }
 

@@ -9,6 +9,25 @@
             <!-- Member location list rendered here -->
         </div>
     </main>
+    <div id="emoji-control" class="emoji-control dropdown-wrapper">
+        <button id="emoji-toggle-btn" class="btn btn-icon btn-emoji-toggle" onclick="toggleEmojiPopup()">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"></circle>
+                <path d="M8 14s1.5 2 4 2 4-2 4-2"></path>
+                <line x1="9" y1="9" x2="9.01" y2="9"></line>
+                <line x1="15" y1="9" x2="15.01" y2="9"></line>
+            </svg>
+        </button>
+        <div id="emoji-popup" class="dropdown-menu emoji-dropdown">
+            <button class="emoji-btn" data-emoji="RUNNING" title="달리기">🏃</button>
+            <button class="emoji-btn" data-emoji="ANGRY" title="화나는">😡</button>
+            <button class="emoji-btn" data-emoji="CRYING" title="우는">😢</button>
+            <button class="emoji-btn" data-emoji="LAUGHING" title="웃는">😄</button>
+            <button class="emoji-btn" data-emoji="YAWNING" title="하품">🥱</button>
+            <button class="emoji-btn" data-emoji="SLEEPING" title="잠자는">😴</button>
+            <button class="emoji-btn" data-emoji="CHEERING" title="응원">📣</button>
+        </div>
+    </div>
     <div id="departure-control" class="departure-control">
         <!-- 출발 버튼 (조회 모드일 때) -->
         <button id="departure-start-btn" class="btn btn-departure-start" onclick="startDepartureFromRealtime()">

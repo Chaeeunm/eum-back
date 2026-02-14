@@ -7,8 +7,10 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.event.TransactionPhase;
 import org.springframework.transaction.event.TransactionalEventListener;
 
+import com.eum.eum.meeting.event.FcmPushEvent;
 import com.eum.eum.meeting.event.MovementStatusChangedEvent;
 import com.eum.eum.webpush.FcmService;
+import com.eum.eum.webpush.PushSubscription;
 import com.eum.eum.webpush.PushSubscriptionRepository;
 
 import lombok.RequiredArgsConstructor;
@@ -47,5 +49,14 @@ public class PushNotificationEventListener {
 		log.info("알림 대상 토큰 수: {}", tokens.size());
 
 		tokens.forEach(token -> fcmService.send(token, "이음", body));
+	}
+
+	@Async
+	@TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
+	public void handleFcmPush(FcmPushEvent event) {
+		List<PushSubscription> tokens = pushSubscriptionRepository.findAllByUserId(event.getTargetUserId());
+		if (tokens != null && !tokens.isEmpty()) {
+			tokens.forEach(token -> fcmService.send(token.getFcmToken(), "이음", event.getMessage()));
+		}
 	}
 }

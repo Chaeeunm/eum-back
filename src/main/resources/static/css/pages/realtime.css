@@ -355,3 +355,137 @@
 .realtime-member-item.arrived .realtime-member-avatar {
     background: var(--gradient-success);
 }
+
+/* ================================
+   Emoji Control (reuses dropdown-wrapper + dropdown-menu)
+   ================================ */
+
+.emoji-control {
+    position: fixed;
+    top: 70px;
+    left: 16px;
+    z-index: 100;
+}
+
+.btn-emoji-toggle {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: var(--gradient-primary);
+    color: white;
+    box-shadow: 0 2px 8px rgba(var(--primary-purple-rgb), 0.3);
+}
+
+.btn-emoji-toggle:hover {
+    color: white;
+    box-shadow: 0 4px 12px rgba(var(--primary-purple-rgb), 0.4);
+}
+
+/* Override dropdown-menu positioning for emoji popup */
+.emoji-dropdown {
+    top: calc(100% + 8px);
+    left: 0;
+    right: auto;
+    display: flex;
+    gap: 4px;
+    padding: 8px;
+    min-width: auto;
+}
+
+.emoji-btn {
+    width: 46px;
+    height: 46px;
+    border-radius: 50%;
+    border: none;
+    background: transparent;
+    font-size: 26px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.emoji-btn:hover {
+    background: var(--surface-secondary);
+    transform: scale(1.15);
+}
+
+.emoji-btn:active {
+    transform: scale(0.9);
+}
+
+/* ================================
+   Poke Buttons
+   ================================ */
+
+.poke-actions {
+    display: flex;
+    gap: 4px;
+    flex-shrink: 0;
+}
+
+.btn-poke {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    border: none;
+    background: rgba(var(--secondary-rgb), 0.1);
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+}
+
+.btn-poke:hover {
+    background: rgba(var(--secondary-rgb), 0.2);
+    transform: scale(1.1);
+}
+
+.btn-poke:active {
+    transform: scale(0.9);
+}
+
+/* ================================
+   Marker Emoji Bubble
+   ================================ */
+
+.marker-emoji-bubble {
+    position: absolute;
+    top: -36px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: white;
+    border-radius: 12px;
+    padding: 4px 8px;
+    font-size: 20px;
+    box-shadow: var(--shadow);
+    animation: emojiBubbleIn 0.3s ease forwards;
+    z-index: 10;
+    pointer-events: none;
+    white-space: nowrap;
+}
+
+@keyframes emojiBubbleIn {
+    0% {
+        opacity: 0;
+        transform: translateX(-50%) translateY(8px) scale(0.5);
+    }
+    100% {
+        opacity: 1;
+        transform: translateX(-50%) translateY(0) scale(1);
+    }
+}
+
+/* ================================
+   Avatar Emoji Overlay
+   ================================ */
+
+.realtime-member-avatar.avatar-emoji {
+    font-size: 22px;
+    background: var(--surface-secondary);
+}
