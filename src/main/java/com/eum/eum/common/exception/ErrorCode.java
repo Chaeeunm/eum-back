@@ -23,12 +23,12 @@ public enum ErrorCode {
 	USER_NOT_FOUND(
 		HttpStatus.NOT_FOUND,
 		"AUTH-001",
-		"사용자를 찾을 수 없습니다. (이메일: {0})"
+		"사용자를 찾을 수 없습니다. (아이디: {0})"
 	),
 	USER_ALREADY_EXISTS(
 		HttpStatus.BAD_REQUEST,
 		"AUTH-002",
-		"이미 존재하는 회원입니다. (이메일: {0})"
+		"이미 존재하는 회원입니다. (아이디: {0})"
 	),
 	INVALID_REFRESH_TOKEN(
 		HttpStatus.UNAUTHORIZED,
@@ -48,7 +48,7 @@ public enum ErrorCode {
 	INVALID_CREDENTIALS(
 		HttpStatus.UNAUTHORIZED,
 		"AUTH-006",
-		"이메일 또는 비밀번호가 올바르지 않습니다."
+		"아이디 또는 비밀번호가 올바르지 않습니다."
 	),
 	INVALID_TOKEN(
 		HttpStatus.UNAUTHORIZED,

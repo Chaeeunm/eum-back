@@ -44,7 +44,7 @@ public class AuthService {
 	 * 인증 성공 시 Access Token을 반환하고 Refresh Token을 HttpOnly 쿠키에 저장
 	 *
 	 * @param response HTTP 응답 객체 (Refresh Token 쿠키 설정용)
-	 * @param requestDto 로그인 요청 정보 (이메일, 비밀번호)
+	 * @param requestDto 로그인 요청 정보 (아이디, 비밀번호)
 	 * @return Access Token과 사용자 정보
 	 * @throws BusinessException 사용자를 찾을 수 없거나 인증 실패 시
 	 */
@@ -86,9 +86,9 @@ public class AuthService {
 	 *
 	 * 새로운 사용자를 등록하고 기본 권한(USER)을 부여
 	 *
-	 * @param requestDto 회원가입 요청 정보 (이메일, 비밀번호, 닉네임)
+	 * @param requestDto 회원가입 요청 정보 (아이디, 비밀번호, 닉네임)
 	 * @return 생성된 사용자 정보
-	 * @throws BusinessException 이미 존재하는 이메일인 경우
+	 * @throws BusinessException 이미 존재하는 아이디인 경우
 	 */
 	@Transactional
 	public UserResponseDto signup(SignupRequestDto requestDto) {

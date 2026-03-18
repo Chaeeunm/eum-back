@@ -16,7 +16,10 @@ import com.eum.eum.webpush.PushSubscriptionRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
+import org.springframework.context.annotation.Profile;
+
 @Component
+@Profile("!local")
 @RequiredArgsConstructor
 @Slf4j
 public class PushNotificationEventListener {

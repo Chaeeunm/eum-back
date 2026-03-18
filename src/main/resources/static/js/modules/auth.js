@@ -35,6 +35,12 @@ export async function login(event) {
     const email = form.email.value;
     const password = form.password.value;
 
+    // 아이디 형식 검증
+    if (!isValidUserId(email)) {
+        showToast('아이디는 4자 이상, 영문/숫자/@,.! 만 사용 가능합니다', 'error');
+        return;
+    }
+
     try {
         const response = await fetch(API_BASE + '/api/auth/login', {
             method: 'POST',
@@ -75,11 +81,10 @@ export async function login(event) {
     }
 }
 
-// Email validation helper
-function isValidEmail(email) {
-    // 이메일 형식: 영문/숫자@영문/숫자.영문 (최소 2자)
-    const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-    return emailRegex.test(email);
+// 아이디 validation helper (5자 이상, 영문/숫자/@,.! 만 허용)
+function isValidUserId(userId) {
+    const userIdRegex = /^[a-zA-Z0-9@,.!]{4,}$/;
+    return userIdRegex.test(userId);
 }
 
 // Signup
@@ -91,9 +96,9 @@ export async function signup(event) {
     const nickName = form.nickName.value;
     const password = form.password.value;
 
-    // 이메일 형식 검증
-    if (!isValidEmail(email)) {
-        showToast('올바른 이메일 형식을 입력해주세요 (예: user@example.com)', 'error');
+    // 아이디 형식 검증
+    if (!isValidUserId(email)) {
+        showToast('아이디는 4자 이상, 영문/숫자/@,.! 만 사용 가능합니다', 'error');
         return;
     }
 

@@ -11,7 +11,10 @@ import com.google.firebase.messaging.Notification;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
+import org.springframework.context.annotation.Profile;
+
 @Service
+@Profile("!local")
 @RequiredArgsConstructor
 @Slf4j
 public class FcmService {

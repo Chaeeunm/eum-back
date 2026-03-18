@@ -15,9 +15,12 @@ import com.google.firebase.FirebaseApp;
 import com.google.firebase.FirebaseOptions;
 import com.google.firebase.messaging.FirebaseMessaging;
 
+import org.springframework.context.annotation.Profile;
+
 import lombok.extern.slf4j.Slf4j;
 
 @Configuration
+@Profile("!local")
 @Slf4j
 public class FcmConfig {
 
